@@ -1,0 +1,16 @@
+﻿{
+  "name": "Radar TÃ¡ctico MTB",
+  "short_name": "Radar MTB",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#00CC96",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3163/3163478.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
