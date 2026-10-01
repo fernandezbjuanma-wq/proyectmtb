@@ -1,94 +1,80 @@
-# 🚵‍♂️ Radar Táctico MTB - Roadmap de Evolución Futura
-**Documento Maestro de Innovación e Integración de Ecosistemas Líderes**
+# 🚵‍♂️ RADAR TÁCTICO MTB - ROADMAP DEFINITIVO (VISIÓN + ARQUITECTURA)
+**Documento Central para el Agente de Desarrollo (Antigravity)**
 
-Este documento consolida las mejores prácticas y funcionalidades disruptivas de las aplicaciones más avanzadas del mercado ciclista mundial para ser incorporadas progresivamente en el **Radar Táctico MTB**.
-
----
-
-## 1. 🥑 Módulo Nua Coach: IA de Nutrición Dinámica y Recuperación
-*Inspirado en Nua Coach*
-
-### Objetivo:
-Unir el entrenamiento y la nutrición en un solo ecosistema sin depender de suscripciones externas.
-
-### Funcionalidades a Implementar:
-1. **Asistente Nutricional Post-Entrenamiento:**
-   - En el informe final, calcular el gasto calórico real y el vaciamiento de glucógeno en base al Desnivel ($+D$), la pendiente media y el TSS acumulado.
-   - Pautas de recarga específicas:
-     - **Carbohidratos inmediatos:** Gramos exactos de carbohidratos a consumir en la ventana de las primeras 2 horas post-entreno (ej: *85g de carbohidratos de rápida asimilación*).
-     - **Hidratación y Sales:** Mililitros de agua y miligramos de sodio requeridos según la duración y el calor.
-     - **Cena de recuperación:** Sugerencia de alimentos reales (arroz, papa, pastas, proteínas limpias) en función de si al día siguiente toca descanso o fondo.
-2. **Consejero de Fatiga Subjetiva:**
-   - Una pregunta rápida de 1 toque al cerrar: *"¿Cómo te sentiste del 1 al 5?"*. La IA adapta el descanso sugerido en consecuencia.
+**Instrucción para la IA:** Este documento detalla la visión del producto (la experiencia del usuario) y las especificaciones técnicas obligatorias. La app debe construirse como una PWA Mobile-First, priorizando el rendimiento de batería, la persistencia offline y la alta legibilidad bajo el sol.
 
 ---
 
-## 2. ⚡ Módulo Bike IQ: Estimación de Potencia Virtual (Watts) sin Sensores
-*Inspirado en Bike IQ*
+## 🔴 PRIORIDAD 1: CIMIENTOS Y CORE TÁCTICO
 
-### Objetivo:
-Obtener métricas profesionales de potencia (Vatios) y cadencia estimada utilizando únicamente la física y los sensores nativos del teléfono (GPS + Acelerómetro + Barómetro).
+### 1. Arquitectura UI/UX y Diseño Visual
+*   **La Idea (Visión):** Navegación fluida estilo Strava con 4 pestañas fijas en la base (Preparación, Radar Live, Laboratorio, Historial). Diseño en "Modo Oscuro Premium" inspirado en la naturaleza (cielo nocturno, agua y bosque).
+*   **Implementación Técnica:** SPA (Single Page Application) usando Bottom Navigation Bar. CSS Grid/Flexbox puro. Variables de color: Fondo `#1a1a24` (Escorpio/Acuario), Tarjetas `#2d3748`, Acentos/Navegación `#20c997` (Cáncer), y Botones/Alertas `#1e5631` y `#d4af37` (Virgo).
 
-### Modelo Matemático de Potencia Ciclista:
-$$P_{total} = P_{gravedad} + P_{rodadura} + P_{aerodinámica}$$
-- **$P_{gravedad}$**: $m \cdot g \cdot \sin(\theta) \cdot v$ (calculado con nuestro filtro suavizado de pendiente y masa estimada bici + ciclista).
-- **$P_{rodadura}$**: Resistencia de rodadura del neumático MTB en tierra/ripio ($C_{rr} \approx 0.008$).
-- **$P_{aerodinámica}$**: $0.5 \cdot \rho \cdot C_d A \cdot v^3$ (fricción del viento según la velocidad del GPS).
+### 2. Blindaje de GPS y Background Keep-Alive
+*   **La Idea (Visión):** La app no debe apagarse ni dejar de grabar al bloquear la pantalla en el bolsillo. Debe filtrar "saltos fantasmas" si se pierde señal bajo los árboles en el cerro.
+*   **Implementación Técnica:** Usar `AudioContext` inaudible para evitar la suspensión del hilo JS. Filtrar `geolocation.watchPosition` descartando `accuracy > 25m`, aceleraciones irreales, y pausando el odómetro a `< 1.2 km/h`.
 
-### En pantalla:
-- Mostrar en vivo los **Watts estimados** en una caja de telemetría dinámica sin necesidad de gastar $800 USD en un potenciómetro físico.
+### 3. Mapas Especializados y Marcador
+*   **La Idea (Visión):** Mapas tácticos (senderos, topografía) reemplazando el pin clásico por un ícono de ciclista dinámico.
+*   **Implementación Técnica:** Librería `Leaflet.js`. Marcador `L.icon` rotatorio. Integrar tres TileLayers: CyclOSM, OpenTopoMap y ESRI.
 
----
-
-## 3. 🎯 Módulo MyWhoosh: Entrenamientos Estructurados en la Montaña
-*Inspirado en MyWhoosh y Zwift*
-
-### Objetivo:
-Llevar la disciplina y la precisión de los rodillos indoor directamente a los senderos y trepadas reales.
-
-### Funcionalidades a Implementar:
-1. **Modo "Series de Fuerza en Subida":**
-   - El ciclista selecciona: *"4 pasadas de 2 minutos al 100% con 2 minutos de recuperación"*.
-2. **Entrenador de Voz Dinámico:**
-   - *"Preparate. Serie 1 en 10 segundos... 3, 2, 1... ¡A fondo! Mantené cadencia firme."*
-   - Pitidos tácticos de cuenta regresiva para no tener que mirar la pantalla en tramos técnicos o rocosos.
+### 4. Laboratorio Post-Entrenamiento
+*   **La Idea (Visión):** Informe profundo (Garmin/TrainingPeaks) con carga de entrenamiento, zonas de esfuerzo, y detección de la pared más empinada del día.
+*   **Implementación Técnica:** Fórmulas de Carga (TSS/IF). Algoritmo que procese el array de altitudes calculando la pendiente máxima cada 100m para extraer el Insight estilo VeloViewer.
 
 ---
 
-## 4. 📈 Módulo Intervals.icu & Elevate: Fitness, Fatiga y Forma (PMC)
-*Inspirado en Intervals.icu, Elevate y Golden Cheetah*
+## 🟠 PRIORIDAD 2: ECOSISTEMA DE DATOS Y CONECTIVIDAD
 
-### Objetivo:
-Visualizar el estado fisiológico a largo plazo procesando todo **100% de forma local en el teléfono** sin enviar tus datos privados a servidores externos.
+### 5. Persistencia Offline y Nube
+*   **La Idea (Visión):** Guardado asegurado en la montaña sin internet. Subida automática a la nube al enganchar Wi-Fi/4G.
+*   **Implementación Técnica:** Arquitectura Offline-First con `IndexedDB`. Integración con SDK Firebase Firestore ejecutando la sincronización con un event listener de `online`.
 
-### Gráfico PMC (Performance Management Chart):
-- **Fitness (CTL - Carga Crónica):** Estado de forma acumulado en los últimos 42 días.
-- **Fatiga (ATL - Carga Aguda):** Cansancio acumulado en los últimos 7 días.
-- **Forma / Frescura (TSB = CTL - ATL):** Te indica si estás en tu *"zona de oro"* para salir a romper récords o si estás en riesgo de sobreentrenamiento y lesión.
+### 6. Ecosistema Strava (Integración y Extracción Ligera)
+*   **La Idea (Visión):** Subida automática a Strava al terminar (sincronización bidireccional). Además, una herramienta para pegar un link de Strava y extraer la ruta para analizarla sin descargar archivos.
+*   **Implementación Técnica:** Flujo OAuth 2.0 y endpoint `POST /uploads` de Strava API. Para extracción: usar API pública o un scraper ligero para parsear los datos de una URL de actividad.
 
----
-
-## 5. ⛅ Módulo Epic Ride Weather: Microclima Táctico por Kilómetro
-*Inspirado en Epic Ride Weather*
-
-### Objetivo:
-Saber exactamente qué viento y temperatura te esperan en la cima antes de que empieces a subir.
-
-### Funcionalidades:
-- Integración con APIs meteorológicas abiertas (Open-Meteo).
-- Proyección en la ruta GPX: viento a favor o en contra estimado según la orientación del sendero.
+### 7. Telemetría y Radar Grupal
+*   **La Idea (Visión):** Compartir tu ubicación en vivo por un link de WhatsApp (Baliza SOS/Seguridad para que Cona o tu familia vean por dónde andás) y ver en tu mapa a los amigos que pedalean con vos (Radar de Escuadrón con Facundo y el grupo).
+*   **Implementación Técnica:** Firebase Realtime Database. Emitir payload `{lat, lng, id}` y actualizar marcadores secundarios en Leaflet para usuarios suscritos al mismo grupo.
 
 ---
 
-## 6. 📐 Módulo BFF Elite: Plomada Biomecánica de Bolsillo
-*Inspirado en Bike Fast Fit*
+## 🟡 PRIORIDAD 3: SEGURIDAD, ASISTENCIA Y BIOMECÁNICA
 
-### Objetivo:
-Ajustar la bicicleta en mitad de la montaña si aparecen molestias de rodilla o espalda.
+### 8. Escuadrón de Agentes IA (Ciclo de Entrenamiento)
+*   **La Idea (Visión):** "Estratega" previo (Consultar al Coach) para nutrición/presión de cubiertas. "Táctico" en vivo para pautas de hidratación y alimentación. "Recuperador" post-ruta para el descanso tras enviar el JSON al recuperar conexión.
+*   **Implementación Técnica:** Llamadas a API LLM (Gemini/ChatGPT). Fórmulas matemáticas de interpolación (Motor SILCA) para presión. Motor Táctico usando `setInterval` y telemetría cruzada (TSS/clima) para emitir comandos de voz.
 
-### Funcionalidades:
-- Herramienta visual con el giroscopio y nivel del teléfono para medir la inclinación del sillín (0° neutro).
-- Guía rápida de plomada con la cámara para verificar la posición de la rodilla respecto al eje del pedal.
+### 9. Baliza Táctica SOS (Detección de Caídas)
+*   **La Idea (Visión):** Alarma por impacto fuerte e inmovilidad. Envío de SMS con coordenadas GPS a contacto de emergencia si no se cancela.
+*   **Implementación Técnica:** Sensor `devicemotion`. Si vector G > umbral e inmovilidad de 30s -> alarma sonora y generar URI `sms:[numero]?body=[Coordenadas]`.
+
+### 10. Escáner Biomecánico Cinético (MyBikeFitting)
+*   **La Idea (Visión):** Grabarse pedaleando con el celu apoyado para medir el ángulo de la rodilla y saber si el asiento está bien ajustado.
+*   **Implementación Técnica:** Acceso a `getUserMedia`. Superponer un `<canvas>` sobre el `<video>` usando APIs de dibujo 2D para trazar plomadas y ángulos en tiempo real.
 
 ---
-*Guardado permanentemente en el repositorio del proyecto para su desarrollo en las próximas versiones.*
+
+## 🟢 PRIORIDAD 4: GAMIFICACIÓN Y HARDWARE VIRTUAL
+
+### 11. Segmentos Privados y Medallas PR
+*   **La Idea (Visión):** Marcar tus propios sectores. La app te cronometra en silencio y te da medallas (Oro, Plata, Bronce) si rompés tus propios récords (PRs).
+*   **Implementación Técnica:** Algoritmos geoespaciales (`turf.js`). Definir radio de tolerancia (20m) en puntos de inicio/fin. Guardar historial local y renderizar UI de medallas según ranking.
+
+### 12. Fantasma de Rendimiento (Ghost Pacer)
+*   **La Idea (Visión):** Competir en vivo contra tu mejor tiempo pasado en una ruta, con alertas de audio de ventajas o desventajas de tiempo.
+*   **Implementación Técnica:** Parseo de archivo `.gpx` propio. Interpolación constante del tiempo/distancia del track cargado vs. la ubicación actual de `watchPosition`.
+
+### 13. Entrenador Táctico de Voz con "Audio Ducking"
+*   **La Idea (Visión):** Que la app te hable las instrucciones de terreno bajando automáticamente el volumen de tu música de Spotify.
+*   **Implementación Técnica:** Usar `window.speechSynthesis`. Implementar alertas nativas que fuercen la atenuación (ducking) del sistema operativo móvil antes de reproducir el mensaje.
+
+### 14. Odómetro Mecánico de la Bicicleta (Mantenimiento Predictivo)
+*   **La Idea (Visión):** Control de desgaste. Un asistente que te avise cuándo cambiar cadena o pastillas cruzando los kilómetros con el estrés de las trepadas.
+*   **Implementación Técnica:** JSON local en Firestore para registrar fechas/km de componentes. Lógica matemática que reste vida útil acelerando el desgaste según el TSS/desnivel acumulado.
+
+### 15. Conversor MapsToGPX y Widget ClimbPro
+*   **La Idea (Visión):** Pegar un enlace de Google Maps y que la app dibuje las montañas y pendientes de los próximos 1.5 km al instante.
+*   **Implementación Técnica:** Regex (Expresiones Regulares) para extraer coordenadas de la URL de Google Maps y pasarlas como array de waypoints al Canvas del trazador de altimetría.
