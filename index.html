@@ -194,8 +194,15 @@
         .badge-sync-wait { background: #2e2613; border: 1px solid #FECB52; color: #FECB52; padding: 2px 6px; border-radius: 10px; font-size: 10px; font-weight: bold; }
         .btn-nube-action { background: #162430; border: 1px solid #4DA8DA; color: #4DA8DA; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; transition: 0.2s; }
 
+        /* Ranura Plegable de Ajustes y Herramientas de Cabina */
+        .ranura-cockpit-contenedor { max-width: 440px; margin: 0 auto 12px auto; }
+        .btn-ranura-toggle { width: 100%; background: #1c2430; border: 1px dashed #3b4758; color: #8fa0b5; font-size: 11px; font-weight: bold; padding: 6px 14px; border-radius: 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s ease; box-sizing: border-box; }
+        .btn-ranura-toggle:hover { border-color: #4DA8DA; color: #fff; background: #232f3e; }
+        .panel-cockpit-contenido { background: #141722; border: 1px solid #2d3748; border-radius: 12px; padding: 10px; margin-top: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); animation: fadeInRanura 0.2s ease; }
+        @keyframes fadeInRanura { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
         /* Controles de Cockpit / Manubrio */
-        .toolbar-cockpit { display: flex; justify-content: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+        .toolbar-cockpit { display: flex; justify-content: center; gap: 8px; margin: 0; flex-wrap: wrap; }
         .btn-cockpit { background: #2d3748; border: 1px solid #3b4758; color: #ddd; font-size: 11px; padding: 6px 12px; border-radius: 20px; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .btn-cockpit:hover { border-color: #20c997; }
         .btn-cockpit.activo { background: #FECB52; color: #121212; border-color: #FECB52; }
@@ -543,14 +550,22 @@
             <div id="ui-cloud-status" style="color: #4DA8DA; cursor: pointer;" onclick="abrirConfigNube()">☁️ Nube Lista</div>
         </div>
 
-        <!-- Barra de Controles Cockpit / Manubrio + SOS WhatsApp -->
-        <div class="toolbar-cockpit">
-            <button id="btn-solar" class="btn-cockpit" onclick="toggleModoSolar()">☀️ Modo Solar</button>
-            <button id="btn-bloqueo" class="btn-cockpit" onclick="activarBloqueoPantalla()">🔒 Bloqueo Sudor</button>
-            <button id="btn-toggle-vehiculo" class="btn-cockpit" onclick="toggleModoVehiculoPermitido()" style="color: #20c997; border-color: #20c997;">🚲 Modo Bici Puro</button>
-            <button id="btn-ghost" class="btn-cockpit" onclick="abrirModalGhostPacer()">👻 Ghost Pacer</button>
-            <button id="btn-escuadron" class="btn-cockpit" onclick="abrirModalEscuadron()">👥 Escuadrón</button>
-            <button id="btn-sos" class="btn-cockpit" onclick="compartirUbicacionWhatsApp()" style="border-color: #EF553B; color: #EF553B;">🚨 SOS WhatsApp</button>
+        <!-- Ranura Plegable de Ajustes y Herramientas de Cabina -->
+        <div class="ranura-cockpit-contenedor">
+            <button id="btn-toggle-ranura-cockpit" class="btn-ranura-toggle" onclick="toggleRanuraCockpit()">
+                <span>⚙️ Ajustes de Cabina y Herramientas</span>
+                <span id="ranura-flecha-indicador" style="transition: transform 0.3s; font-size: 10px;">▼</span>
+            </button>
+            <div id="panel-cockpit-desplegable" class="panel-cockpit-contenido" style="display: none;">
+                <div class="toolbar-cockpit">
+                    <button id="btn-solar" class="btn-cockpit" onclick="toggleModoSolar()">☀️ Modo Solar</button>
+                    <button id="btn-bloqueo" class="btn-cockpit" onclick="activarBloqueoPantalla()">🔒 Bloqueo Sudor</button>
+                    <button id="btn-toggle-vehiculo" class="btn-cockpit" onclick="toggleModoVehiculoPermitido()" style="color: #20c997; border-color: #20c997;">🚲 Modo Bici Puro</button>
+                    <button id="btn-ghost" class="btn-cockpit" onclick="abrirModalGhostPacer()">👻 Ghost Pacer</button>
+                    <button id="btn-escuadron" class="btn-cockpit" onclick="abrirModalEscuadron()">👥 Escuadrón</button>
+                    <button id="btn-sos" class="btn-cockpit" onclick="compartirUbicacionWhatsApp()" style="border-color: #EF553B; color: #EF553B;">🚨 SOS WhatsApp</button>
+                </div>
+            </div>
         </div>
 
         <!-- Widget Plan de Entrenamiento IA Activo (Fases guiadas en vivo) -->
@@ -2530,6 +2545,20 @@
         // ========================================================
         // CONTROLES DE COCKPIT / MANUBRIO (Modo Solar y Bloqueo)
         // ========================================================
+        function toggleRanuraCockpit() {
+            const panel = document.getElementById('panel-cockpit-desplegable');
+            const flecha = document.getElementById('ranura-flecha-indicador');
+            if (!panel) return;
+            const estaCerrado = panel.style.display === 'none';
+            if (estaCerrado) {
+                panel.style.display = 'block';
+                if (flecha) flecha.style.transform = 'rotate(180deg)';
+            } else {
+                panel.style.display = 'none';
+                if (flecha) flecha.style.transform = 'rotate(0deg)';
+            }
+        }
+
         function toggleModoSolar() {
             modoSolarActivo = !modoSolarActivo;
             const body = document.body;
