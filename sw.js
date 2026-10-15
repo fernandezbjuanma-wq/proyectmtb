@@ -1,5 +1,5 @@
-// sw.js - Service Worker para Radar Táctico MTB v6
-const CACHE_NAME = 'mtb-radar-v6';
+// sw.js - Service Worker para Radar Táctico MTB v7
+const CACHE_NAME = 'mtb-radar-v7';
 
 const urlsToCache = [
   './',

@@ -1189,6 +1189,8 @@
         let ultimoAvisoCoachTerreno = 0;
         const COOLDOWN_COACH_TERRENO_SEG = 35;
         let ultimoEstadoTerreno = '';
+        let altitudBaseHitoCoach = null;
+        let ultimoAvisoParedDistancia = 0;
 
         // Planificador de Entrenamientos IA (Coach Táctico)
         let planEntrenamientoSeleccionado = 'ESCALADA';
@@ -1851,6 +1853,7 @@
         // ========================================================
         function iniciarRecorrido() {
             desbloquearAudiosMobile();
+            solicitarWakeLock();
             recorridoActivo = true;
 
             // Reiniciar estado de detección de vehículo
@@ -1862,6 +1865,15 @@
             avisoModoVehiculoDado = false;
             const badge = document.getElementById('badge-tipo-actividad');
             if (badge) badge.style.display = 'none';
+
+            // Reiniciar Coach de Terreno y Plan IA
+            altitudBaseHitoCoach = null;
+            ultimoAvisoCoachTerreno = 0;
+            ultimoAvisoParedDistancia = 0;
+            if (planEntrenamientoActivo) {
+                indiceFaseActual = 0;
+                segundoInicioFase = 0;
+            }
 
             // Reiniciar Potencia y Calorías
             potenciaActualWatts = 0;
@@ -1919,6 +1931,9 @@
             // Calcular TSS en vivo aproximado
             let tssActual = calcularTSS(segundosEnMovimiento, segundosZ1, segundosZ2, segundosZ3);
             document.getElementById('ui-tss').innerText = Math.round(tssActual);
+
+            // Actualizar cronómetro y fases del Plan de Entrenamiento IA
+            actualizarPlanEntrenamientoEnTiempo();
         }
 
         // ========================================================
@@ -2100,7 +2115,7 @@
             transmitirPosicionEscuadron(lat, lon, velocidadKmh, altitudActual);
 
             // 8. EVALUAR RITMO Y TERRENO EN VIVO (PACING COACH)
-            evaluarRitmoYTerreno(velocidadKmh, pendienteFiltrada);
+            evaluarRitmoYTerreno(velocidadKmh, pendienteFiltrada, altitudActual, lat, lon);
         }
 
         // ========================================================
@@ -2305,6 +2320,8 @@
             recorridoActivo = false;
             clearInterval(cronometro);
             detenerEmisionPrevia();
+            detenerKeepAliveAudio();
+            liberarWakeLock();
 
             // Cálculos finales de rendimiento
             let velMedia = segundosEnMovimiento > 0 ? (distanciaTotal / (segundosEnMovimiento / 3600)) : 0;
@@ -4137,6 +4154,288 @@
                 if (escuadronMarcadores['cona']) {
                     escuadronMarcadores['cona'].setLatLng([lat - 0.00045, lon - 0.00025]);
                 }
+            }
+        }
+
+        // ========================================================
+        // CONTROL COCKPIT: MODO VEHÍCULO MANUAL / MODO BICI PURO
+        // ========================================================
+        function toggleModoVehiculoPermitido() {
+            autoDeteccionVehiculo = !autoDeteccionVehiculo;
+            const btn = document.getElementById('btn-toggle-vehiculo');
+            if (autoDeteccionVehiculo) {
+                if (btn) {
+                    btn.innerText = "🚗 Auto-Detección ON";
+                    btn.style.color = "#FECB52";
+                    btn.style.borderColor = "#FECB52";
+                }
+                hablar("Detección de vehículo activada para pruebas en auto.");
+            } else {
+                if (btn) {
+                    btn.innerText = "🚲 Modo Bici Puro";
+                    btn.style.color = "#20c997";
+                    btn.style.borderColor = "#20c997";
+                }
+                esModoVehiculo = false;
+                tipoActividad = 'CICLISMO';
+                const badge = document.getElementById('badge-tipo-actividad');
+                if (badge) badge.style.display = 'none';
+                hablar("Modo Bici Puro asegurado. Las bajadas no activarán el modo auto.");
+            }
+        }
+
+        // ========================================================
+        // PLANIFICADOR TÁCTICO DE ENTRENAMIENTOS IA (COACH EN VIVO)
+        // ========================================================
+        const CONFIG_PLANES_IA = {
+            'ESCALADA': {
+                nombre: '🏔️ Escalada & Potencia (+D)',
+                duracionMin: 55,
+                resumenHTML: `• <strong>Fase 1 (10 min):</strong> Calentamiento suave.<br>• <strong>Fase 2 (35 min):</strong> Bloque de trepada en Zona 3.<br>• <strong>Fase 3 (10 min):</strong> Enfriamiento y soltar piernas.`,
+                fases: [
+                    { nombre: 'Calentamiento', duracionMin: 10, instruccion: 'Calentamiento suave en plato chico. Prepará las piernas a 85-90 RPM sin sobreexigir.' },
+                    { nombre: 'Bloque de Ascenso (+D)', duracionMin: 35, instruccion: 'Bloque de trepada en Zona 3. Buscá cuestas, mantené tracción en subida y apretá con firmeza.' },
+                    { nombre: 'Enfriamiento', duracionMin: 10, instruccion: 'Enfriamiento y soltura. Bajá pulsaciones en piñón liviano y respirá hondo.' }
+                ]
+            },
+            'FONDO': {
+                nombre: '⏱️ Resistencia & Fondo (Zona 2)',
+                duracionMin: 90,
+                resumenHTML: `• <strong>Fase 1 (15 min):</strong> Calentamiento progresivo.<br>• <strong>Fase 2 (60 min):</strong> Ritmo Crucero en Zona 2 aeróbica.<br>• <strong>Fase 3 (15 min):</strong> Enfriamiento paulatino.`,
+                fases: [
+                    { nombre: 'Calentamiento Aeróbico', duracionMin: 15, instruccion: 'Calentamiento progresivo para elevar temperatura muscular sin generar fatiga.' },
+                    { nombre: 'Ritmo Crucero (Z2)', duracionMin: 60, instruccion: 'Mantenete en Zona 2 constante. Respiración nasal controlada, podés conversar sin agitarte.' },
+                    { nombre: 'Enfriamiento', duracionMin: 15, instruccion: 'Enfriamiento paulatino e hidratación constante a sorbos cortos.' }
+                ]
+            },
+            'HIIT': {
+                nombre: '⚡ Intervalos HIIT y Potencia',
+                duracionMin: 45,
+                resumenHTML: `• <strong>Fase 1 (10 min):</strong> Activación y 2 piques cortos.<br>• <strong>Fase 2 (25 min):</strong> 5 series de ataque a fondo.<br>• <strong>Fase 3 (10 min):</strong> Regenerativo y vuelta a la calma.`,
+                fases: [
+                    { nombre: 'Activación y Piques', duracionMin: 10, instruccion: 'Calentamiento activo con 2 aceleraciones cortas de 15 segundos para despertar el sistema anaeróbico.' },
+                    { nombre: 'Series de Ataque HIIT', duracionMin: 25, instruccion: 'Bloque HIIT: realizá aceleraciones a máxima potencia alternadas con pedaleo suave.' },
+                    { nombre: 'Regenerativo', duracionMin: 10, instruccion: 'Vuelta a la calma muy suave para drenar el ácido láctico de los cuádriceps.' }
+                ]
+            },
+            'RECUPERACION': {
+                nombre: '🍃 Regenerativo y Soltura',
+                duracionMin: 45,
+                resumenHTML: `• <strong>Fase 1 (10 min):</strong> Inicio suave en llano.<br>• <strong>Fase 2 (25 min):</strong> Rodaje Zona 1 y relajación.<br>• <strong>Fase 3 (10 min):</strong> Cierre suave y estiramientos.`,
+                fases: [
+                    { nombre: 'Inicio Suave', duracionMin: 10, instruccion: 'Pedaleo muy liviano en terreno plano. Cero tensión en rodillas.' },
+                    { nombre: 'Rodaje Zona 1', duracionMin: 25, instruccion: 'Zona 1 verde continua. Relajá hombros, cuello y soltá los brazos en el manubrio.' },
+                    { nombre: 'Soltura Final', duracionMin: 10, instruccion: 'Cierre de sesión suave y respiración profunda para oxigenar los músculos.' }
+                ]
+            }
+        };
+
+        function seleccionarPlanIA(tipo, btn) {
+            planEntrenamientoSeleccionado = tipo;
+            document.querySelectorAll('.btn-plan-opt').forEach(b => b.classList.remove('activo'));
+            if (btn) btn.classList.add('activo');
+
+            const plan = CONFIG_PLANES_IA[tipo];
+            if (plan) {
+                const tituloEl = document.getElementById('plan-prev-titulo');
+                const fasesEl = document.getElementById('plan-prev-fases');
+                if (tituloEl) tituloEl.innerText = plan.nombre;
+                if (fasesEl) fasesEl.innerHTML = plan.resumenHTML;
+            }
+        }
+
+        function activarPlanSeleccionado() {
+            const config = CONFIG_PLANES_IA[planEntrenamientoSeleccionado];
+            if (!config) return;
+
+            planEntrenamientoActivo = JSON.parse(JSON.stringify(config));
+            indiceFaseActual = 0;
+            segundoInicioFase = segundosTranscurridos;
+
+            const widget = document.getElementById('widget-plan-entrenamiento');
+            if (widget) widget.style.display = 'block';
+
+            const nombreEl = document.getElementById('plan-live-nombre');
+            if (nombreEl) nombreEl.innerText = `🎯 PLAN IA: ${planEntrenamientoActivo.nombre}`;
+
+            const fase = planEntrenamientoActivo.fases[0];
+            const badgeEl = document.getElementById('plan-live-fase-badge');
+            if (badgeEl) {
+                badgeEl.innerText = `Fase 1/${planEntrenamientoActivo.fases.length} (${fase.duracionMin}m)`;
+                badgeEl.style.background = "#162430";
+                badgeEl.style.color = "#4DA8DA";
+            }
+
+            const barraEl = document.getElementById('plan-live-barra');
+            if (barraEl) barraEl.style.width = '0%';
+
+            const instEl = document.getElementById('plan-live-instruccion');
+            if (instEl) instEl.innerHTML = `⚡ <strong>Instrucción IA (${fase.nombre}):</strong> ${fase.instruccion}`;
+
+            hablar(`Plan ${planEntrenamientoActivo.nombre} activado para hoy. Fase 1: ${fase.nombre}. ${fase.instruccion}`);
+            cambiarPestanaApp('tab-radar');
+        }
+
+        function actualizarPlanEntrenamientoEnTiempo() {
+            if (!planEntrenamientoActivo || !recorridoActivo) return;
+
+            const fases = planEntrenamientoActivo.fases;
+            if (indiceFaseActual >= fases.length) return;
+
+            const faseActual = fases[indiceFaseActual];
+            const segEnFase = segundosTranscurridos - segundoInicioFase;
+            const duracionFaseSeg = faseActual.duracionMin * 60;
+            const pct = Math.min(100, Math.round((segEnFase / duracionFaseSeg) * 100));
+
+            const barraEl = document.getElementById('plan-live-barra');
+            if (barraEl) barraEl.style.width = `${pct}%`;
+
+            const segRestantes = Math.max(0, duracionFaseSeg - segEnFase);
+            const minRestantes = Math.ceil(segRestantes / 60);
+
+            const badgeEl = document.getElementById('plan-live-fase-badge');
+            if (badgeEl) {
+                badgeEl.innerText = `Fase ${indiceFaseActual + 1}/${fases.length} (${minRestantes}m rest)`;
+            }
+
+            // Avisar cuando falte 1 minuto para el cambio de fase
+            if (segRestantes === 60) {
+                hablar(`Atención: queda 1 minuto para completar la fase de ${faseActual.nombre}. Preparate.`);
+            }
+
+            // Cambio de fase cumplido
+            if (segEnFase >= duracionFaseSeg) {
+                indiceFaseActual++;
+                if (indiceFaseActual < fases.length) {
+                    segundoInicioFase = segundosTranscurridos;
+                    const nuevaFase = fases[indiceFaseActual];
+                    const instEl = document.getElementById('plan-live-instruccion');
+                    if (instEl) {
+                        instEl.innerHTML = `⚡ <strong>Instrucción IA (${nuevaFase.nombre}):</strong> ${nuevaFase.instruccion}`;
+                    }
+                    hablar(`¡Fase completada! Iniciando fase ${indiceFaseActual + 1}: ${nuevaFase.nombre}. ${nuevaFase.instruccion}`);
+                } else {
+                    const instEl = document.getElementById('plan-live-instruccion');
+                    if (instEl) {
+                        instEl.innerHTML = `🏆 <strong>¡Objetivo Cumplido!</strong> Completaste todas las fases del plan IA con éxito.`;
+                    }
+                    if (badgeEl) {
+                        badgeEl.innerText = `Completado 100% 🏆`;
+                        badgeEl.style.background = "#132e22";
+                        badgeEl.style.color = "#00CC96";
+                    }
+                    hablar("¡Felicitaciones! Has completado todas las fases de tu entrenamiento planificado.");
+                    planEntrenamientoActivo = null;
+                }
+            }
+        }
+
+        // ========================================================
+        // PACING COACH & CONSEJOS TÁCTICOS DE TERRENO Y RITMO EN VIVO
+        // ========================================================
+        function evaluarRitmoYTerreno(velocidadKmh, pendiente, altitudActual, lat, lon) {
+            if (!recorridoActivo || esModoVehiculo) return;
+
+            // Inicializar altitud base si no está
+            if (altitudActual && altitudBaseHitoCoach === null) {
+                altitudBaseHitoCoach = altitudActual;
+            }
+
+            // Obtener velocidad media de referencia (de la sesión o del historial de actividades)
+            let velReferencia = 18.5;
+            if (segundosEnMovimiento > 120 && distanciaTotal > 0.5) {
+                velReferencia = distanciaTotal / (segundosEnMovimiento / 3600);
+            } else {
+                try {
+                    const hist = JSON.parse(localStorage.getItem('mtb_actividades_guardadas')) || [];
+                    if (hist.length > 0) {
+                        const sumVel = hist.reduce((acc, act) => acc + (parseFloat(act.velMedia) || 18), 0);
+                        velReferencia = sumVel / hist.length;
+                    }
+                } catch(e) {}
+            }
+
+            let mensajeCoach = "";
+            let prioridadVoz = false;
+
+            // 1. EVALUAR ANTICIPACIÓN DE PARED PRÓXIMA CON CLIMBPRO / GPX
+            if (puntosGPX && puntosGPX.length > 0 && lat && lon) {
+                let indiceCercano = -1;
+                let minDist = 999999;
+                for (let i = 0; i < puntosGPX.length; i++) {
+                    let d = calcularDistancia(lat, lon, puntosGPX[i].lat, puntosGPX[i].lon);
+                    if (d < minDist) {
+                        minDist = d;
+                        indiceCercano = i;
+                    }
+                }
+
+                if (indiceCercano !== -1) {
+                    let distAcum = 0;
+                    for (let j = indiceCercano; j < Math.min(puntosGPX.length - 1, indiceCercano + 60); j++) {
+                        let segDist = calcularDistancia(puntosGPX[j].lat, puntosGPX[j].lon, puntosGPX[j+1].lat, puntosGPX[j+1].lon) * 1000;
+                        distAcum += segDist;
+                        let diffEle = puntosGPX[j+1].ele - puntosGPX[j].ele;
+                        let pendSeg = segDist > 0 ? (diffEle / segDist) * 100 : 0;
+
+                        if (pendSeg >= 9.0 && distAcum >= 80 && distAcum <= 500) {
+                            if (distanciaTotal - ultimoAvisoParedDistancia > 0.8) {
+                                mensajeCoach = `Atención: en ${Math.round(distAcum)} metros vas a tener una pared del ${pendSeg.toFixed(0)}%. Cuidá un poco más el aire ahora para llegar con piernas.`;
+                                ultimoAvisoParedDistancia = distanciaTotal;
+                                prioridadVoz = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 2. EVALUAR HITOS DE ELEVACIÓN Y ASCENSO ACUMULADO (ej: pasar de 700m a 820m)
+            if (!mensajeCoach && altitudActual && altitudBaseHitoCoach !== null) {
+                let diffHito = altitudActual - altitudBaseHitoCoach;
+                if (diffHito >= 50) {
+                    mensajeCoach = `Excelente ascenso: pasaste de ${Math.round(altitudBaseHitoCoach)} a ${Math.round(altitudActual)} metros de altitud (+${Math.round(diffHito)}m acumulados). Venís con buen ritmo de escalada, mantené esa cadencia.`;
+                    altitudBaseHitoCoach = altitudActual;
+                    prioridadVoz = true;
+                } else if (diffHito <= -70) {
+                    mensajeCoach = `Descendiste a ${Math.round(altitudActual)} metros. Terreno rápido en bajada, soltá las piernas y recuperá energía.`;
+                    altitudBaseHitoCoach = altitudActual;
+                    prioridadVoz = true;
+                }
+            }
+
+            // 3. EVALUAR TIPO DE TERRENO Y RITMO INSTANTÁNEO (PLANO, SUBIDA, BAJADA)
+            if (!mensajeCoach) {
+                if (pendiente >= 8.0) {
+                    mensajeCoach = `Subida dura: pendiente del ${pendiente.toFixed(0)}%. Bajá una marcha, regulá pulsaciones y cuidá la tracción trasera.`;
+                } else if (pendiente >= 3.0) {
+                    mensajeCoach = `Rampa moderada del ${pendiente.toFixed(0)}%. Buen pedaleo, administrá el esfuerzo para sostener el ascenso.`;
+                } else if (pendiente <= -3.0) {
+                    mensajeCoach = `Bajada rápida del ${Math.abs(pendiente).toFixed(0)}%. Relajá hombros, bajá el centro de gravedad y aprovechá para recuperar aire.`;
+                } else {
+                    // Terreno plano o favorable (-2% a +2%)
+                    if (velocidadKmh > 2.0 && velocidadKmh < (velReferencia - 2.5)) {
+                        mensajeCoach = `Terreno llano y favorable. Venís a ${velocidadKmh.toFixed(1)} km/h, por debajo de tu promedio de ${velReferencia.toFixed(1)} km/h. Podés apretar un poquito más en esta zona para ganar tiempo.`;
+                    } else if (velocidadKmh >= (velReferencia + 2.0)) {
+                        mensajeCoach = `Excelente ritmo en el plano: ${velocidadKmh.toFixed(1)} km/h. Superando tu promedio habitual. Mantené la inercia.`;
+                    } else {
+                        mensajeCoach = `Terreno parejo. Cadencia fluida y buen control de la velocidad (${velocidadKmh.toFixed(1)} km/h).`;
+                    }
+                }
+            }
+
+            // Actualizar visualmente el banner del coach en pantalla
+            const bannerCoach = document.getElementById('ui-consejo-coach');
+            if (bannerCoach && mensajeCoach) {
+                bannerCoach.innerHTML = `💡 <strong>Pacing Coach:</strong> ${mensajeCoach}`;
+                bannerCoach.style.display = 'block';
+            }
+
+            // Control de Cooldown para la voz del entrenador
+            const tiempoDesdeUltimoAviso = segundosTranscurridos - ultimoAvisoCoachTerreno;
+            if (mensajeCoach && (prioridadVoz || tiempoDesdeUltimoAviso >= COOLDOWN_COACH_TERRENO_SEG)) {
+                ultimoAvisoCoachTerreno = segundosTranscurridos;
+                hablar(mensajeCoach);
             }
         }
 

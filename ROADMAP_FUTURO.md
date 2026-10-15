@@ -93,3 +93,27 @@
 *   **La Idea (Visión):** Altimetría de los próximos 1.5 km por delante con gradiente de color según la dureza.
 *   **Implementación Técnica:** Canvas interactivo ClimbPro con detección de rampas duras (>8%).
 *   **Estado:** **COMPLETADO.**
+
+---
+
+## 🚀 REFINAMIENTOS MAESTROS Y COACHING INTELIGENTE (100% COMPLETADOS)
+
+### 16. Blindaje de Pantalla y Segundo Plano Reforzado (WakeLock + Audio Loop) ✅
+*   **La Idea (Visión):** Que la app nunca se suspenda ni se apague la pantalla durante la rodada en el cerro, aun con el celular en el bolsillo o en el soporte del manubrio.
+*   **Implementación Técnica:** API nativa `navigator.wakeLock.request('screen')`, re-adquisición automática con evento `visibilitychange`, loop de audio silencioso en `<audio id="audio-keepalive">` y sesión multimedia `navigator.mediaSession` activa.
+*   **Estado:** **COMPLETADO.** Pantalla despierta y grabación continua en segundo plano.
+
+### 17. Modo Bici Puro vs Auto-Detección de Vehículo Conmutable ✅
+*   **La Idea (Visión):** Evitar que las bajadas rápidas en cerro o senderos activen erróneamente el modo auto.
+*   **Implementación Técnica:** Desactivada por defecto (`autoDeteccionVehiculo = false`), umbral elevado a 85 km/h condicionado a terreno llano (pendiente >= -1%), y botón táctico en el Cockpit (`🚲 Modo Bici Puro` / `🚗 Auto-Detección ON`) para pruebas.
+*   **Estado:** **COMPLETADO.**
+
+### 18. Pacing Coach de Terreno, Elevación (+D) y Paredes Anticipadas ✅
+*   **La Idea (Visión):** Indicaciones tácticas por voz y visuales que evalúen la velocidad según el terreno, comparen con el historial previo en llano indicando si apretar un poco más, feliciten al pasar cotas de altitud (ej: de 700m a 820m) y anticipen paredes duras mediante la ruta ClimbPro/GPX.
+*   **Implementación Técnica:** Función `evaluarRitmoYTerreno()` integrada al pipeline GPS. Análisis de gradiente por tramos con escaneo a 500m hacia adelante en GPX, cálculo de hitos de elevación relativa y banner táctico `#ui-consejo-coach` con audio ducking.
+*   **Estado:** **COMPLETADO.**
+
+### 19. Planificador Táctico de Entrenamientos IA (Fases Guiadas en Vivo) ✅
+*   **La Idea (Visión):** Planificar la salida junto a la IA según el objetivo del día (Escalada, Fondo, Intervalos HIIT o Recuperación) recibiendo instrucciones paso a paso durante la ruta.
+*   **Implementación Técnica:** Tarjeta en pestaña Preparación con 4 planes y desglose de fases (Calentamiento, Bloque Principal, Enfriamiento). Widget interactivo en vivo `#widget-plan-entrenamiento` en Radar Live con barra de progreso, temporizador de fase y órdenes de voz automáticas en cada transición.
+*   **Estado:** **COMPLETADO.**
