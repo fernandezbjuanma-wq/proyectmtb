@@ -30,10 +30,77 @@
             box-sizing: border-box;
         }
         .header { font-size: 19px; color: #20c997; margin-bottom: 4px; font-weight: bold; letter-spacing: 0.5px; }
-        .sub-header { display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 12px; color: #8fa0b5; }
-        .indicador-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; transition: 0.3s; }
-        .dot-online { background-color: #20c997; box-shadow: 0 0 8px #20c997; }
-        .dot-offline { background-color: #FF9F1C; box-shadow: 0 0 8px #FF9F1C; }
+        .sub-header { display: flex; justify-content: center; align-items: center; margin-bottom: 10px; }
+        .indicador-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; transition: 0.3s; }
+        .dot-online { background-color: #20c997; box-shadow: 0 0 6px #20c997; }
+        .dot-offline { background-color: #FF9F1C; box-shadow: 0 0 6px #FF9F1C; }
+
+        /* Barra de Estado Satelital & Conexión Estilo Celular / Garmin */
+        .barra-estado-satelital {
+            display: inline-flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #141622;
+            border: 1px solid #2d3748;
+            border-radius: 20px;
+            padding: 4px 14px;
+            gap: 12px;
+            margin: 0 auto 10px auto;
+            max-width: 440px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+            box-sizing: border-box;
+        }
+        .item-estado-barra {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            color: #8fa0b5;
+        }
+        .item-gps-activo {
+            color: #20c997;
+            font-weight: 600;
+        }
+        .barras-gps-contenedor {
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+            height: 12px;
+            padding: 0 1px;
+        }
+        .barra-gps {
+            width: 3px;
+            background: #2a3142;
+            border-radius: 1px;
+            transition: all 0.25s ease;
+        }
+        .barra-gps.b1 { height: 3px; }
+        .barra-gps.b2 { height: 6px; }
+        .barra-gps.b3 { height: 9px; }
+        .barra-gps.b4 { height: 12px; }
+        .barra-gps.activa { background: #20c997; box-shadow: 0 0 4px #20c997; }
+        .barra-gps.activa-amarilla { background: #FECB52; }
+        .barra-gps.activa-roja { background: #EF553B; }
+        .gps-texto-status {
+            font-size: 11px;
+            font-weight: bold;
+            color: #20c997;
+            transition: color 0.3s;
+        }
+        .pulso-gps-live {
+            font-size: 9px;
+            color: #20c997;
+            font-weight: 900;
+            background: rgba(32, 201, 151, 0.15);
+            padding: 1px 5px;
+            border-radius: 6px;
+            border: 1px solid rgba(32, 201, 151, 0.4);
+            animation: radarLivePulse 1.4s infinite alternate;
+        }
+        @keyframes radarLivePulse {
+            0% { opacity: 0.35; transform: scale(0.97); }
+            100% { opacity: 1; transform: scale(1.03); }
+        }
         
         /* Barra de Navegación Inferior (Bottom Navigation Bar) */
         .bottom-nav {
@@ -570,14 +637,33 @@
         <div class="header">🚵‍♂️ RADAR TÁCTICO MTB</div>
         
         <div class="sub-header">
-            <div id="ui-red">
-                <span class="indicador-dot dot-online" id="ui-red-dot"></span>
-                <span id="ui-red-texto">Online (Voz HD)</span>
+            <!-- Barra de Estado Táctica Compacta (Estilo Celular / Garmin) -->
+            <div class="barra-estado-satelital">
+                <!-- 1. Red / Conexión Móvil -->
+                <div class="item-estado-barra" id="ui-red" title="Conexión de datos">
+                    <span class="indicador-dot dot-online" id="ui-red-dot"></span>
+                    <span id="ui-red-texto">4G Online</span>
+                </div>
+
+                <!-- 2. Indicador Satelital con Barritas de Cobertura GPS (Estilo Smartphone) -->
+                <div class="item-estado-barra item-gps-activo" id="contenedor-indicador-gps" title="Señal Satelital GPS en Vivo">
+                    <span id="gps-icono-satelite" style="font-size: 13px; display: inline-block;">🛰️</span>
+                    <div class="barras-gps-contenedor" id="barras-gps">
+                        <span class="barra-gps b1 activa" id="bgps-1"></span>
+                        <span class="barra-gps b2 activa" id="bgps-2"></span>
+                        <span class="barra-gps b3 activa" id="bgps-3"></span>
+                        <span class="barra-gps b4 activa" id="bgps-4"></span>
+                    </div>
+                    <span id="ui-gps-status" class="gps-texto-status">GPS Activo</span>
+                    <span id="gps-pulso-live" class="pulso-gps-live" title="Registrando posición satelital en vivo">● LIVE</span>
+                </div>
+
+                <!-- 3. Estado Nube / Sincronización -->
+                <div class="item-estado-barra" id="ui-cloud-status" onclick="abrirConfigNube()" title="Configuración de Sincronización en la Nube" style="cursor: pointer;">
+                    <span style="font-size: 12px;">☁️</span>
+                    <span id="cloud-texto" style="color: #4DA8DA; font-weight: 600;">Nube</span>
+                </div>
             </div>
-            <div>•</div>
-            <div id="ui-gps-status" style="color: #20c997;">📡 GPS Activo</div>
-            <div>•</div>
-            <div id="ui-cloud-status" style="color: #4DA8DA; cursor: pointer;" onclick="abrirConfigNube()">☁️ Nube Lista</div>
         </div>
 
         <!-- Ranura Plegable de Ajustes y Herramientas de Cabina -->
@@ -2191,6 +2277,81 @@
         }
 
         // ========================================================
+        // INDICADOR DINÁMICO DE SEÑAL SATELITAL GPS (Estilo Smartphone)
+        // ========================================================
+        let ultimoTimeoutSinGPS = null;
+
+        function actualizarSenalGPS(precision) {
+            const statusEl = document.getElementById('ui-gps-status');
+            const sateliteIcono = document.getElementById('gps-icono-satelite');
+            const pulsoLive = document.getElementById('gps-pulso-live');
+            const b1 = document.getElementById('bgps-1');
+            const b2 = document.getElementById('bgps-2');
+            const b3 = document.getElementById('bgps-3');
+            const b4 = document.getElementById('bgps-4');
+
+            if (!statusEl) return;
+
+            // Destello de captura satelital en vivo
+            if (sateliteIcono) {
+                sateliteIcono.style.transform = 'scale(1.3) rotate(-10deg)';
+                setTimeout(() => { if (sateliteIcono) sateliteIcono.style.transform = 'scale(1) rotate(0deg)'; }, 200);
+            }
+            if (pulsoLive) {
+                pulsoLive.innerText = "● LIVE";
+                pulsoLive.style.color = "#20c997";
+                pulsoLive.style.opacity = '1';
+                setTimeout(() => {
+                    if (pulsoLive) pulsoLive.style.opacity = '0.75';
+                }, 300);
+            }
+
+            // Resetear clases de las barras
+            [b1, b2, b3, b4].forEach(b => {
+                if (b) b.className = 'barra-gps ' + b.classList[1];
+            });
+
+            const precRedondeada = Math.round(precision);
+
+            if (precision <= 6) {
+                [b1, b2, b3, b4].forEach(b => { if (b) b.classList.add('activa'); });
+                statusEl.innerText = `GPS ±${precRedondeada}m`;
+                statusEl.style.color = "#20c997";
+            } else if (precision <= 12) {
+                [b1, b2, b3].forEach(b => { if (b) b.classList.add('activa'); });
+                statusEl.innerText = `GPS ±${precRedondeada}m`;
+                statusEl.style.color = "#20c997";
+            } else if (precision <= 20) {
+                [b1, b2].forEach(b => { if (b) b.classList.add('activa-amarilla'); });
+                statusEl.innerText = `GPS ±${precRedondeada}m`;
+                statusEl.style.color = "#FECB52";
+            } else {
+                if (b1) b1.classList.add('activa-roja');
+                statusEl.innerText = `GPS Débil (±${precRedondeada}m)`;
+                statusEl.style.color = "#EF553B";
+            }
+
+            // Watchdog: si pasan más de 6 segundos sin señal satelital
+            if (ultimoTimeoutSinGPS) clearTimeout(ultimoTimeoutSinGPS);
+            ultimoTimeoutSinGPS = setTimeout(() => {
+                if (recorridoActivo) {
+                    if (statusEl) {
+                        statusEl.innerText = "⚠️ Buscando GPS...";
+                        statusEl.style.color = "#EF553B";
+                    }
+                    if (pulsoLive) {
+                        pulsoLive.innerText = "● BUSCANDO";
+                        pulsoLive.style.color = "#EF553B";
+                    }
+                    [b1, b2, b3, b4].forEach(b => {
+                        if (b) b.className = 'barra-gps ' + b.classList[1];
+                    });
+                    if (b1) b1.classList.add('activa-roja');
+                }
+            }, 6000);
+        }
+
+        // ========================================================
         // PROCESAMIENTO GPS CON FILTRADO SATELITAL AVANZADO
         // ========================================================
         function procesarGPS(posicion) {
@@ -2199,6 +2360,11 @@
             let altitudActual = posicion.coords.altitude; 
             let velocidad_ms = posicion.coords.speed;
             let precision = posicion.coords.accuracy;
+
+            // Actualizar barras de señal y pulso satelital en la barra de estado
+            if (precision) {
+                actualizarSenalGPS(precision);
+            }
 
             // FILTRO 1: Descartar lecturas con baja precisión satelital (> 25m) para evitar teletransportación
             if (precision && precision > 25) {
