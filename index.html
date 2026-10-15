@@ -187,6 +187,50 @@
             border: 1px solid #20c997;
         }
 
+        /* Gráfico Visual de las 6 Zonas de Ciclismo (Coggan Power & RPE) */
+        .grafico-zonas-contenedor {
+            background: #151926;
+            border: 1px solid #2d3748;
+            border-radius: 10px;
+            padding: 8px 10px;
+            margin-bottom: 10px;
+            text-align: left;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .barra-zonas-segmentos {
+            display: flex;
+            height: 18px;
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid #3b4758;
+            font-size: 9px;
+            font-weight: 900;
+            line-height: 18px;
+            text-align: center;
+            background: #0d0f17;
+        }
+        .seg-zona { flex: 1; transition: opacity 0.3s; opacity: 0.35; color: #fff; text-shadow: 0 1px 2px #000; }
+        .seg-zona.activa { opacity: 1; font-weight: 900; box-shadow: inset 0 0 10px rgba(255,255,255,0.8); }
+        .sz1 { background: #4DA8DA; } /* Z1: Recuperación */
+        .sz2 { background: #00CC96; } /* Z2: Fondo Aeróbico */
+        .sz3 { background: #FECB52; color: #121212 !important; } /* Z3: Tempo */
+        .sz4 { background: #FF9F1C; } /* Z4: Umbral FTP */
+        .sz5 { background: #EF553B; } /* Z5: VO2 Máx */
+        .sz6 { background: #E056FD; } /* Z6: Anaeróbico / Sprint */
+        .cursor-zona-indicador {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: #ffffff;
+            border-radius: 2px;
+            box-shadow: 0 0 8px #ffffff;
+            transition: left 0.35s ease-out;
+            z-index: 5;
+            left: 2%;
+        }
+
         /* Grilla de Métricas en Vivo (Cajas con Paleta #2d3748) */
         .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
         .caja-dato { background-color: #2d3748; padding: 12px 6px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); border: 1px solid #3b4758; }
@@ -657,12 +701,6 @@
                     <span id="ui-gps-status" class="gps-texto-status">GPS Activo</span>
                     <span id="gps-pulso-live" class="pulso-gps-live" title="Registrando posición satelital en vivo">● LIVE</span>
                 </div>
-
-                <!-- 3. Estado Nube / Sincronización -->
-                <div class="item-estado-barra" id="ui-cloud-status" onclick="abrirConfigNube()" title="Configuración de Sincronización en la Nube" style="cursor: pointer;">
-                    <span style="font-size: 12px;">☁️</span>
-                    <span id="cloud-texto" style="color: #4DA8DA; font-weight: 600;">Nube</span>
-                </div>
             </div>
         </div>
 
@@ -679,6 +717,7 @@
                     <button id="btn-toggle-vehiculo" class="btn-cockpit" onclick="toggleModoVehiculoPermitido()" style="color: #20c997; border-color: #20c997;">🚲 Modo Bici Puro</button>
                     <button id="btn-ghost" class="btn-cockpit" onclick="abrirModalGhostPacer()">👻 Ghost Pacer</button>
                     <button id="btn-escuadron" class="btn-cockpit" onclick="abrirModalEscuadron()">👥 Escuadrón</button>
+                    <button id="btn-nube-cockpit" class="btn-cockpit" onclick="abrirConfigNube()" style="color: #4DA8DA; border-color: #4DA8DA;">☁️ Respaldo en la Nube</button>
                     <button id="btn-sos" class="btn-cockpit" onclick="compartirUbicacionWhatsApp()" style="border-color: #EF553B; color: #EF553B;">🚨 SOS WhatsApp</button>
                 </div>
             </div>
@@ -787,11 +826,34 @@
             </div>
         </div>
 
+        <!-- Gráfico Visual de las 6 Zonas de Ciclismo (Coggan Power & RPE Live) -->
+        <div class="grafico-zonas-contenedor" id="grafico-zonas-box">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; font-size: 11px;">
+                <span id="txt-zona-activa" style="font-weight: bold; color: #4DA8DA;">🟢 ZONA 1: Recuperación (&lt; 100W)</span>
+                <span id="txt-zona-ftp-pct" style="color: #8fa0b5; font-size: 10px;">Potencia: <strong id="lbl-potencia-inline" style="color: #00F0FF;">0 W</strong></span>
+            </div>
+            <div class="barra-zonas-segmentos">
+                <div class="seg-zona sz1 activa" id="sz-1" title="Z1: Recuperación (&lt;100W)">Z1</div>
+                <div class="seg-zona sz2" id="sz-2" title="Z2: Fondo Aeróbico (100-170W)">Z2</div>
+                <div class="seg-zona sz3" id="sz-3" title="Z3: Tempo (171-220W)">Z3</div>
+                <div class="seg-zona sz4" id="sz-4" title="Z4: Umbral FTP (221-275W)">Z4</div>
+                <div class="seg-zona sz5" id="sz-5" title="Z5: VO2 Máx (276-340W)">Z5</div>
+                <div class="seg-zona sz6" id="sz-6" title="Z6+: Anaeróbico / Sprint (>340W)">Z6+</div>
+                <div class="cursor-zona-indicador" id="cursor-zona" style="left: 4%;"></div>
+            </div>
+        </div>
+
         <!-- PANEL DE TELEMETRÍA (Garmin + TrainingPeaks + Bike IQ Live) -->
         <div class="grid-container">
-            <div class="caja-dato">
+            <div class="caja-dato" style="position: relative;">
                 <p class="numero-gigante color-velocidad" id="ui-velocidad">0.0</p>
                 <p class="texto-chico">km/h</p>
+                <div id="ui-velocidad-target-box" style="margin-top: 5px; padding-top: 4px; border-top: 1px solid #3b4758; font-size: 11px; display: flex; justify-content: center; align-items: center; gap: 4px;">
+                    <span style="color: #8fa0b5; font-size: 10px;">Target:</span>
+                    <strong id="ui-velocidad-target" style="color: #FECB52; font-size: 12px;">--</strong>
+                    <span style="font-size: 9px; color: #8fa0b5;">km/h</span>
+                    <span id="ui-velocidad-diff" style="font-size: 10px; font-weight: bold; color: #20c997; margin-left: 2px;">(Ritmo OK)</span>
+                </div>
             </div>
             <div class="caja-dato" id="caja-pendiente">
                 <p class="numero-gigante color-pendiente" id="ui-pendiente">0.0</p>
@@ -2280,6 +2342,7 @@
         // INDICADOR DINÁMICO DE SEÑAL SATELITAL GPS (Estilo Smartphone)
         // ========================================================
         let ultimoTimeoutSinGPS = null;
+        let avisoPerdidaGPSDada = false;
 
         function actualizarSenalGPS(precision) {
             const statusEl = document.getElementById('ui-gps-status');
@@ -2291,6 +2354,12 @@
             const b4 = document.getElementById('bgps-4');
 
             if (!statusEl) return;
+
+            // Si veníamos de perder señal satelital y se recuperó: avisar por voz
+            if (avisoPerdidaGPSDada) {
+                avisoPerdidaGPSDada = false;
+                hablar("Señal satelital GPS recuperada. Continuando grabación del recorrido.", "VERDE");
+            }
 
             // Destello de captura satelital en vivo
             if (sateliteIcono) {
@@ -2331,7 +2400,7 @@
                 statusEl.style.color = "#EF553B";
             }
 
-            // Watchdog: si pasan más de 6 segundos sin señal satelital
+            // Watchdog: si pasan más de 6 segundos sin señal satelital (túnel, cañada o falla)
             if (ultimoTimeoutSinGPS) clearTimeout(ultimoTimeoutSinGPS);
             ultimoTimeoutSinGPS = setTimeout(() => {
                 if (recorridoActivo) {
@@ -2347,8 +2416,143 @@
                         if (b) b.className = 'barra-gps ' + b.classList[1];
                     });
                     if (b1) b1.classList.add('activa-roja');
+
+                    // Alerta por voz audible para el ciclista
+                    if (!avisoPerdidaGPSDada) {
+                        avisoPerdidaGPSDada = true;
+                        hablar("Atención: señal satelital GPS perdida. Buscando satélites en el cerro.", "ROJA");
+                    }
                 }
             }, 6000);
+        }
+
+        // ========================================================
+        // GRÁFICO DINÁMICO DE LAS 6 ZONAS COGGAN / BIKE IQ LIVE
+        // ========================================================
+        let zonaCogganActual = 1;
+
+        function actualizarGraficoZonas(watts) {
+            const txtZona = document.getElementById('txt-zona-activa');
+            const lblPotencia = document.getElementById('lbl-potencia-inline');
+            const cursor = document.getElementById('cursor-zona');
+            if (lblPotencia) lblPotencia.innerText = `${Math.round(watts)} W`;
+
+            for (let i = 1; i <= 6; i++) {
+                const el = document.getElementById(`sz-${i}`);
+                if (el) el.classList.remove('activa');
+            }
+
+            let numZona = 1;
+            let nombreZona = "🔵 ZONA 1: Recuperación Activa (< 100W)";
+            let colorZona = "#4DA8DA";
+            let cursorPct = 4;
+
+            if (watts < 100) {
+                numZona = 1;
+                nombreZona = "🔵 ZONA 1: Recuperación Activa (< 100W)";
+                colorZona = "#4DA8DA";
+                cursorPct = Math.min(15, Math.max(2, (watts / 100) * 15));
+            } else if (watts <= 170) {
+                numZona = 2;
+                nombreZona = "🟢 ZONA 2: Fondo Aeróbico (100 - 170W)";
+                colorZona = "#00CC96";
+                cursorPct = 16.6 + ((watts - 100) / 70) * 16.6;
+            } else if (watts <= 220) {
+                numZona = 3;
+                nombreZona = "🟡 ZONA 3: Tempo / Ritmo Fuerte (171 - 220W)";
+                colorZona = "#FECB52";
+                cursorPct = 33.3 + ((watts - 171) / 50) * 16.6;
+            } else if (watts <= 275) {
+                numZona = 4;
+                nombreZona = "🟠 ZONA 4: Umbral Lactato / FTP (221 - 275W)";
+                colorZona = "#FF9F1C";
+                cursorPct = 50.0 + ((watts - 221) / 55) * 16.6;
+            } else if (watts <= 340) {
+                numZona = 5;
+                nombreZona = "🔴 ZONA 5: Capacidad VO2 Máx (276 - 340W)";
+                colorZona = "#EF553B";
+                cursorPct = 66.6 + ((watts - 276) / 65) * 16.6;
+            } else {
+                numZona = 6;
+                nombreZona = "🟣 ZONA 6+: Potencia Anaeróbica / Sprint (> 340W)";
+                colorZona = "#E056FD";
+                cursorPct = Math.min(97, 83.3 + ((watts - 340) / 160) * 16.6);
+            }
+
+            zonaCogganActual = numZona;
+            const elActivo = document.getElementById(`sz-${numZona}`);
+            if (elActivo) elActivo.classList.add('activa');
+
+            if (txtZona) {
+                txtZona.innerText = nombreZona;
+                txtZona.style.color = colorZona;
+            }
+            if (cursor) {
+                cursor.style.left = `${cursorPct.toFixed(1)}%`;
+            }
+        }
+
+        // ========================================================
+        // MOTOR DE VELOCIDAD OBJETIVO (TARGET SPEED EN VIVO)
+        // ========================================================
+        let ultimoAvisoVozVelocidadTarget = 0;
+
+        function calcularVelocidadTarget(modo, pendiente) {
+            let target = 22.0;
+
+            if (modo === 'FONDO') {
+                if (pendiente < -3.0) target = 34.0;
+                else if (pendiente < 0.0) target = 26.0;
+                else if (pendiente <= 2.0) target = 23.0;
+                else if (pendiente <= 5.0) target = 15.5;
+                else target = 10.0;
+            } else if (modo === 'HIIT') {
+                if (hiitFase === 'ATAQUE') {
+                    target = pendiente > 3.0 ? 18.0 : 32.0;
+                } else {
+                    target = 16.0;
+                }
+            } else if (modo === 'ESCALADA') {
+                if (pendiente >= 6.0) target = 9.5;
+                else if (pendiente >= 3.0) target = 13.0;
+                else target = 20.0;
+            } else if (modo === 'UMBRAL') {
+                if (pendiente <= 2.0) target = 27.0;
+                else if (pendiente <= 5.0) target = 18.0;
+                else target = 12.0;
+            } else if (modo === 'RECUPERACION') {
+                target = pendiente < 0.0 ? 22.0 : 16.0;
+            } else {
+                if (pendiente < -3.0) target = 32.0;
+                else if (pendiente <= 2.0) target = 21.0;
+                else target = 12.0;
+            }
+
+            return target;
+        }
+
+        function actualizarUIObjetivoVelocidad(velActual, velTarget) {
+            const elTarget = document.getElementById('ui-velocidad-target');
+            const elDiff = document.getElementById('ui-velocidad-diff');
+            if (!elTarget || !elDiff) return;
+
+            elTarget.innerText = velTarget.toFixed(1);
+            let diff = velActual - velTarget;
+
+            if (velActual < 1.5) {
+                elDiff.innerText = "(Detenido)";
+                elDiff.style.color = "#8fa0b5";
+            } else if (diff < -3.0) {
+                let falta = Math.abs(diff).toFixed(1);
+                elDiff.innerText = `(▲ Apretá +${falta} km/h)`;
+                elDiff.style.color = "#FECB52";
+            } else if (diff > 3.0) {
+                elDiff.innerText = `(⚡ Ritmo Veloz)`;
+                elDiff.style.color = "#4DA8DA";
+            } else {
+                elDiff.innerText = `(✓ Ritmo Clavado)`;
+                elDiff.style.color = "#20c997";
+            }
         }
 
         // ========================================================
@@ -2505,6 +2709,13 @@
                 potenciaActualWatts = 0;
             }
             document.getElementById('ui-potencia').innerText = Math.round(potenciaActualWatts);
+
+            // Actualizar Gráfico Dinámico de las 6 Zonas de Ciclismo (Coggan Power & RPE)
+            actualizarGraficoZonas(potenciaActualWatts);
+
+            // Calcular y Mostrar Velocidad Objetivo (Target Speed)
+            let velTarget = calcularVelocidadTarget(modoEntrenamiento, pendienteFiltrada);
+            actualizarUIObjetivoVelocidad(velocidadKmh, velTarget);
 
             ultimaPosicion = posicion;
 
@@ -4847,16 +5058,25 @@
                 } else if (pendiente <= -3.0) {
                     mensajeCoach = `Bajada rápida del ${Math.abs(pendiente).toFixed(0)}%. Relajá hombros, bajá el centro de gravedad y aprovechá para recuperar aire.`;
                 } else {
-                    // Terreno plano o favorable (-2% a +2%)
-                    if (velocidadKmh > 2.0 && velocidadKmh < (velReferencia - 2.5)) {
-                        mensajeCoach = `Terreno llano y favorable. Venís a ${velocidadKmh.toFixed(1)} km/h, por debajo de tu promedio de ${velReferencia.toFixed(1)} km/h. Podés apretar un poquito más en esta zona para ganar tiempo.`;
-                    } else if (velocidadKmh >= (velReferencia + 2.0)) {
-                        mensajeCoach = `Excelente ritmo en el plano: ${velocidadKmh.toFixed(1)} km/h. Superando tu promedio habitual. Mantené la inercia.`;
-                    } else {
-                        mensajeCoach = `Terreno parejo. Cadencia fluida y buen control de la velocidad (${velocidadKmh.toFixed(1)} km/h).`;
-                    }
+                // Comparación con Velocidad Objetivo (Target) y Zona Coggan en Vivo
+                let velTarget = calcularVelocidadTarget(modoEntrenamiento, pendiente);
+                let diffTarget = velocidadKmh - velTarget;
+
+                if (diffTarget < -3.0 && velocidadKmh > 2.0) {
+                    mensajeCoach = `Venís a ${velocidadKmh.toFixed(0)} km/h en Zona ${zonaCogganActual}. Deberías apretar a ${velTarget.toFixed(0)} km/h para sostener tu ritmo objetivo de ${modoEntrenamiento}.`;
+                } else if (diffTarget > 3.5 && modoEntrenamiento === 'FONDO') {
+                    mensajeCoach = `Vas rápido a ${velocidadKmh.toFixed(0)} km/h en Zona ${zonaCogganActual}. Cuidá el pedaleo para no salir de tu Zona 2 aeróbica.`;
+                } else if (pendiente >= 8.0) {
+                    mensajeCoach = `Pared dura del ${pendiente.toFixed(0)}% en Zona ${zonaCogganActual}. Meté piñón grande, regulá pulsaciones y cuidá la tracción trasera.`;
+                } else if (pendiente >= 3.0) {
+                    mensajeCoach = `Rampa del ${pendiente.toFixed(0)}% en Zona ${zonaCogganActual}. Mantené cadencia fluida a ${velTarget.toFixed(0)} km/h sugeridos.`;
+                } else if (pendiente <= -3.0) {
+                    mensajeCoach = `Bajada rápida del ${Math.abs(pendiente).toFixed(0)}%. Relajá hombros, bajá el centro de gravedad y recuperá aire en Zona 1.`;
+                } else {
+                    mensajeCoach = `Ritmo parejo en el llano: vas a ${velocidadKmh.toFixed(1)} km/h en Zona ${zonaCogganActual} (Target: ${velTarget.toFixed(0)} km/h). Excelente cadencia.`;
                 }
             }
+        }
 
             // Actualizar visualmente el banner del coach en pantalla
             const bannerCoach = document.getElementById('ui-consejo-coach');
