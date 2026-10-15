@@ -85,10 +85,40 @@
             display: block;
         }
 
-        /* Selector de Modo de Entrenamiento (TrainingPeaks) */
-        .selector-modo { display: flex; justify-content: center; gap: 6px; margin-bottom: 12px; }
-        .btn-modo { background: #2d3748; border: 1px solid #3b4758; color: #8fa0b5; font-size: 11px; padding: 5px 10px; border-radius: 20px; cursor: pointer; transition: 0.2s; }
+        /* Modos de Entrenamiento Enriquecidos (Ciclismo & Zonas) */
+        .contenedor-modos-entrenamiento { max-width: 500px; margin: 0 auto 10px auto; }
+        .selector-modo-scroll {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            white-space: nowrap;
+            padding: 2px 2px 6px 2px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .selector-modo-scroll::-webkit-scrollbar { display: none; }
+        .btn-modo { background: #2d3748; border: 1px solid #3b4758; color: #8fa0b5; font-size: 11px; padding: 6px 12px; border-radius: 20px; cursor: pointer; transition: 0.2s; flex-shrink: 0; font-weight: 600; }
+        .btn-modo:hover { border-color: #20c997; color: #fff; }
         .btn-modo.activo { background: #20c997; color: #121212; font-weight: bold; border-color: #20c997; }
+        .ficha-modo-card {
+            background: #1a1e2b;
+            border: 1px solid #3b4758;
+            border-radius: 10px;
+            padding: 8px 12px;
+            text-align: left;
+            margin-top: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            transition: all 0.25s ease;
+        }
+        .badge-modo-zona {
+            background: #132e22;
+            color: #20c997;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: bold;
+            border: 1px solid #20c997;
+        }
 
         /* Grilla de Métricas en Vivo (Cajas con Paleta #2d3748) */
         .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
@@ -633,11 +663,42 @@
             </div>
         </div>
 
-        <!-- Selector de Modo de Entrenamiento (TrainingPeaks) -->
-        <div class="selector-modo">
-            <button class="btn-modo activo" onclick="cambiarModoEntrenamiento('LIBRE', this)">🚴 Modo Libre</button>
-            <button class="btn-modo" onclick="cambiarModoEntrenamiento('FONDO', this)">⏱️ Fondo (Zona 2)</button>
-            <button class="btn-modo" onclick="cambiarModoEntrenamiento('ESCALADA', this)">🏔️ Escalada (+D)</button>
+        <!-- Selector Enriquecido de Modos de Entrenamiento Ciclista & Zonas -->
+        <div class="contenedor-modos-entrenamiento">
+            <div class="selector-modo-scroll">
+                <button class="btn-modo activo" onclick="cambiarModoEntrenamiento('LIBRE', this)">🚴 Modo Libre</button>
+                <button class="btn-modo" onclick="cambiarModoEntrenamiento('FONDO', this)">⏱️ Fondo (Zona 2)</button>
+                <button class="btn-modo" onclick="cambiarModoEntrenamiento('HIIT', this)">⚡ HIIT (Series)</button>
+                <button class="btn-modo" onclick="cambiarModoEntrenamiento('ESCALADA', this)">🏔️ Escalada (+D)</button>
+                <button class="btn-modo" onclick="cambiarModoEntrenamiento('UMBRAL', this)">🔥 Umbral / Tempo</button>
+                <button class="btn-modo" onclick="cambiarModoEntrenamiento('RECUPERACION', this)">🍃 Recuperación (Z1)</button>
+            </div>
+
+            <!-- Ficha Táctica del Modo Seleccionado -->
+            <div id="ficha-modo-entrenamiento" class="ficha-modo-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <span id="modo-titulo-txt" style="font-weight: bold; color: #20c997; font-size: 12px;">🚴 Modo Libre (Paseo / Exploración)</span>
+                    <span id="modo-zona-badge" class="badge-modo-zona">Métricas Abiertas</span>
+                </div>
+                <div id="modo-descripcion-txt" style="font-size: 11px; color: #a0aec0; line-height: 1.35;">
+                    Salida sin alarmas de zona ni metas rígidas. Ideal para pasear, explorar senderos y disfrutar del cerro a tu propio aire.
+                </div>
+
+                <!-- Sub-widget de Series HIIT (Visible solo al seleccionar HIIT) -->
+                <div id="subwidget-hiit" style="display: none; margin-top: 8px; background: #13141f; border: 1px solid #E056FD; border-radius: 8px; padding: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px;">
+                        <span id="hiit-serie-txt" style="color: #E056FD; font-weight: bold;">⚡ Serie 1 de 5</span>
+                        <span id="hiit-estado-badge" style="background: #2e1a2b; color: #E056FD; padding: 2px 8px; border-radius: 10px; font-weight: bold; font-size: 10px;">En Espera</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
+                        <div>
+                            <div style="font-size: 9px; color: #8fa0b5;">INTERVALO EN VIVO</div>
+                            <div id="hiit-cronometro-txt" style="font-size: 22px; font-weight: 900; color: #fff;">01:00</div>
+                        </div>
+                        <button id="btn-hiit-start" onclick="toggleIntervalosHIIT()" style="background: #E056FD; color: #121212; border: none; padding: 7px 15px; border-radius: 20px; font-size: 11px; font-weight: bold; cursor: pointer;">▶️ Iniciar Series</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- PANEL DE TELEMETRÍA (Garmin + TrainingPeaks + Bike IQ Live) -->
@@ -1845,20 +1906,198 @@
         }
 
         // ========================================================
-        // CONTROL DE MODOS DE ENTRENAMIENTO (TrainingPeaks)
+        // CONTROL ENRIQUECIDO DE MODOS DE ENTRENAMIENTO & ZONAS
         // ========================================================
+        const METADATOS_MODOS = {
+            'LIBRE': {
+                titulo: '🚴 Modo Libre (Paseo / Exploración)',
+                badge: 'Métricas Abiertas',
+                badgeColor: '#20c997',
+                desc: 'Salida sin alarmas de zona ni metas rígidas. Ideal para pasear, explorar senderos y disfrutar del cerro a tu propio ritmo.',
+                voz: 'Modo Libre activado. Disfrutá de la salida.'
+            },
+            'FONDO': {
+                titulo: '⏱️ Fondo Aeróbico (Zona 2 - Resistencia)',
+                badge: 'Zona 2 (Verde / Quema de Grasas)',
+                badgeColor: '#00CC96',
+                desc: 'Base mitocondrial y quema de grasas. Mantenete a 85-90 RPM sin sofocarte (respiración nasal o charla cómoda). El coach te avisará si te acelerás de más.',
+                voz: 'Modo Fondo Zona 2 activado. Mantené ritmo parejo y respiración controlada.'
+            },
+            'HIIT': {
+                titulo: '⚡ Intervalos HIIT y Potencia (Zona 4 y 5)',
+                badge: 'Anaeróbico / VO2 Max',
+                badgeColor: '#E056FD',
+                desc: 'Series de alta intensidad: 5 aceleraciones a fondo de 1 minuto seguidas de 2 minutos de pedaleo suave. Dale a Iniciar Series para que el coach te guíe.',
+                voz: 'Modo Intervalos HIIT activado. Preparate para las series de ataque.'
+            },
+            'ESCALADA': {
+                titulo: '🏔️ Escalada & Fuerza (+D)',
+                badge: 'Ascenso y Tracción',
+                badgeColor: '#FECB52',
+                desc: 'Prioridad de desnivel acumulado. Gestioná los vatios en subidas duras (>5%) y cuidá la cadencia. ClimbPro te anticipará las paredes que vienen.',
+                voz: 'Modo Escalada activado. Administrá el aire en cada subida.'
+            },
+            'UMBRAL': {
+                titulo: '🔥 Umbral / Tempo (Zona 3-4 - SweetSpot)',
+                badge: 'Potencia Sostenida (FTP)',
+                badgeColor: '#FF9F1C',
+                desc: 'Entrenamiento a ritmo de carrera. Exigencia continua cerca de tu umbral anaeróbico. Gran estímulo de resistencia para mejorar tu velocidad promedio.',
+                voz: 'Modo Umbral activado. Sostené un pedaleo fuerte pero controlado.'
+            },
+            'RECUPERACION': {
+                titulo: '🍃 Recuperación Activa (Zona 1)',
+                badge: 'Zona 1 (Regenerativo)',
+                badgeColor: '#4DA8DA',
+                desc: 'Pedaleo muy liviano en plato chico y terreno plano. Estimula la circulación para drenar ácido láctico y relajar piernas tras una jornada dura.',
+                voz: 'Modo Recuperación activado. Pedaleo suave y sin tensión.'
+            }
+        };
+
+        // Estado del Motor de Series HIIT
+        let hiitActivo = false;
+        let hiitFase = 'ESPERA'; // 'ATAQUE', 'DESCANSO', 'ESPERA'
+        let hiitSerieActual = 1;
+        const HIIT_TOTAL_SERIES = 5;
+        const HIIT_DURACION_ATAQUE_SEG = 60;
+        const HIIT_DURACION_DESCANSO_SEG = 120;
+        let hiitSegundosRestantes = 60;
+        let hiitTimerInterval = null;
+
         function cambiarModoEntrenamiento(nuevoModo, btn) {
             modoEntrenamiento = nuevoModo;
             document.querySelectorAll('.btn-modo').forEach(b => b.classList.remove('activo'));
-            btn.classList.add('activo');
+            if (btn) btn.classList.add('activo');
 
-            if (recorridoActivo) {
-                if (nuevoModo === 'FONDO') {
-                    hablar("Modo Fondo activado. Mantenete en zona verde y amarilla.");
-                } else if (nuevoModo === 'ESCALADA') {
-                    hablar("Modo Escalada activado. Priorizá el ascenso acumulado.");
-                } else {
-                    hablar("Modo Libre activado.");
+            const info = METADATOS_MODOS[nuevoModo];
+            if (info) {
+                const tituloEl = document.getElementById('modo-titulo-txt');
+                const badgeEl = document.getElementById('modo-zona-badge');
+                const descEl = document.getElementById('modo-descripcion-txt');
+                const subwidgetHiit = document.getElementById('subwidget-hiit');
+
+                if (tituloEl) tituloEl.innerText = info.titulo;
+                if (badgeEl) {
+                    badgeEl.innerText = info.badge;
+                    badgeEl.style.color = info.badgeColor;
+                    badgeEl.style.borderColor = info.badgeColor;
+                }
+                if (descEl) descEl.innerText = info.desc;
+
+                if (subwidgetHiit) {
+                    subwidgetHiit.style.display = nuevoModo === 'HIIT' ? 'block' : 'none';
+                }
+
+                if (recorridoActivo) {
+                    hablar(info.voz);
+                }
+            }
+        }
+
+        function toggleIntervalosHIIT() {
+            const btn = document.getElementById('btn-hiit-start');
+            const badge = document.getElementById('hiit-estado-badge');
+            const serieTxt = document.getElementById('hiit-serie-txt');
+
+            if (!hiitActivo) {
+                hiitActivo = true;
+                hiitFase = 'ATAQUE';
+                hiitSerieActual = 1;
+                hiitSegundosRestantes = HIIT_DURACION_ATAQUE_SEG;
+
+                if (btn) {
+                    btn.innerText = "⏹️ Detener HIIT";
+                    btn.style.background = "#EF553B";
+                }
+                if (badge) {
+                    badge.innerText = "🔥 ATAQUE A FONDO";
+                    badge.style.background = "#3d1313";
+                    badge.style.color = "#FF6B6B";
+                }
+                if (serieTxt) serieTxt.innerText = `⚡ Serie 1 de ${HIIT_TOTAL_SERIES}`;
+
+                hablar("¡Comienza Serie 1! Ataque a fondo por 60 segundos. ¡Apretá con todo!");
+
+                if (hiitTimerInterval) clearInterval(hiitTimerInterval);
+                hiitTimerInterval = setInterval(procesarSegundoHIIT, 1000);
+            } else {
+                detenerIntervalosHIIT();
+            }
+        }
+
+        function procesarSegundoHIIT() {
+            hiitSegundosRestantes--;
+            const cronoTxt = document.getElementById('hiit-cronometro-txt');
+            const badge = document.getElementById('hiit-estado-badge');
+            const serieTxt = document.getElementById('hiit-serie-txt');
+
+            let m = Math.floor(hiitSegundosRestantes / 60);
+            let s = hiitSegundosRestantes % 60;
+            if (cronoTxt) {
+                cronoTxt.innerText = `${m < 10 ? '0' + m : m}:${s < 10 ? '0' + s : s}`;
+            }
+
+            if (hiitSegundosRestantes <= 3 && hiitSegundosRestantes > 0) {
+                hablar(`${hiitSegundosRestantes}`);
+            }
+
+            if (hiitSegundosRestantes <= 0) {
+                if (hiitFase === 'ATAQUE') {
+                    hiitFase = 'DESCANSO';
+                    hiitSegundosRestantes = HIIT_DURACION_DESCANSO_SEG;
+                    if (badge) {
+                        badge.innerText = "🍃 RECUPERACIÓN SUAVE";
+                        badge.style.background = "#132e22";
+                        badge.style.color = "#20c997";
+                    }
+                    hablar(`¡Tiempo! Gran esfuerzo. Ahora recuperá pedaleando suave durante 2 minutos.`);
+                } else if (hiitFase === 'DESCANSO') {
+                    hiitSerieActual++;
+                    if (hiitSerieActual <= HIIT_TOTAL_SERIES) {
+                        hiitFase = 'ATAQUE';
+                        hiitSegundosRestantes = HIIT_DURACION_ATAQUE_SEG;
+                        if (badge) {
+                            badge.innerText = "🔥 ATAQUE A FONDO";
+                            badge.style.background = "#3d1313";
+                            badge.style.color = "#FF6B6B";
+                        }
+                        if (serieTxt) serieTxt.innerText = `⚡ Serie ${hiitSerieActual} de ${HIIT_TOTAL_SERIES}`;
+                        hablar(`¡Atención! Inicia Serie ${hiitSerieActual} de ${HIIT_TOTAL_SERIES}. ¡60 segundos a fondo!`);
+                    } else {
+                        detenerIntervalosHIIT(true);
+                    }
+                }
+            }
+        }
+
+        function detenerIntervalosHIIT(completado = false) {
+            hiitActivo = false;
+            hiitFase = 'ESPERA';
+            if (hiitTimerInterval) {
+                clearInterval(hiitTimerInterval);
+                hiitTimerInterval = null;
+            }
+            const btn = document.getElementById('btn-hiit-start');
+            const badge = document.getElementById('hiit-estado-badge');
+            const cronoTxt = document.getElementById('hiit-cronometro-txt');
+
+            if (btn) {
+                btn.innerText = "▶️ Iniciar Series";
+                btn.style.background = "#E056FD";
+            }
+            if (cronoTxt) cronoTxt.innerText = "01:00";
+
+            if (completado) {
+                if (badge) {
+                    badge.innerText = "🏆 ¡HIIT COMPLETADO!";
+                    badge.style.background = "#132e22";
+                    badge.style.color = "#00CC96";
+                }
+                hablar("¡Felicitaciones! Completaste exitosamente las 5 series de intervalos de alta intensidad.");
+            } else {
+                if (badge) {
+                    badge.innerText = "En Espera";
+                    badge.style.background = "#2e1a2b";
+                    badge.style.color = "#E056FD";
                 }
             }
         }
