@@ -187,48 +187,105 @@
             border: 1px solid #20c997;
         }
 
-        /* Gráfico Visual de las 6 Zonas de Ciclismo (Coggan Power & RPE) */
+        /* Espectro Fisiológico Continuo de las 6 Zonas de Ciclismo (Coggan Power & RPE Live) */
         .grafico-zonas-contenedor {
-            background: #151926;
+            background: #141724;
             border: 1px solid #2d3748;
-            border-radius: 10px;
-            padding: 8px 10px;
-            margin-bottom: 10px;
+            border-radius: 12px;
+            padding: 10px 12px 8px 12px;
+            margin-bottom: 12px;
             text-align: left;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.4);
         }
         .barra-zonas-segmentos {
             display: flex;
-            height: 18px;
-            border-radius: 6px;
-            overflow: hidden;
+            height: 24px;
+            border-radius: 7px;
+            overflow: visible;
             position: relative;
             border: 1px solid #3b4758;
-            font-size: 9px;
+            font-size: 10px;
             font-weight: 900;
-            line-height: 18px;
+            line-height: 24px;
             text-align: center;
             background: #0d0f17;
+            margin: 12px 0 4px 0;
         }
-        .seg-zona { flex: 1; transition: opacity 0.3s; opacity: 0.35; color: #fff; text-shadow: 0 1px 2px #000; }
-        .seg-zona.activa { opacity: 1; font-weight: 900; box-shadow: inset 0 0 10px rgba(255,255,255,0.8); }
-        .sz1 { background: #4DA8DA; } /* Z1: Recuperación */
+        .seg-zona {
+            flex: 1;
+            transition: all 0.25s ease;
+            opacity: 0.38;
+            color: #fff;
+            text-shadow: 0 1px 2px #000;
+            position: relative;
+            border-right: 1px solid rgba(0,0,0,0.25);
+            cursor: default;
+        }
+        .seg-zona:last-child { border-right: none; }
+        .seg-zona.activa {
+            opacity: 1;
+            font-weight: 900;
+            box-shadow: inset 0 0 12px rgba(255,255,255,0.9);
+            transform: scaleY(1.08);
+            z-index: 2;
+        }
+        /* Zona objetivo del entrenamiento activo */
+        .seg-zona.target-entrenamiento {
+            opacity: 0.9;
+            outline: 2px solid #20c997;
+            outline-offset: -1px;
+            z-index: 4;
+        }
+        .seg-zona.target-entrenamiento::after {
+            content: "🎯";
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            filter: drop-shadow(0 0 4px #20c997);
+        }
+        .sz1 { background: #4DA8DA; border-top-left-radius: 6px; border-bottom-left-radius: 6px; } /* Z1: Recuperación */
         .sz2 { background: #00CC96; } /* Z2: Fondo Aeróbico */
         .sz3 { background: #FECB52; color: #121212 !important; } /* Z3: Tempo */
         .sz4 { background: #FF9F1C; } /* Z4: Umbral FTP */
         .sz5 { background: #EF553B; } /* Z5: VO2 Máx */
-        .sz6 { background: #E056FD; } /* Z6: Anaeróbico / Sprint */
+        .sz6 { background: #E056FD; border-top-right-radius: 6px; border-bottom-right-radius: 6px; } /* Z6: Anaeróbico / Sprint */
+        
         .cursor-zona-indicador {
             position: absolute;
-            top: 0;
-            bottom: 0;
+            top: -3px;
+            bottom: -3px;
             width: 4px;
             background: #ffffff;
             border-radius: 2px;
-            box-shadow: 0 0 8px #ffffff;
+            box-shadow: 0 0 10px #ffffff, 0 0 4px #00F0FF;
             transition: left 0.35s ease-out;
-            z-index: 5;
+            z-index: 10;
             left: 2%;
+            pointer-events: none;
+        }
+        .cursor-zona-indicador::before {
+            content: "";
+            position: absolute;
+            top: -5px;
+            left: -3px;
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid #ffffff;
+        }
+        .cursor-zona-indicador::after {
+            content: "";
+            position: absolute;
+            bottom: -5px;
+            left: -3px;
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 5px solid #ffffff;
         }
 
         /* Grilla de Métricas en Vivo (Cajas con Paleta #2d3748) */
@@ -788,25 +845,29 @@
             </div>
         </div>
 
-        <!-- Selector Enriquecido de Modos de Entrenamiento Ciclista & Zonas -->
+        <!-- Selector de Tipos de Entrenamiento Ciclista -->
         <div class="contenedor-modos-entrenamiento">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                <span style="font-size: 11px; font-weight: bold; color: #8fa0b5; text-transform: uppercase; letter-spacing: 0.5px;">🎯 Tipo de Entrenamiento</span>
+                <span style="font-size: 10px; color: #20c997; font-weight: 600;">Modula tus 6 Zonas</span>
+            </div>
             <div class="selector-modo-scroll">
-                <button class="btn-modo activo" onclick="cambiarModoEntrenamiento('LIBRE', this)">🚴 Modo Libre</button>
-                <button class="btn-modo" onclick="cambiarModoEntrenamiento('FONDO', this)">⏱️ Fondo (Zona 2)</button>
-                <button class="btn-modo" onclick="cambiarModoEntrenamiento('HIIT', this)">⚡ HIIT (Series)</button>
+                <button class="btn-modo activo" onclick="cambiarModoEntrenamiento('LIBRE', this)">🚴 Rodaje Libre</button>
+                <button class="btn-modo" onclick="cambiarModoEntrenamiento('FONDO', this)">⏱️ Fondo Resistencia</button>
+                <button class="btn-modo" onclick="cambiarModoEntrenamiento('HIIT', this)">⚡ Series HIIT</button>
                 <button class="btn-modo" onclick="cambiarModoEntrenamiento('ESCALADA', this)">🏔️ Escalada (+D)</button>
-                <button class="btn-modo" onclick="cambiarModoEntrenamiento('UMBRAL', this)">🔥 Umbral / Tempo</button>
-                <button class="btn-modo" onclick="cambiarModoEntrenamiento('RECUPERACION', this)">🍃 Recuperación (Z1)</button>
+                <button class="btn-modo" onclick="cambiarModoEntrenamiento('UMBRAL', this)">🔥 Ritmo Umbral</button>
+                <button class="btn-modo" onclick="cambiarModoEntrenamiento('RECUPERACION', this)">🍃 Regenerativo</button>
             </div>
 
-            <!-- Ficha Táctica del Modo Seleccionado -->
+            <!-- Ficha Táctica del Entrenamiento Seleccionado -->
             <div id="ficha-modo-entrenamiento" class="ficha-modo-card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                    <span id="modo-titulo-txt" style="font-weight: bold; color: #20c997; font-size: 12px;">🚴 Modo Libre (Paseo / Exploración)</span>
+                    <span id="modo-titulo-txt" style="font-weight: bold; color: #20c997; font-size: 12px;">🚴 Rodaje Libre (Paseo / Exploración)</span>
                     <span id="modo-zona-badge" class="badge-modo-zona">Métricas Abiertas</span>
                 </div>
                 <div id="modo-descripcion-txt" style="font-size: 11px; color: #a0aec0; line-height: 1.35;">
-                    Salida sin alarmas de zona ni metas rígidas. Ideal para pasear, explorar senderos y disfrutar del cerro a tu propio aire.
+                    Salida sin alarmas de zona ni metas rígidas. Registra todas tus métricas a tu propio ritmo en las 6 zonas fisiológicas.
                 </div>
 
                 <!-- Sub-widget de Series HIIT (Visible solo al seleccionar HIIT) -->
@@ -826,20 +887,32 @@
             </div>
         </div>
 
-        <!-- Gráfico Visual de las 6 Zonas de Ciclismo (Coggan Power & RPE Live) -->
+        <!-- Barra Fisiológica Unificada de las 6 Zonas de Ciclismo (Siempre Presente en Vivo) -->
         <div class="grafico-zonas-contenedor" id="grafico-zonas-box">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; font-size: 11px;">
-                <span id="txt-zona-activa" style="font-weight: bold; color: #4DA8DA;">🟢 ZONA 1: Recuperación (&lt; 100W)</span>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; font-size: 11px;">
+                <span id="txt-zona-activa" style="font-weight: bold; color: #4DA8DA;">🔵 ZONA 1: Recuperación Activa (&lt; 100W)</span>
                 <span id="txt-zona-ftp-pct" style="color: #8fa0b5; font-size: 10px;">Potencia: <strong id="lbl-potencia-inline" style="color: #00F0FF;">0 W</strong></span>
             </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; font-size: 10px;">
+                <span id="lbl-zona-target-en-barra" style="color: #20c997; font-weight: bold;">🎯 Target: Métricas Abiertas</span>
+                <span id="txt-zona-feedback" style="color: #8fa0b5; font-size: 9px; font-weight: 600;">(Rodaje Abierto)</span>
+            </div>
             <div class="barra-zonas-segmentos">
-                <div class="seg-zona sz1 activa" id="sz-1" title="Z1: Recuperación (&lt;100W)">Z1</div>
+                <div class="seg-zona sz1 activa" id="sz-1" title="Z1: Recuperación Activa (&lt;100W)">Z1</div>
                 <div class="seg-zona sz2" id="sz-2" title="Z2: Fondo Aeróbico (100-170W)">Z2</div>
-                <div class="seg-zona sz3" id="sz-3" title="Z3: Tempo (171-220W)">Z3</div>
-                <div class="seg-zona sz4" id="sz-4" title="Z4: Umbral FTP (221-275W)">Z4</div>
-                <div class="seg-zona sz5" id="sz-5" title="Z5: VO2 Máx (276-340W)">Z5</div>
+                <div class="seg-zona sz3" id="sz-3" title="Z3: Tempo / Ritmo Fuerte (171-220W)">Z3</div>
+                <div class="seg-zona sz4" id="sz-4" title="Z4: Umbral Lactato / FTP (221-275W)">Z4</div>
+                <div class="seg-zona sz5" id="sz-5" title="Z5: Capacidad VO2 Máx (276-340W)">Z5</div>
                 <div class="seg-zona sz6" id="sz-6" title="Z6+: Anaeróbico / Sprint (>340W)">Z6+</div>
                 <div class="cursor-zona-indicador" id="cursor-zona" style="left: 4%;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 8px; color: #64748b; margin-top: 3px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.3px;">
+                <span>Recup</span>
+                <span>Fondo</span>
+                <span>Tempo</span>
+                <span>Umbral</span>
+                <span>VO2</span>
+                <span>Sprint</span>
             </div>
         </div>
 
@@ -2058,48 +2131,78 @@
         // ========================================================
         const METADATOS_MODOS = {
             'LIBRE': {
-                titulo: '🚴 Modo Libre (Paseo / Exploración)',
+                titulo: '🚴 Rodaje Libre (Paseo / Exploración)',
                 badge: 'Métricas Abiertas',
                 badgeColor: '#20c997',
-                desc: 'Salida sin alarmas de zona ni metas rígidas. Ideal para pasear, explorar senderos y disfrutar del cerro a tu propio ritmo.',
-                voz: 'Modo Libre activado. Disfrutá de la salida.'
+                targetZonas: [],
+                targetTexto: '🎯 Target: Métricas Abiertas',
+                desc: 'Salida libre sin restricción de zonas. Registra todo tu esfuerzo en las 6 zonas y te permite disfrutar del cerro a tu propio ritmo.',
+                voz: 'Modo Rodaje Libre activado. Registrando todas las zonas en vivo.'
             },
             'FONDO': {
-                titulo: '⏱️ Fondo Aeróbico (Zona 2 - Resistencia)',
-                badge: 'Zona 2 (Verde / Quema de Grasas)',
+                titulo: '⏱️ Fondo de Resistencia (Base Aeróbica)',
+                badge: '🎯 Target: Zona 2 (100 - 170W)',
                 badgeColor: '#00CC96',
-                desc: 'Base mitocondrial y quema de grasas. Mantenete a 85-90 RPM sin sofocarte (respiración nasal o charla cómoda). El coach te avisará si te acelerás de más.',
-                voz: 'Modo Fondo Zona 2 activado. Mantené ritmo parejo y respiración controlada.'
+                targetZonas: [2],
+                targetTexto: '🎯 Target: ZONA 2 (100 - 170W)',
+                desc: 'Desarrollo de base aeróbica y quema de grasas. Mantené respiración controlada y cadencia ágil (85-90 RPM). El coach te alertará si te pasás a Z3.',
+                voz: 'Entrenamiento de Fondo activado. Tu objetivo es mantenerte en Zona 2.'
             },
             'HIIT': {
-                titulo: '⚡ Intervalos HIIT y Potencia (Zona 4 y 5)',
-                badge: 'Anaeróbico / VO2 Max',
+                titulo: '⚡ Series de Intervalos HIIT',
+                badge: '🎯 Target: Z5/Z6 en Ataque | Z1 en Pausa',
                 badgeColor: '#E056FD',
-                desc: 'Series de alta intensidad: 5 aceleraciones a fondo de 1 minuto seguidas de 2 minutos de pedaleo suave. Dale a Iniciar Series para que el coach te guíe.',
-                voz: 'Modo Intervalos HIIT activado. Preparate para las series de ataque.'
+                targetZonas: [5, 6],
+                targetTexto: '🎯 Target: Z5 - Z6 (Ataque a fondo)',
+                desc: '5 repeticiones de potencia máxima (1 min a fondo en Z5/Z6) seguidas de 2 min de recuperación activa en Z1. Dale a Iniciar Series para arrancar.',
+                voz: 'Entrenamiento de Intervalos HIIT activado. Preparate para los ataques en Zonas 5 y 6.'
             },
             'ESCALADA': {
                 titulo: '🏔️ Escalada & Fuerza (+D)',
-                badge: 'Ascenso y Tracción',
+                badge: '🎯 Target: Z3 - Z4 en Cuestas (>4%)',
                 badgeColor: '#FECB52',
-                desc: 'Prioridad de desnivel acumulado. Gestioná los vatios en subidas duras (>5%) y cuidá la cadencia. ClimbPro te anticipará las paredes que vienen.',
-                voz: 'Modo Escalada activado. Administrá el aire en cada subida.'
+                targetZonas: [3, 4],
+                targetTexto: '🎯 Target: Z3 - Z4 (Control en rampas)',
+                desc: 'Gestión inteligente de potencia en pendientes. Mantené Z3/Z4 en las subidas duras y soltá en bajada para no agotar piernas antes de coronar.',
+                voz: 'Entrenamiento de Escalada activado. Regulá el esfuerzo en Zonas 3 y 4 en cada trepada.'
             },
             'UMBRAL': {
-                titulo: '🔥 Umbral / Tempo (Zona 3-4 - SweetSpot)',
-                badge: 'Potencia Sostenida (FTP)',
+                titulo: '🔥 Ritmo de Umbral & SweetSpot',
+                badge: '🎯 Target: Zona 4 (221 - 275W)',
                 badgeColor: '#FF9F1C',
-                desc: 'Entrenamiento a ritmo de carrera. Exigencia continua cerca de tu umbral anaeróbico. Gran estímulo de resistencia para mejorar tu velocidad promedio.',
-                voz: 'Modo Umbral activado. Sostené un pedaleo fuerte pero controlado.'
+                targetZonas: [4],
+                targetTexto: '🎯 Target: ZONA 4 (Umbral FTP)',
+                desc: 'Ritmo competitivo sostenido en el umbral de lactato (90-105% FTP). Gran estímulo para elevar tu velocidad crucero en carrera.',
+                voz: 'Entrenamiento de Umbral activado. Sostené pedaleo firme en Zona 4.'
             },
             'RECUPERACION': {
-                titulo: '🍃 Recuperación Activa (Zona 1)',
-                badge: 'Zona 1 (Regenerativo)',
+                titulo: '🍃 Regenerativo Activo',
+                badge: '🎯 Target: Zona 1 (< 100W)',
                 badgeColor: '#4DA8DA',
-                desc: 'Pedaleo muy liviano en plato chico y terreno plano. Estimula la circulación para drenar ácido láctico y relajar piernas tras una jornada dura.',
-                voz: 'Modo Recuperación activado. Pedaleo suave y sin tensión.'
+                targetZonas: [1],
+                targetTexto: '🎯 Target: ZONA 1 (Recuperación)',
+                desc: 'Pedaleo suave y descontracturante para oxigenar los músculos y limpiar ácido láctico sin fatiga neuromuscular tras días duros.',
+                voz: 'Entrenamiento Regenerativo activado. Pedaleo liviano en Zona 1.'
             }
         };
+
+        // Resaltar visualmente en la barra continua cuáles son las zonas objetivo del entrenamiento
+        function aplicarZonasObjetivoEnBarra(zonasArray, textoTarget) {
+            for (let i = 1; i <= 6; i++) {
+                const el = document.getElementById(`sz-${i}`);
+                if (el) el.classList.remove('target-entrenamiento');
+            }
+            if (zonasArray && zonasArray.length > 0) {
+                zonasArray.forEach(z => {
+                    const el = document.getElementById(`sz-${z}`);
+                    if (el) el.classList.add('target-entrenamiento');
+                });
+            }
+            const lblTarget = document.getElementById('lbl-zona-target-en-barra');
+            if (lblTarget && textoTarget) {
+                lblTarget.innerText = textoTarget;
+            }
+        }
 
         // Estado del Motor de Series HIIT
         let hiitActivo = false;
@@ -2135,6 +2238,20 @@
                     subwidgetHiit.style.display = nuevoModo === 'HIIT' ? 'block' : 'none';
                 }
 
+                // Sincronizar dinámicamente las zonas objetivo en la barra de las 6 zonas
+                let targetZ = info.targetZonas;
+                let textoT = info.targetTexto;
+                if (nuevoModo === 'HIIT') {
+                    if (hiitFase === 'DESCANSO') {
+                        targetZ = [1];
+                        textoT = '🎯 Target: ZONA 1 (Recuperación suave)';
+                    } else {
+                        targetZ = [5, 6];
+                        textoT = '🎯 Target: Z5 - Z6 (Ataque a fondo)';
+                    }
+                }
+                aplicarZonasObjetivoEnBarra(targetZ, textoT);
+
                 if (recorridoActivo) {
                     hablar(info.voz);
                 }
@@ -2163,6 +2280,7 @@
                 }
                 if (serieTxt) serieTxt.innerText = `⚡ Serie 1 de ${HIIT_TOTAL_SERIES}`;
 
+                aplicarZonasObjetivoEnBarra([5, 6], '🎯 Target: Z5 - Z6 (Ataque a fondo)');
                 hablar("¡Comienza Serie 1! Ataque a fondo por 60 segundos. ¡Apretá con todo!");
 
                 if (hiitTimerInterval) clearInterval(hiitTimerInterval);
@@ -2197,6 +2315,7 @@
                         badge.style.background = "#132e22";
                         badge.style.color = "#20c997";
                     }
+                    aplicarZonasObjetivoEnBarra([1], '🎯 Target: ZONA 1 (Recuperación suave)');
                     hablar(`¡Tiempo! Gran esfuerzo. Ahora recuperá pedaleando suave durante 2 minutos.`);
                 } else if (hiitFase === 'DESCANSO') {
                     hiitSerieActual++;
@@ -2209,6 +2328,7 @@
                             badge.style.color = "#FF6B6B";
                         }
                         if (serieTxt) serieTxt.innerText = `⚡ Serie ${hiitSerieActual} de ${HIIT_TOTAL_SERIES}`;
+                        aplicarZonasObjetivoEnBarra([5, 6], `🎯 Target: Z5 - Z6 (Serie ${hiitSerieActual} de ${HIIT_TOTAL_SERIES})`);
                         hablar(`¡Atención! Inicia Serie ${hiitSerieActual} de ${HIIT_TOTAL_SERIES}. ¡60 segundos a fondo!`);
                     } else {
                         detenerIntervalosHIIT(true);
@@ -2240,6 +2360,7 @@
                     badge.style.background = "#132e22";
                     badge.style.color = "#00CC96";
                 }
+                aplicarZonasObjetivoEnBarra([5, 6], '🎯 Target: Z5 - Z6 (Intervalos HIIT)');
                 hablar("¡Felicitaciones! Completaste exitosamente las 5 series de intervalos de alta intensidad.");
             } else {
                 if (badge) {
@@ -2247,6 +2368,7 @@
                     badge.style.background = "#2e1a2b";
                     badge.style.color = "#E056FD";
                 }
+                aplicarZonasObjetivoEnBarra([5, 6], '🎯 Target: Z5 - Z6 (Intervalos HIIT)');
             }
         }
 
@@ -2435,6 +2557,7 @@
             const txtZona = document.getElementById('txt-zona-activa');
             const lblPotencia = document.getElementById('lbl-potencia-inline');
             const cursor = document.getElementById('cursor-zona');
+            const txtFeedback = document.getElementById('txt-zona-feedback');
             if (lblPotencia) lblPotencia.innerText = `${Math.round(watts)} W`;
 
             for (let i = 1; i <= 6; i++) {
@@ -2489,6 +2612,33 @@
             }
             if (cursor) {
                 cursor.style.left = `${cursorPct.toFixed(1)}%`;
+            }
+
+            // Comparar Zona Actual vs Objetivo del Tipo de Entrenamiento
+            if (txtFeedback) {
+                const meta = METADATOS_MODOS[modoEntrenamiento];
+                let targetZonas = meta ? meta.targetZonas : [];
+                if (modoEntrenamiento === 'HIIT') {
+                    targetZonas = hiitFase === 'DESCANSO' ? [1] : [5, 6];
+                }
+
+                if (!targetZonas || targetZonas.length === 0) {
+                    txtFeedback.innerText = "(Rodaje Abierto)";
+                    txtFeedback.style.color = "#8fa0b5";
+                } else if (targetZonas.includes(numZona)) {
+                    txtFeedback.innerText = "✓ En Zona Objetivo";
+                    txtFeedback.style.color = "#20c997";
+                } else {
+                    let minTarget = Math.min(...targetZonas);
+                    let maxTarget = Math.max(...targetZonas);
+                    if (numZona < minTarget) {
+                        txtFeedback.innerText = `▲ Acelerá (Target: Z${minTarget})`;
+                        txtFeedback.style.color = "#4DA8DA";
+                    } else if (numZona > maxTarget) {
+                        txtFeedback.innerText = `▼ Bajá ritmo (Target: Z${maxTarget})`;
+                        txtFeedback.style.color = "#FF9F1C";
+                    }
+                }
             }
         }
 
@@ -5049,34 +5199,59 @@
                 }
             }
 
-            // 3. EVALUAR TIPO DE TERRENO Y RITMO INSTANTÁNEO (PLANO, SUBIDA, BAJADA)
+            // 3. EVALUAR TIPO DE TERRENO, ZONA COGGAN Y VELOCIDAD OBJETIVO
             if (!mensajeCoach) {
-                if (pendiente >= 8.0) {
-                    mensajeCoach = `Subida dura: pendiente del ${pendiente.toFixed(0)}%. Bajá una marcha, regulá pulsaciones y cuidá la tracción trasera.`;
-                } else if (pendiente >= 3.0) {
-                    mensajeCoach = `Rampa moderada del ${pendiente.toFixed(0)}%. Buen pedaleo, administrá el esfuerzo para sostener el ascenso.`;
-                } else if (pendiente <= -3.0) {
-                    mensajeCoach = `Bajada rápida del ${Math.abs(pendiente).toFixed(0)}%. Relajá hombros, bajá el centro de gravedad y aprovechá para recuperar aire.`;
-                } else {
-                // Comparación con Velocidad Objetivo (Target) y Zona Coggan en Vivo
                 let velTarget = calcularVelocidadTarget(modoEntrenamiento, pendiente);
                 let diffTarget = velocidadKmh - velTarget;
 
-                if (diffTarget < -3.0 && velocidadKmh > 2.0) {
-                    mensajeCoach = `Venís a ${velocidadKmh.toFixed(0)} km/h en Zona ${zonaCogganActual}. Deberías apretar a ${velTarget.toFixed(0)} km/h para sostener tu ritmo objetivo de ${modoEntrenamiento}.`;
-                } else if (diffTarget > 3.5 && modoEntrenamiento === 'FONDO') {
-                    mensajeCoach = `Vas rápido a ${velocidadKmh.toFixed(0)} km/h en Zona ${zonaCogganActual}. Cuidá el pedaleo para no salir de tu Zona 2 aeróbica.`;
-                } else if (pendiente >= 8.0) {
-                    mensajeCoach = `Pared dura del ${pendiente.toFixed(0)}% en Zona ${zonaCogganActual}. Meté piñón grande, regulá pulsaciones y cuidá la tracción trasera.`;
+                if (pendiente >= 8.0) {
+                    mensajeCoach = `Pared dura del ${pendiente.toFixed(0)}% en Zona ${zonaCogganActual}. Llevás ${velocidadKmh.toFixed(0)} km/h (sugerido: ${velTarget.toFixed(0)} km/h). Meté piñón grande y regulá pulsaciones.`;
                 } else if (pendiente >= 3.0) {
-                    mensajeCoach = `Rampa del ${pendiente.toFixed(0)}% en Zona ${zonaCogganActual}. Mantené cadencia fluida a ${velTarget.toFixed(0)} km/h sugeridos.`;
+                    mensajeCoach = `Rampa moderada del ${pendiente.toFixed(0)}% en Zona ${zonaCogganActual}. Vas a ${velocidadKmh.toFixed(0)} km/h (target: ${velTarget.toFixed(0)} km/h). Buen pedaleo para trepar.`;
                 } else if (pendiente <= -3.0) {
                     mensajeCoach = `Bajada rápida del ${Math.abs(pendiente).toFixed(0)}%. Relajá hombros, bajá el centro de gravedad y recuperá aire en Zona 1.`;
                 } else {
-                    mensajeCoach = `Ritmo parejo en el llano: vas a ${velocidadKmh.toFixed(1)} km/h en Zona ${zonaCogganActual} (Target: ${velTarget.toFixed(0)} km/h). Excelente cadencia.`;
+                    // Terreno llano / rodaje según entrenamiento y zona
+                    if (modoEntrenamiento === 'FONDO') {
+                        if (zonaCogganActual > 2) {
+                            mensajeCoach = `Vas rápido a ${velocidadKmh.toFixed(0)} km/h en Zona ${zonaCogganActual}. Tu objetivo es Zona 2. Deberías rodar a ${velTarget.toFixed(0)} km/h para cuidar la base aeróbica.`;
+                        } else if (zonaCogganActual === 2) {
+                            mensajeCoach = `¡Excelente ritmo! Vas a ${velocidadKmh.toFixed(0)} km/h clavado en Zona 2 aeróbica (Target: ${velTarget.toFixed(0)} km/h).`;
+                        } else {
+                            mensajeCoach = `Vas a ${velocidadKmh.toFixed(0)} km/h en Zona 1. Podés apretar a ${velTarget.toFixed(0)} km/h para entrar a tu Zona 2 de Fondo.`;
+                        }
+                    } else if (modoEntrenamiento === 'HIIT') {
+                        if (hiitFase === 'ATAQUE') {
+                            if (zonaCogganActual < 5) {
+                                mensajeCoach = `¡Apretá con todo! Vas a ${velocidadKmh.toFixed(0)} km/h en Zona ${zonaCogganActual}. Buscá superar los ${velTarget.toFixed(0)} km/h para tocar Zona 5 o 6 anaeróbica.`;
+                            } else {
+                                mensajeCoach = `¡A fondo! Vas a ${velocidadKmh.toFixed(0)} km/h en Zona ${zonaCogganActual}. Mantené esa explosión en la serie.`;
+                            }
+                        } else {
+                            mensajeCoach = `Fase de recuperación: rodá suave a ${velTarget.toFixed(0)} km/h en Zona 1 para bajar pulsaciones.`;
+                        }
+                    } else if (modoEntrenamiento === 'UMBRAL') {
+                        if (zonaCogganActual < 4) {
+                            mensajeCoach = `Venís a ${velocidadKmh.toFixed(0)} km/h en Zona ${zonaCogganActual}. Apretá a ${velTarget.toFixed(0)} km/h para sostener tu ritmo de Umbral FTP en Zona 4.`;
+                        } else {
+                            mensajeCoach = `Gran esfuerzo en Zona ${zonaCogganActual} a ${velocidadKmh.toFixed(0)} km/h. Ritmo firme de carrera sostenido.`;
+                        }
+                    } else if (modoEntrenamiento === 'RECUPERACION') {
+                        if (zonaCogganActual > 1) {
+                            mensajeCoach = `Estás en Zona ${zonaCogganActual} a ${velocidadKmh.toFixed(0)} km/h. Bajá a ${velTarget.toFixed(0)} km/h para mantener el rodaje en Zona 1 regenerativa.`;
+                        } else {
+                            mensajeCoach = `Excelente pedaleo regenerativo en Zona 1 a ${velocidadKmh.toFixed(0)} km/h. Piernas sueltas.`;
+                        }
+                    } else {
+                        // MODO LIBRE
+                        if (diffTarget < -3.0 && velocidadKmh > 2.0) {
+                            mensajeCoach = `Vas a ${velocidadKmh.toFixed(0)} km/h en Zona ${zonaCogganActual}. Podrías acelerar a ${velTarget.toFixed(0)} km/h para elevar el promedio.`;
+                        } else {
+                            mensajeCoach = `Ritmo parejo: vas a ${velocidadKmh.toFixed(1)} km/h en Zona ${zonaCogganActual} (sugerido: ${velTarget.toFixed(0)} km/h). Cadencia fluida.`;
+                        }
+                    }
                 }
             }
-        }
 
             // Actualizar visualmente el banner del coach en pantalla
             const bannerCoach = document.getElementById('ui-consejo-coach');
@@ -5134,6 +5309,10 @@
             inicializarControlesBloqueo();
             inicializarBikeFit();
             renderizarListaSegmentos();
+
+            // Inicializar Espectro Continuo de las 6 Zonas y Entrenamiento Activo
+            cambiarModoEntrenamiento('LIBRE', document.querySelector('.btn-modo.activo'));
+            actualizarGraficoZonas(0);
 
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('./sw.js')
