@@ -137,6 +137,38 @@ El código de muchas de estas funciones existe, **pero no está certificado** pa
 ### Plantilla de entrada para nuevas tareas (agregar aquí)
 \`AAAA-MM-DD | Tarea | Rama/PR | Cambios verificables | Pruebas realizadas | Límites | Pendientes | Decisión del usuario\`.
 
+
+## J. Equipo de desarrollo, responsables y revisión cruzada — 28/10/2026
+**Regla:** el dueño de una tarea la implementa; la IA contraria revisa el PR; el usuario autoriza merge. Ninguna IA puede iniciar la otra sesión o trabajar espontáneamente solo por aparecer aquí. La creación de tareas no consume créditos ni inicia Antigravity automáticamente. Los comentarios y PR se consultan al abrir el repositorio.
+
+**Se verificó en main (SHA 1e8ccd06fe5cd0c6eed1ebef931051cd84007ee7)** que Antigravity ya publicó Netlify/scrubber (commit d3645e0), integró parte de arreglos GPS (7622a0e) y actualizó nube/backup JSON (1e8ccd0). Las ramas y PRs antiguos deben compararse con esos avances, para evitar duplicados. La grabación GPS con pantalla bloqueada sigue NO resuelta/validada: la PWA no garantiza ejecución en background y el prototipo Android del PR #4 no es APK probado.
+
+### Distribución amplia — GitHub Issues
+| ID | Prioridad | Tarea | Implementa | Revisa | Issue |
+|---|---|---|---|---|---|
+| MTB-01 | P0 | Servicio GPS Android y SQLite | ChatGPT | Antigravity | #6 |
+| MTB-02 | P0 | APK Android, permisos y una sola fuente GPS | Antigravity | ChatGPT | #7 |
+| MTB-03 | P0 | Checkpoints web, recuperación, migración IndexedDB | ChatGPT | Antigravity | #8 |
+| MTB-04 | P0 | Validación GPS con pantalla apagada y sin conexión | Antigravity | ChatGPT | #9 |
+| MTB-05 | P0 | Firebase Auth, reglas privadas y migración | ChatGPT | Antigravity | #10 |
+| MTB-06 | P0 | Sincronización real, estados de nube y diagnóstico | Antigravity | ChatGPT | #11 |
+| MTB-07 | P1 | Escuadrón, consentimiento, caducidad y SOS | ChatGPT | Antigravity | #12 |
+| MTB-08 | P1 | Mapas offline y volver al punto de partida | Antigravity | ChatGPT | #13 |
+| MTB-09 | P1 | Distancia, altitud, potencia/TSS/IF estimados | ChatGPT | Antigravity | #14 |
+| MTB-10 | P1 | Auditar Netlify, PWA y scrubber publicado | Antigravity | ChatGPT | #15 |
+| MTB-11 | P2 | Comparador de rutas, segmentos y récords | ChatGPT | Antigravity | #16 |
+| MTB-12 | P2 | ClimbPro, coach de voz y Radar Live | Antigravity | ChatGPT | #17 |
+| MTB-13 | P2 | Historial, backups, progresos y mantenimiento | ChatGPT | Antigravity | #18 |
+| MTB-14 | P2 | Integración diseño Claude cuando el usuario lo apruebe | Antigravity | ChatGPT | #19 |
+| MTB-15 | P1 | CI, regresión, pruebas Firebase y almacenamiento | ChatGPT | Antigravity | #20 |
+| MTB-16 | P1 | Resolver conflictos con ramas PR #2 a #5 | Antigravity | ChatGPT | #21 |
+
+**P0 primero:** MTB-01/02/03/04, después MTB-05/06, con MTB-10/16 para integración sin conflictos. Tareas que tocan \`index.html\` se coordinan mediante PR pequeños y rebase sobre \`main\` actualizado. No usar como base estable el commit antiguo de los PR.
+
+**Prueba y revisión recíproca:** quien implementa publica una rama/PR vinculado a issue, explica tests de verdad, evidencias, limitaciones y qué no probó. La otra IA revisa diff, deja comentarios de riesgo, detecta regresiones y solicita cambios; implementador corrige y se revisa nuevamente. **Ningún merge ni despliegue de datos/reglas** sin aprobación del usuario.
+
+**Estado de arranque:** se crearon las 16 issues como propuestas de trabajo. No están implementadas por su creación y no se ha activado ningún agente automático. Claude mantiene su trabajo de diseño independiente; no se le transfieren tareas sin solicitud del usuario.
+
 ## I. Referencia histórica y recuperación
 Los archivos de notas antiguos eliminados en la rama de consolidación permanecen recuperables en GitHub por historial de commits y en la rama de referencia:
 [Estado previo a consolidación](https://github.com/fernandezbjuanma-wq/proyectmtb/tree/36fbd4119bb4c27c6fc0e62730a1f735fcca4bd0).
