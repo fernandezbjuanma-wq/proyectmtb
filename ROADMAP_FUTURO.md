@@ -1,7 +1,9 @@
 # 🚵‍♂️ RADAR TÁCTICO MTB - ROADMAP DEFINITIVO (VISIÓN + ARQUITECTURA)
 **Documento Central para el Agente de Desarrollo (Antigravity)**
 
-**Estado del Proyecto:** 🏆 100% COMPLETADO | TODAS LAS PRIORIDADES (1, 2, 3 Y 4) TOTALMENTE OPERATIVAS
+**Estado verificado al 2026-10-28:** EN DESARROLLO. Hay 28 tareas abiertas; GPS Android, recuperación de actividades y sincronización privada siguen pendientes de aceptación.
+
+> Las secciones históricas 1–19 conservan la visión original y sus declaraciones de «completado». No representan pruebas ejecutadas ni aprobación del usuario. El seguimiento vigente está en «Continuidad y prioridades — 2026-10-28», al final de este documento.
 
 ---
 
@@ -154,3 +156,110 @@
 - Verificación disponible: compilación y empaquetado Android exitosos; **aún no hubo prueba física en teléfono**. No presentar la función como validada con pantalla bloqueada.
 - Instalación de prueba: entrar al enlace de Actions, sección **Artifacts**, bajar `radar-mtb-android-debug`, extraer `app-debug.apk` e instalar en Android. Aceptar permisos de ubicación precisa e iniciar desde botón superior ▶ GPS.
 - Después de grabar, pulsar **■ Parar** → **GPX guardados** → seleccionar sesión y guardar archivo `.gpx`. Los puntos de ese archivo se guardan en SQLite aunque la web no esté visible. La nube y el Historial web aún no se completan automáticamente.
+---
+
+## Continuidad y prioridades — 2026-10-28
+
+### Estado local preservado y fuentes consultadas
+- Copia original inspeccionada: rama `main`, HEAD `decaef7`, un commit local no publicado sobre `origin/main` (`1e8ccd0`). Ese commit agrega `TAREAS_PENDIENTES.md` con 17 tareas; no equivale al plan vigente de 28 issues.
+- No había modificaciones en archivos versionados ni cambios en staging. Había dos PDFs sin seguimiento (`Radar Táctico MTB - Bocetos.pdf` y `Radar Táctico MTB - Bocetos-selection.pdf`): no se editaron, copiaron ni publicaron.
+- El acceso de escritura a metadatos Git del original quedó restringido. Se creó una copia de trabajo aislada y la rama `fix/mtb-01-timestamps-gps-20261028`, desde el head `edaef402` del PR #22. La copia original, su commit sin publicar y los PDFs se conservan.
+- Leídos `AGENTS.md`, los seis documentos de contexto requeridos, este roadmap, las 28 issues abiertas y los cuatro PR abiertos al inicio; después se abrió el PR #35. Solo este roadmap recibe documentación nueva; no se borran ni consolidan otros MD.
+- Contradicción documental: el encabezado histórico declaraba «100% completado», mientras el código y los handoffs no demuestran GPS bloqueado, recuperación ni privacidad de servidor. Las marcas históricas no constituyen aceptación.
+
+### Pull requests abiertos y dependencias
+| PR | Base → rama | Estado comprobado / próximo paso |
+| --- | --- | --- |
+| [#3](https://github.com/fernandezbjuanma-wq/proyectmtb/pull/3) | `fix/gps-sos-datos-20261028` → `feat/resiliencia-estadisticas-seguridad-20261028` | Borrador. IndexedDB y cálculos propuestos; reconciliar con nube y scrubber de main antes de integrar. |
+| [#4](https://github.com/fernandezbjuanma-wq/proyectmtb/pull/4) | rama de #3 → `feat/android-background-gps-nube-segura-20261028` | Borrador encadenado a #3; prototipo Android y reglas propuestas. No desplegar reglas al cliente antiguo. |
+| [#5](https://github.com/fernandezbjuanma-wq/proyectmtb/pull/5) | rama de #4 → `docs/roadmap-unico-20261028` | Borrador encadenado a #4; elimina documentos en su propuesta. Esta entrega no aplica esas eliminaciones. |
+| [#22](https://github.com/fernandezbjuanma-wq/proyectmtb/pull/22) | `main` → `feat/gps-android-grabacion-nativa-final-20261028` | Borrador independiente sobre main `1e8ccd0`. Check `android-debug` exitoso para head `edaef402`: [run 40758465010](https://github.com/fernandezbjuanma-wq/proyectmtb/actions/runs/40758465010). No hay revisión Antigravity registrada ni prueba física demostrada. |
+
+La nueva rama es una continuación acotada de #22, no una integración de #3/#4/#5. El [PR #35](https://github.com/fernandezbjuanma-wq/proyectmtb/pull/35) apunta a la rama de #22 para mostrar solo las correcciones y mantener ambas propuestas pendientes de aprobación.
+
+### Plan vigente de 28 tareas y revisión cruzada
+La flecha indica implementador → revisor requerido. La tabla refleja alcance y antecedentes; ninguna asignación inicia automáticamente una sesión ni acredita revisión de la otra IA.
+
+| Tarea | Prioridad | Issue y alcance | Implementa → revisa | Estado observado |
+| --- | --- | --- | --- | --- |
+| MTB-01 | P0 | [#6](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/6) Motor GPS nativo persistente y recuperación de sesión | ChatGPT → Antigravity | Corrección en esta rama; falta revisión Antigravity |
+| MTB-02 | P0 | [#7](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/7) Integración Android, APK y fuente única GPS | Antigravity → ChatGPT | Parcial en PR #22; falta integración y pruebas físicas |
+| MTB-03 | P0 | [#8](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/8) Autoguardado IndexedDB, restauración y migración sin pérdida | ChatGPT → Antigravity | Propuesta en PR #3; falta reconciliar con main |
+| MTB-04 | P0 | [#9](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/9) Pruebas móviles de GPS y batería / aceptación de campo | Antigravity → ChatGPT | Pendiente de teléfono real |
+| MTB-05 | P0 | [#10](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/10) Firebase Auth + reglas privadas + migración de actividades | ChatGPT → Antigravity | Reglas de PR #4 son borrador; Auth/migración pendientes |
+| MTB-06 | P0 | [#11](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/11) Sincronización nube verificable y diagnóstico Netlify | Antigravity → ChatGPT | Auditoría local: estados de nube no prueban servidor |
+| MTB-07 | P1 | [#12](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/12) Auditoría de privacidad Escuadrón y SOS | ChatGPT → Antigravity | Pendiente de implementación/aceptación |
+| MTB-08 | P1 | [#13](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/13) Mapas descargables offline y regreso por el recorrido | Antigravity → ChatGPT | Pendiente de implementación/aceptación |
+| MTB-09 | P1 | [#14](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/14) Precisión de altitud, distancia, potencia y carga de entrenamiento | ChatGPT → Antigravity | Pendiente de implementación/aceptación |
+| MTB-10 | P1 | [#15](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/15) Netlify, PWA e integración del scrubber de recorridos | Antigravity → ChatGPT | Pendiente de implementación/aceptación |
+| MTB-11 | P2 | [#16](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/16) Comparador de rutas, segmentos y récords | ChatGPT → Antigravity | Pendiente de implementación/aceptación |
+| MTB-12 | P2 | [#17](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/17) ClimbPro real, entrenador de voz y accesibilidad de radar | Antigravity → ChatGPT | Pendiente de implementación/aceptación |
+| MTB-13 | P2 | [#18](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/18) Historial robusto: exportación/importación universal, estadísticas y mantenimiento | ChatGPT → Antigravity | Pendiente de implementación/aceptación |
+| MTB-14 | P2 | [#19](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/19) Integración visual de Claude conservando funciones | Antigravity → ChatGPT | Pendiente de implementación/aceptación |
+| MTB-15 | P1 | [#20](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/20) Pruebas automáticas CI y control de calidad de PRs | ChatGPT → Antigravity | Pendiente de implementación/aceptación |
+| MTB-16 | P1 | [#21](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/21) Integración y resolución de conflictos de ramas pendientes | Antigravity → ChatGPT | Pendiente; PR #3/#4/#5 encadenados; #22 parte de main |
+| MTB-17 | P1 | [#23](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/23) Chequeo pre-salida: GPS, permisos, batería, espacio y mapas | Antigravity → ChatGPT | Pendiente de implementación/aceptación |
+| MTB-18 | P1 | [#24](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/24) Privacidad de recorridos: zonas sensibles y exportaciones seguras | ChatGPT → Antigravity | Pendiente de implementación/aceptación |
+| MTB-19 | P1 | [#25](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/25) Integridad de sesiones: IDs estables, deduplicación y múltiples pestañas | ChatGPT → Antigravity | Pendiente de implementación/aceptación |
+| MTB-20 | P2 | [#26](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/26) Biblioteca de rutas GPX totalmente local, etiquetas y favoritos | Antigravity → ChatGPT | Pendiente de implementación/aceptación |
+| MTB-21 | P2 | [#27](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/27) Planificador de entrenamiento ciclista por RPE, tiempo y zonas | ChatGPT → Antigravity | Pendiente de implementación/aceptación |
+| MTB-22 | P2 | [#28](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/28) Garaje MTB multi-bicicleta y mantenimientos por componente | Antigravity → ChatGPT | Pendiente de implementación/aceptación |
+| MTB-23 | P1 | [#29](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/29) Diagnóstico privado de errores, fallos GPS y sincronización | ChatGPT → Antigravity | Pendiente de implementación/aceptación |
+| MTB-24 | P2 | [#30](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/30) Waypoints, alertas de desvío y navegación de regreso asistida | Antigravity → ChatGPT | Pendiente de implementación/aceptación |
+| MTB-25 | P1 | [#31](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/31) Auditoría de rendimiento: batería, memoria, mapas y escrituras | ChatGPT → Antigravity | Pendiente de implementación/aceptación |
+| MTB-26 | P2 | [#32](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/32) Compatibilidad importación y exportación GPX/TCX/FIT | Antigravity → ChatGPT | Pendiente de implementación/aceptación |
+| MTB-27 | P1 | [#33](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/33) Pruebas de desconexión extrema y recuperación sin pérdida | ChatGPT → Antigravity | Pendiente de implementación/aceptación |
+| MTB-28 | P1 | [#34](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/34) Publicación segura: staging Netlify, versionado y rollback comprobable | Antigravity → ChatGPT | Pendiente de implementación/aceptación |
+
+### Orden de ejecución
+1. **GPS Android y guardado nativo (#6/#7):** corregir integridad de posiciones y sesiones sobre #22, compilar, instalar y ejecutar matriz física de #9. Pausa/reanudación y puente seguro hacia Radar Live aún requieren trabajo.
+2. **Guardado y recuperación web (#8):** reconciliar IndexedDB del PR #3 con main; primero preservar historial corrupto y manejar cuota sin sobrescribir datos. El guardado nativo SQLite no sustituye el Historial web.
+3. **Sincronización privada (#10/#11):** definir identidad persistente, datos por UID, reglas probadas y migración con respaldo. Después verificar confirmación del servidor, reconexión y conflictos; no desplegar reglas aisladas que bloqueen al cliente actual.
+4. **Integración (#21) y aceptación:** revisión cruzada real, correcciones, nueva revisión y aprobación expresa del usuario antes de cualquier merge a main. No se habilita auto-merge.
+
+### Avance acotado de MTB-01 (#6)
+**Responsable:** ChatGPT. **Revisor obligatorio pendiente:** Antigravity. Los subagentes de esta sesión son auxiliares de ChatGPT, no constituyen la revisión cruzada de Antigravity.
+
+- Problema: `TrackDatabase.record()` convertía tiempos inválidos o viejos en la hora actual y admitía tiempos futuros; también podía insertar un callback después de `finish()`.
+- Corrección propuesta: política GPS pura para validar tiempo UTC y antigüedad por reloj monotónico sin retimar posiciones; descartar coordenadas/precisión inválidas y sanear valores opcionales no finitos. [Referencia Android Location](https://developer.android.com/reference/android/location/Location#getElapsedRealtimeNanos()).
+- Guardado propuesto: transacción SQLite que comprueba sesión existente y abierta antes de leer el último punto e insertar. Conserva el esquema y las sesiones existentes, sin migración destructiva.
+- Archivos funcionales: `TrackDatabase.kt`, `GpsFixPolicy.kt`; pruebas en `android/app/src/test/java/ar/mtb/radar/GpsFixPolicyTest.kt`. JUnit 4 se usa solo para pruebas; no se agrega dependencia de producción.
+- Verificación de esta corrección: **14 pruebas JUnit4 pasaron** con Kotlin 2.0.21 y JDK 17 efímeros, sin Android ni red durante su ejecución. Cubren límite de edad, posiciones viejas/futuras/cero, reloj monotónico, overflow, coordenadas/precisión y valores opcionales. Comando previsto en entorno Android: `gradle -p android :app:testDebugUnitTest :app:assembleDebug`; la ejecución local usó el compilador Kotlin y JUnitCore directamente, sin SDK Android. `git diff --check` pasó. El éxito previo de CI corresponde a #22 antes de este arreglo.
+- **Compilación de esta corrección confirmada:** `android-debug` exitoso para commit `06a5ac0bf87c6df3da96e062bae68cc1eb7793d8`, [run 40764807561, intento 2](https://github.com/fernandezbjuanma-wq/proyectmtb/actions/runs/40764807561/attempts/2). El intento 1 falló por handshake TLS al descargar una dependencia de Maven; se reintentó el job sin alterar workflow ni seguridad TLS. Esto demuestra compilación/empaquetado, no pruebas móviles ni ejecución de los tests unitarios en CI.
+- La transacción y su interacción con `finish()` recibieron revisión estática interna de ChatGPT; no se ejecutó una prueba SQLite Android ni se comprobó esta versión en teléfono. El callback de notificación de `TrackingService` también requiere ensayar detener mientras llega un punto: persiste un riesgo previo de aviso tardío aunque la sesión ya esté cerrada.
+- El workflow de CI existente se conserva. La revisión automática rechazó ampliarlo por interpretar que excedía el alcance documental y agregaba efectos persistentes; no se aplicó esa modificación.
+- No implementado aquí: pausa/reanudación completa, permiso de notificaciones Android 13+ (#7), integración SQLite→Historial/Firestore ni garantía bajo «Forzar detención».
+- Pruebas físicas pendientes (#9): ubicación precisa concedida/denegada, notificaciones concedidas/denegadas, bloqueo 5/30/90 min, otra app, sin red, GPS apagado, proceso interrumpido, almacenamiento lleno, reabrir sesión y exportar/reimportar GPX. Registrar dispositivo, Android, cantidad/horas de puntos y fallos sin publicar trazas personales.
+
+### Hallazgos de guardado y nube para #8/#10/#11/#18
+Inspección del `index.html` de main `1e8ccd0` (sin cambios funcionales web en esta entrega). Seis comprobaciones aisladas con Node y dobles de almacenamiento/Firebase confirmaron los siguientes comportamientos; no son pruebas de un servidor ni del navegador real.
+
+- **Historial corrupto:** `obtenerActividadesGuardadas()` (aprox. líneas 5306–5310) devuelve lista vacía si el JSON es inválido; el guardado siguiente (5323–5326) reemplaza el historial por la nueva sesión sin advertencia. JSON con forma objeto provoca excepción fuera del bloque de escritura. #8 debe resguardar el contenido ilegible y fallar sin sustituirlo.
+- **Restauración parcial:** `importarBackupJSON()` escribe odómetro/segmentos antes de persistir actividades. Si se agota la cuota, hay cambios parciales y el mensaje los atribuye a JSON inválido. Se exporta BikeFit pero no se restaura. #18 debe validar todo antes de aplicar y ofrecer recuperación verificable.
+- **Marca de nube heredada:** restaurar conserva `sincronizadoNube:true`; la cola excluye esas actividades aunque el destino Firebase sea otro. La marca local no prueba pertenencia ni confirmación de servidor. #11/#18.
+- **Conexión aparente:** el fallo de `enablePersistence` puede terminar mostrando «Nube Lista». El diagnóstico acepta lectura desde caché como conexión viva; se reprodujo con `metadata.fromCache:true`. #11 debe separar persistencia local, pendiente y confirmado por servidor.
+- **Privacidad sin demostrar:** el cliente usa la colección global `actividades_mtb` sin autenticación ni separación por UID observables. Las reglas activas del servidor no se inspeccionaron; no afirmar que están abiertas ni que son privadas. #10 sigue pendiente. No se modificaron configuración, credenciales ni reglas.
+- La escritura local con cuota excedida sí conserva los puntos en memoria y devuelve fallo; esto no resuelve la corrupción previa ni el cierre del proceso sin checkpoints.
+
+### Handoff de esta continuidad
+Antigravity: revisar el diff acotado de #6 y ejecutar las pruebas Kotlin/SQLite y la matriz móvil; comentar hallazgos y volver a revisar correcciones. Esta es una acción pendiente para una sesión habilitada, no una revisión ya realizada. ChatGPT mantiene pendientes #8/#10 y revisará los PR de #7/#11 cuando existan. Usuario: decidir aceptación y merge únicamente después de evidencia y revisión cruzada.
+
+## Revisión web y propuesta de aplicación propia — 2026-10-28
+
+**Pedido del usuario:** comprobar si el enlace Netlify puede registrar desde Chrome sin interrupciones y proponer el paso a una app. Informes por el chat; no crear nuevos MD. Esta sección es un registro breve para continuidad, no una aprobación de arquitectura ni de merge.
+
+### Resultado comprobado y límite de la revisión
+- GitHub `main` sigue en `1e8ccd06`; los PR #22 y #35 siguen abiertos como borradores, sin fusionar. La parte Android no se incorpora al sitio por visitar un enlace ni por instalar la PWA.
+- El código web de main registra con `navigator.geolocation.watchPosition`, usa Screen Wake Lock/audio y conserva el track en memoria durante la grabación; la escritura permanente de la actividad se hace al finalizar. No demuestra continuidad ni recuperación automática si Android suspende/cierra Chrome.
+- El Service Worker v7 cachea recursos y no implementa un grabador GPS. Instalar la PWA con un icono propio no agrega un servicio nativo de ubicación.
+- La [especificación Geolocation](https://www.w3.org/TR/geolocation/#request-a-position) limita la entrega de actualizaciones a documentos activos y visibles; [Chrome documenta suspensión y descarte de páginas](https://developer.chrome.com/docs/web-platform/page-lifecycle-api). Screen Wake Lock mantiene la pantalla encendida cuando puede; no garantiza GPS al bloquearla.
+- Al abrir `https://proyectmtb.netlify.app/`, Netlify mostró **Team protection / This site is private** y pidió cuenta invitada. No se cambió acceso ni se inició sesión. No se pudo inspeccionar el HTML publicado ni verificar su SHA. El usuario confirmó en este chat que usa exactamente `https://proyectmtb.netlify.app/`; la mención antigua a `mtbproyect.netlify.app` no es su enlace actual. La evidencia de main no se presenta como prueba de su despliegue exacto.
+- No se realizaron pruebas en el celular del usuario. **No dar por resuelto el registro con pantalla bloqueada desde Chrome.**
+
+### Propuesta de evolución (pendiente de aprobación)
+1. **Primera versión Android de prueba:** aprovechar el APK ya compilado de #35 ([run, intento 2](https://github.com/fernandezbjuanma-wq/proyectmtb/actions/runs/40764807561/attempts/2), artifact `radar-mtb-android-debug` ID `12849842749`). El grabador usa servicio nativo y SQLite, sin abrir Chrome. Antes de uso habitual: resolver permisos/notificaciones y pausa; probar bloqueo, cierre/interrupción, almacenamiento y GPX en un teléfono real. Compilación no equivale a aceptación de campo.
+2. **Aplicación autosuficiente:** incluir HTML/CSS/JS y dependencias esenciales dentro del APK con [contenido local de WebView](https://developer.android.com/develop/ui/views/layout/webapps/load-local-content), conservando las cuatro áreas. Actualmente MainActivity carga Netlify en un WebView: si ese sitio requiere acceso o no hay red, la interfaz completa no está disponible. Conectar interfaz y servicio mediante un puente de operaciones limitadas y origen restringido; una sola fuente de GPS y SQLite como fuente de verdad. Mapas descargados requieren trabajo separado.
+3. **Historial, respaldo y distribución:** mostrar en Radar/Historial los puntos y sesiones SQLite, con IDs estables, recuperación, GPX y estados de guardado reales; luego cola de sincronización privada con autenticación/reglas probadas. Preparar firma estable y actualizaciones que conserven datos. Primero prueba instalable privada; publicación en tienda como etapa posterior.
+
+**Orden propuesto:** #6/#7 → evidencia física #9 → integración de Historial/recuperación #8/#25 → sincronización privada #10/#11. Revisión cruzada pendiente según responsables de cada issue; el usuario aprueba integración a main. No se cambia producción, permisos Netlify, datos ni reglas Firebase con esta propuesta.
+
