@@ -16,6 +16,8 @@
     <!-- Firebase SDK (Firestore con persistencia Offline para guardado en la Nube) -->
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="./mtb-core.js"></script>
+    <script src="./mtb-store.js"></script>
 
     <style>
         body { 
@@ -892,6 +894,13 @@
             </div>
         </div>
 
+        <div class="seccion-reporte" style="margin: 12px 0;">
+            <strong>📈 Evolución mensual y comparación</strong>
+            <p id="hist-mes-resumen" style="font-size:12px;color:#b5ced5;">Todavía sin estadísticas del mes.</p>
+            <button class="btn-nube-action" onclick="compararUltimasDosRutas()">⚖️ Comparar últimas dos salidas</button>
+            <p id="hist-comparacion-resumen" role="status" style="font-size:12px;color:#b5ced5;"></p>
+        </div>
+
         <!-- Pestañas de Vista Local / Nube -->
         <div class="pestanas-historial">
             <button class="btn-pestana activa" id="tab-local" onclick="cambiarPestanaHistorial('local')">📱 En este Dispositivo (<span id="cont-local">0</span>)</button>
@@ -1150,6 +1159,11 @@
         let distanciaTotal = 0; 
         let ultimaPosicion = null;
         let recorridoActivo = false;
+        let idGrabacionDurable = null;
+        let secuenciaPuntosDurables = 0;
+        let cacheActividadesIDB = [];
+        let idbDisponible = false;
+        let avisoAlmacenamientoEmitido = false;
         let gpsWatchId = null; // Identificador de la suscripción GPS que se debe cancelar.
         let ultimaMarcaMovimientoMs = null;
         let ultimaMuestraFueMovimiento = false;
@@ -1287,6 +1301,8 @@
 
         // Radar Grupal / Escuadrón Multi-Usuario (Prioridad 2, Ítem 7)
         let escuadronActivo = false;
+        let desuscribirEscuadron = null;
+        let ultimaSalaEscuadron = null;
         let escuadronCodigoSala = 'CERRO-YUNGA';
         let escuadronMarcadores = {}; // { odUserId: L.marker }
         let escuadronTimerEnvio = null;
@@ -1690,6 +1706,7 @@
             if (elKm) elKm.innerText = totalKm.toFixed(1);
             if (elDesn) elDesn.innerText = `+${Math.round(totalDesnivel)} m`;
             if (elSalidas) elSalidas.innerText = acts.length;
+            actualizarEstadisticasMensuales();
         }
 
         // ========================================================
@@ -1916,6 +1933,10 @@
                 if (el) el.innerText = value;
             });
             desbloquearAudiosMobile();
+            idGrabacionDurable = Date.now();
+            secuenciaPuntosDurables = 0;
+            avisoAlmacenamientoEmitido = false;
+            if (idbDisponible) MTBStore.start(idGrabacionDurable).catch(reportarErrorDurabilidad);
             recorridoActivo = true;
 
             // Reiniciar estado de detección de vehículo
@@ -2048,7 +2069,8 @@
             if (ultimaMarcaMovimientoMs !== null && ultimaMuestraFueMovimiento && velocidadKmh >= 1.2) {
                 const deltaSeg = (marcaGPS - ultimaMarcaMovimientoMs) / 1000;
                 // Un vacío largo de señal no se imputa como pedaleo confirmado.
-                if (deltaSeg > 0 && deltaSeg <= 15) segundosEnMovimiento += deltaSeg;
+                if (typeof MTBCore !== 'undefined') segundosEnMovimiento += MTBCore.movingDelta(ultimaMarcaMovimientoMs, marcaGPS, ultimaMuestraFueMovimiento, velocidadKmh >= 1.2);
+                else if (deltaSeg > 0 && deltaSeg <= 15) segundosEnMovimiento += deltaSeg;
             }
             ultimaMarcaMovimientoMs = marcaGPS;
             ultimaMuestraFueMovimiento = velocidadKmh >= 1.2;
@@ -2096,16 +2118,19 @@
 
                         // Desnivel acumulado independiente de la ventana de pendiente.
                         // Umbral simple de ruido: seguir validando con rutas reales.
-                        if (ultimaAltitudAcumulada !== null) {
-                            const diffAlt = altitudActual - ultimaAltitudAcumulada;
-                            if (diffAlt > 1.5) {
-                                desnivelPositivoTotal += diffAlt;
-                                document.getElementById('ui-desnivel').innerText = `+${Math.round(desnivelPositivoTotal)} m`;
-                            } else if (diffAlt < -1.5) {
-                                desnivelNegativoTotal += Math.abs(diffAlt);
-                            }
+                        if (typeof MTBCore !== 'undefined') {
+                            const elev = MTBCore.altitudeStep(ultimaAltitudAcumulada, altitudActual, 1.5);
+                            desnivelPositivoTotal += elev.up;
+                            desnivelNegativoTotal += elev.down;
+                            document.getElementById('ui-desnivel').innerText = `+${Math.round(desnivelPositivoTotal)} m`;
                         }
-                        ultimaAltitudAcumulada = altitudActual;
+                        if (typeof MTBCore !== 'undefined') {
+                            const elev = MTBCore.altitudeStep(ultimaAltitudAcumulada, altitudActual, 1.5);
+                            // El umbral considera el ruido sin reajustar el ancla en cada lectura.
+                            ultimaAltitudAcumulada = elev.anchor;
+                        } else {
+                            ultimaAltitudAcumulada = altitudActual;
+                        }
 
                         // Cálculo de pendiente representativa en ventana de >= 25 metros
                         if (ultimaAltitud !== null && distanciaParaPendiente >= DISTANCIA_VENTANA_PENDIENTE) {
@@ -2157,7 +2182,7 @@
             ultimaPosicion = posicion;
 
             // Guardar punto para exportación a GPX (TrainingPeaks/Strava)
-            trackPuntosGrabados.push({
+            const nuevoPunto = {
                 lat: lat,
                 lon: lon,
                 ele: altitudActual !== null ? altitudActual : 0,
@@ -2165,7 +2190,17 @@
                 speed: velocidadKmh,
                 pendiente: pendienteFiltrada,
                 watts: Math.round(potenciaActualWatts)
-            });
+            };
+            trackPuntosGrabados.push(nuevoPunto);
+            if (idbDisponible && idGrabacionDurable !== null) {
+                const snapshot = {
+                    inicioMs: idGrabacionDurable, distancia: distanciaTotal,
+                    tiempoMovSeg: segundosEnMovimiento, desnivel: desnivelPositivoTotal,
+                    velMax: velocidadMaximaKmh, segundosTranscurridos, ultimaPosicion: {lat,lon}
+                };
+                MTBStore.checkpoint(idGrabacionDurable, snapshot, nuevoPunto, secuenciaPuntosDurables++)
+                    .catch(reportarErrorDurabilidad);
+            }
 
             // 3. MAPA TÁCTICO CON CAPAS MTB (CyclOSM, OpenTopo, Satélite)
             actualizarMapa(lat, lon);
@@ -2528,6 +2563,12 @@
                 badgeSync.innerText = "⚠️ Sin guardar en el dispositivo — exportá GPX";
                 badgeSync.style.color = "#EF553B";
             }
+            if (idbDisponible) {
+                MTBStore.finish(sesionData, idGrabacionDurable)
+                    .then(()=>{ cacheActividadesIDB = [sesionData, ...cacheActividadesIDB.filter(a=>a.id!==sesionData.id)]; actualizarContadorActividades(); })
+                    .catch(reportarErrorDurabilidad);
+            }
+            idGrabacionDurable = null;
             sincronizarActividadConFirestore(sesionData);
 
             // Reiniciar estado de segmentos en curso para la próxima sesión
@@ -2936,7 +2977,9 @@
 
         function obtenerActividadesGuardadas() {
             try {
-                return JSON.parse(localStorage.getItem('mtb_actividades_guardadas')) || [];
+                const legacy = JSON.parse(localStorage.getItem('mtb_actividades_guardadas')) || [];
+                const seen = new Set(legacy.map(a=>String(a.id)));
+                return [...legacy, ...cacheActividadesIDB.filter(a=>!seen.has(String(a.id)))].sort((a,b)=>Number(b.id)-Number(a.id));
             } catch (e) {
                 return [];
             }
@@ -3009,14 +3052,14 @@
                 html += `
                 <div class="tarjeta-actividad">
                     <div class="actividad-header">
-                        <span>${icono} ${act.fecha} - ${titulo}</span>
+                        <span>${icono} ${MTBCore.safeHtml(act.fecha)} - ${MTBCore.safeHtml(titulo)}</span>
                         <div style="display: flex; gap: 6px; align-items: center;">
                             ${syncBadge}
                             <span style="color: #E056FD; font-size: 11px;">TSS: ${act.tss}</span>
                         </div>
                     </div>
                     <div class="actividad-stats">
-                        <div><strong>${act.distancia}</strong> km</div>
+                        <div><strong>${MTBCore.safeHtml(act.distancia)}</strong> km</div>
                         <div>⏱️ <strong>${act.tiempoMov}</strong></div>
                         <div style="color: #00CC96;">+<strong>${act.desnivel}</strong> m</div>
                         <div>Media: <strong>${act.velMedia}</strong> km/h</div>
@@ -3139,8 +3182,66 @@
             const acts = obtenerActividadesGuardadas();
             acts.splice(idx, 1);
             localStorage.setItem('mtb_actividades_guardadas', JSON.stringify(acts));
+            if (idbDisponible) MTBStore.deleteActivity(acts[idx]?.id).catch(reportarErrorDurabilidad);
             actualizarContadorActividades();
             renderizarListaActividades();
+        }
+
+
+        function reportarErrorDurabilidad(error) {
+            console.warn("[MTB] Guardado persistente no confirmado:", error);
+            if (!avisoAlmacenamientoEmitido) {
+                avisoAlmacenamientoEmitido = true;
+                alert("No se pudo asegurar el respaldo automático de los datos GPS. Conservá la aplicación abierta y exportá el GPX si terminás la sesión.");
+            }
+        }
+
+        async function inicializarRespaldoLocal() {
+            if (!window.MTBStore || !MTBStore.supported()) return;
+            try {
+                cacheActividadesIDB = await MTBStore.listActivities();
+                idbDisponible = true;
+                const antiguas = JSON.parse(localStorage.getItem('mtb_actividades_guardadas')||"[]");
+                await MTBStore.importLegacy(antiguas);
+                cacheActividadesIDB = await MTBStore.listActivities();
+                actualizarContadorActividades();
+                actualizarTotalesCiclistaHistorial();
+                const recuperada = await MTBStore.recover();
+                if (recuperada && recuperada.points.length) {
+                    const acepta = confirm("Se encontró una salida interrumpida con " + recuperada.points.length + " puntos GPS. ¿Querés conservar una copia recuperada en Historial? No se reiniciará el GPS automáticamente.");
+                    if (acepta) {
+                        const p = recuperada.points;
+                        let kms=0;
+                        for(let i=1;i<p.length;i++)kms+=Math.max(0,MTBCore.distanceKm(p[i-1],p[i])||0);
+                        const act={id:Date.now(),titulo:"Salida recuperada (interrumpida)",fecha:new Date().toLocaleString("es-AR"),fechaMs:Date.now(),tipoActividad:"CICLISMO",distancia:kms.toFixed(2),tiempoMov:formatearSegundos(recuperada.draft.snapshot?.tiempoMovSeg||0),desnivel:Math.round(recuperada.draft.snapshot?.desnivel||0),puntos:p,sincronizadoNube:false,velMedia:"—",velMax:"—",paredMax:"—",tss:"—"};
+                        await MTBStore.finish(act,recuperada.draft.rideId);
+                        cacheActividadesIDB.unshift(act);
+                        actualizarContadorActividades();
+                        actualizarTotalesCiclistaHistorial();
+                    } else {
+                        alert("La sesión interrumpida permanece guardada en este dispositivo. Podés recuperarla la próxima vez que abras la aplicación.");
+                    }
+                }
+            } catch (error) { reportarErrorDurabilidad(error); }
+        }
+
+        function actualizarEstadisticasMensuales() {
+            if(!window.MTBCore)return;
+            const ahora=new Date(), m=MTBCore.monthlySummary(obtenerActividadesGuardadas(),ahora.getFullYear(),ahora.getMonth());
+            const el=document.getElementById("hist-mes-resumen");
+            if(el) el.innerText = "Este mes: "+m.rides+" salidas · "+m.km.toFixed(1)+" km · +"+Math.round(m.climb)+" m · máxima "+m.maxKm.toFixed(1)+" km";
+        }
+
+        function compararUltimasDosRutas() {
+            const el=document.getElementById("hist-comparacion-resumen");
+            const acts=obtenerActividadesGuardadas().filter(a=>Array.isArray(a.puntos)&&a.puntos.length>=8&&a.tipoActividad!=="VEHICULO");
+            if(acts.length<2){el.innerText="Necesitás dos salidas con tracks GPS registrados.";return;}
+            const r=MTBCore.compareRoutes(acts[0],acts[1]);
+            if(!r.comparable){el.innerText="No comparables: "+r.reason;return;}
+            if(r.differenceSeconds===null){el.innerText="Rutas coincidentes ("+r.kmA.toFixed(1)+" km), sin tiempos suficientes para compararlas.";return;}
+            const dif=Math.abs(r.differenceSeconds);
+            el.innerText="Rutas equivalentes ("+r.kmA.toFixed(1)+" km, desvío mediano "+r.medianDeviationM.toFixed(0)+" m). "+
+                (r.differenceSeconds>0?"Tu última salida fue "+dif.toFixed(0)+" segundos más rápida.":r.differenceSeconds<0?"Tu última salida fue "+dif.toFixed(0)+" segundos más lenta.":"Empate de tiempos.");
         }
 
         function errorGPS(err) {
@@ -4105,6 +4206,7 @@
             if (escuadronActivo) {
                 // Desconectar
                 escuadronActivo = false;
+                if (desuscribirEscuadron) { desuscribirEscuadron(); desuscribirEscuadron = null; }
                 if (btn) btn.innerText = "📡 Conectar Escuadrón";
                 if (btnCockpit) {
                     btnCockpit.classList.remove('activo');
@@ -4124,7 +4226,7 @@
                 // Si Firestore está listo, suscribirse a la sala
                 if (db) {
                     try {
-                        db.collection('escuadron_salas').doc(escuadronCodigoSala).collection('miembros')
+                        desuscribirEscuadron = db.collection('escuadron_salas').doc(escuadronCodigoSala).collection('miembros')
                           .onSnapshot(snapshot => {
                               const lista = document.getElementById('lista-miembros-escuadron');
                               const conteo = document.getElementById('escuadron-conteo');
@@ -4137,7 +4239,7 @@
                               let html = '';
                               docs.forEach(m => {
                                   html += `<div style="background: #1a1a24; padding: 6px 10px; border-radius: 6px; display: flex; justify-content: space-between;">
-                                      <span>🚴 ${m.nombre || 'Compañero'}</span>
+                                      <span>🚴 ${MTBCore.safeHtml(m.nombre || 'Compañero')}</span>
                                       <span style="color: #20c997;">${(m.velocidad || 0).toFixed(1)} km/h</span>
                                   </div>`;
                               });
@@ -4277,6 +4379,7 @@
             inicializarDetectorCaidas();
             cargarLaboratorioUltimaSesion();
             inicializarFirebase();
+            inicializarRespaldoLocal();
             inicializarControlesBloqueo();
             inicializarBikeFit();
             renderizarListaSegmentos();
