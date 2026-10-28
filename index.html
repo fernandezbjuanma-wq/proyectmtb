@@ -2422,6 +2422,12 @@
         function finalizarEntrenamiento() {
             if (!recorridoActivo) return;
             recorridoActivo = false;
+            if (escuadronActivo) {
+                escuadronActivo = false;
+                if (desuscribirEscuadron) { desuscribirEscuadron(); desuscribirEscuadron = null; }
+                const botonSala = document.getElementById("btn-escuadron-conectar");
+                if (botonSala) botonSala.innerText = "📡 Conectar Escuadrón";
+            }
             clearInterval(cronometro);
             if (gpsWatchId !== null) {
                 navigator.geolocation.clearWatch(gpsWatchId);
@@ -3180,9 +3186,13 @@
         function eliminarActividad(idx) {
             if (!confirm("¿Seguro que querés eliminar este entrenamiento del teléfono?")) return;
             const acts = obtenerActividadesGuardadas();
+            const idEliminado = acts[idx]?.id;
+            if (idEliminado == null) return;
             acts.splice(idx, 1);
-            localStorage.setItem('mtb_actividades_guardadas', JSON.stringify(acts));
-            if (idbDisponible) MTBStore.deleteActivity(acts[idx]?.id).catch(reportarErrorDurabilidad);
+            try { localStorage.setItem('mtb_actividades_guardadas', JSON.stringify(acts)); }
+            catch (error) { reportarErrorDurabilidad(error); }
+            cacheActividadesIDB = cacheActividadesIDB.filter(a=>String(a.id)!==String(idEliminado));
+            if (idbDisponible) MTBStore.deleteActivity(idEliminado).catch(reportarErrorDurabilidad);
             actualizarContadorActividades();
             renderizarListaActividades();
         }
@@ -4215,6 +4225,8 @@
                 hablar("Desconectado de la sala de escuadrón.");
             } else {
                 // Conectar
+                if (!db) { alert("El Escuadrón necesita una conexión de nube configurada y segura."); return; }
+                if (!confirm("Vas a compartir tu ubicación GPS con personas que puedan acceder a la sala. No utilices códigos públicos ni compartidos con desconocidos. ¿Continuar?")) return;
                 escuadronCodigoSala = salaInput || "CERRO-YUNGA";
                 escuadronActivo = true;
                 if (btn) btn.innerText = "🛑 Desconectar Sala";
@@ -4311,7 +4323,7 @@
         }
 
         function transmitirPosicionEscuadron(lat, lon, velocidadKmh, altitudActual) {
-            if (!escuadronActivo && !demoEscuadronActivo) return;
+            if ((!escuadronActivo && !demoEscuadronActivo) || !recorridoActivo) return;
 
             // Transmitir a Firestore si está configurado
             if (escuadronActivo && db) {
@@ -4324,7 +4336,7 @@
                         velocidad: velocidadKmh,
                         altitud: altitudActual || 0,
                         actualizado: Date.now()
-                    }, { merge: true });
+                    }, { merge: true }).catch(e=>console.warn("[Escuadrón] Error enviando telemetría:",e));
                 } catch(e) {
                     console.warn("[Escuadrón] Error enviando telemetría:", e);
                 }
