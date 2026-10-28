@@ -21,10 +21,13 @@ class TrackingService : Service(), LocationListener {
         const val NOTIFICATION_ID = 4821
     }
     private lateinit var locationManager: LocationManager
+    private lateinit var trackDb: TrackDatabase
+    private var sessionId: String? = null
     override fun onBind(intent: Intent?): IBinder? = null
     override fun onCreate() {
         super.onCreate()
         locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
+        trackDb = TrackDatabase(applicationContext)
         val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         manager.createNotificationChannel(NotificationChannel(CHANNEL, "Grabación GPS MTB", NotificationManager.IMPORTANCE_LOW))
     }
@@ -38,6 +41,7 @@ class TrackingService : Service(), LocationListener {
             stopSelf()
             return START_NOT_STICKY
         }
+        sessionId = trackDb.begin()
         val stopIntent = Intent(this, TrackingService::class.java).setAction(ACTION_STOP)
         val pending = PendingIntent.getService(this, 1, stopIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
         val notification = NotificationCompat.Builder(this, CHANNEL)
@@ -56,16 +60,21 @@ class TrackingService : Service(), LocationListener {
         return START_NOT_STICKY
     }
     override fun onLocationChanged(location: Location) {
-        // TODO P0: persistir en Room transaccionalmente: sesión, lat/lon, elevación, UTC, precisión.
-        // Nunca confiar en eventos de JS mientras WebView esté suspendida.
+        sessionId?.let { id ->
+            try { trackDb.record(id, location) }
+            catch (error: Exception) { android.util.Log.e("RadarMTB", "Falló persistencia GPS", error) }
+        }
     }
     private fun stopTracking() {
+        sessionId?.let { trackDb.end(it) }
+        sessionId = null
         locationManager.removeUpdates(this)
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
     }
     override fun onDestroy() {
         locationManager.removeUpdates(this)
+        trackDb.close()
         super.onDestroy()
     }
 }
