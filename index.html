@@ -1164,6 +1164,7 @@
         let cacheActividadesIDB = [];
         let idbDisponible = false;
         let avisoAlmacenamientoEmitido = false;
+        let borradorPendienteDeRecuperacion = false;
         let gpsWatchId = null; // Identificador de la suscripción GPS que se debe cancelar.
         let ultimaMarcaMovimientoMs = null;
         let ultimaMuestraFueMovimiento = false;
@@ -1889,6 +1890,10 @@
         // ========================================================
         function iniciarRecorrido() {
             if (recorridoActivo) return;
+            if (borradorPendienteDeRecuperacion) {
+                alert("Hay un recorrido interrumpido pendiente de conservar. Reiniciá la aplicación y elegí recuperarlo antes de iniciar otra salida; así evitás sobrescribir sus puntos.");
+                return;
+            }
             if (!("geolocation" in navigator)) {
                 alert("Este dispositivo o navegador no soporta GPS.");
                 return;
@@ -3220,6 +3225,7 @@
                 if (recuperada && recuperada.points.length) {
                     const acepta = confirm("Se encontró una salida interrumpida con " + recuperada.points.length + " puntos GPS. ¿Querés conservar una copia recuperada en Historial? No se reiniciará el GPS automáticamente.");
                     if (acepta) {
+                        borradorPendienteDeRecuperacion = false;
                         const p = recuperada.points;
                         let kms=0;
                         for(let i=1;i<p.length;i++)kms+=Math.max(0,MTBCore.distanceKm(p[i-1],p[i])||0);
@@ -3229,7 +3235,8 @@
                         actualizarContadorActividades();
                         actualizarTotalesCiclistaHistorial();
                     } else {
-                        alert("La sesión interrumpida permanece guardada en este dispositivo. Podés recuperarla la próxima vez que abras la aplicación.");
+                        borradorPendienteDeRecuperacion = true;
+                        alert("La sesión interrumpida permanece guardada. Para evitar sobrescribirla, no podrás iniciar otro recorrido hasta recuperarla. Reiniciá y elegí conservarla.");
                     }
                 }
             } catch (error) { reportarErrorDurabilidad(error); }
