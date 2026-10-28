@@ -1079,7 +1079,7 @@
             <div style="font-size: 44px; margin-bottom: 4px;">⚠️💥</div>
             <div style="font-size: 18px; font-weight: bold; color: #EF553B; margin-bottom: 6px;">¡IMPACTO BRUSCO DETECTADO!</div>
             <div style="font-size: 12px; color: #eee; margin-bottom: 12px; line-height: 1.4;">
-                Se detectó una fuerza G violenta en el teléfono. Si no cancelas, se compartirá tu ubicación de emergencia en:
+                Se detectó un posible impacto. Se intentará abrir WhatsApp al terminar la cuenta. Debés elegir un contacto y pulsar Enviar; no se garantiza el aviso automático.
             </div>
             <div style="font-size: 46px; font-weight: 900; color: #FECB52; margin-bottom: 2px;" id="caida-cuenta-seg">30</div>
             <div style="font-size: 11px; color: #aaa; margin-bottom: 16px;">segundos restantes</div>
@@ -2198,6 +2198,10 @@
         let distanciaTotal = 0; 
         let ultimaPosicion = null;
         let recorridoActivo = false;
+        let gpsWatchId = null; // Identificador de la suscripción GPS que se debe cancelar.
+        let ultimaMarcaMovimientoMs = null;
+        let ultimaMuestraFueMovimiento = false;
+        let ultimaAltitudAcumulada = null; // Referencia independiente para el desnivel total.
         
         // Desnivel y Altitud (Garmin & Strava metrics)
         let ultimaAltitud = null;
@@ -2555,11 +2559,22 @@
         // 4. BALIZA SOS (WHATSAPP EN VIVO Y DETECTOR DE CAÍDAS)
         // ========================================================
         function compartirUbicacionWhatsApp() {
-            let lat = ultimaPosicion ? ultimaPosicion.coords.latitude.toFixed(6) : "-26.830000";
-            let lon = ultimaPosicion ? ultimaPosicion.coords.longitude.toFixed(6) : "-65.200000";
-            let texto = `🚵‍♂️ *RADAR TÁCTICO MTB - UBICACIÓN EN VIVO*\nEstoy pedaleando en el cerro.\n📍 *Coordenadas:* ${lat}, ${lon}\n🗺️ *Ver en Google Maps:* https://maps.google.com/?q=${lat},${lon}\n⏱️ *Distancia:* ${distanciaTotal.toFixed(1)} km | *+D:* +${Math.round(desnivelPositivoTotal)} m`;
-            let url = `https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`;
-            window.open(url, '_blank');
+            if (!ultimaPosicion || !Number.isFinite(ultimaPosicion.coords.latitude) || !Number.isFinite(ultimaPosicion.coords.longitude)) {
+                alert("Todavía no hay una posición GPS válida para compartir. No se enviará una ubicación inventada.");
+                return false;
+            }
+            const lat = ultimaPosicion.coords.latitude.toFixed(6);
+            const lon = ultimaPosicion.coords.longitude.toFixed(6);
+            const marcaTemporal = Number.isFinite(ultimaPosicion.timestamp) ? ultimaPosicion.timestamp : Date.now();
+            const antiguedadMin = Math.max(0, Math.round((Date.now() - marcaTemporal) / 60000));
+            const texto = `🚵‍♂️ *RADAR TÁCTICO MTB - ÚLTIMA POSICIÓN GPS REGISTRADA*\n📍 *Coordenadas:* ${lat}, ${lon}\n🗺️ *Ver en Google Maps:* https://maps.google.com/?q=${lat},${lon}\n🕒 *Hora de lectura:* ${new Date(marcaTemporal).toLocaleString('es-AR')} (${antiguedadMin} min atrás)\n⏱️ *Distancia:* ${distanciaTotal.toFixed(1)} km | *+D:* +${Math.round(desnivelPositivoTotal)} m\n⚠️ Este enlace muestra una posición puntual; no actualiza mi ubicación en vivo.`;
+            const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(texto)}`;
+            const ventana = window.open(url, '_blank');
+            if (!ventana) {
+                alert("No se pudo abrir WhatsApp. Revisá el bloqueo de ventanas emergentes y compartí tu ubicación manualmente. NO se envió ningún mensaje.");
+                return false;
+            }
+            return true; // Abrir WhatsApp NO implica que el usuario haya enviado el mensaje.
         }
 
         function inicializarDetectorCaidas() {
@@ -2612,8 +2627,14 @@
         }
 
         function ejecutarAccionEmergenciaCaida() {
-            compartirUbicacionWhatsApp();
-            cancelarAlertaCaida();
+            caidaDetectada = false;
+            if (timerCuentaRegresivaCaida) clearInterval(timerCuentaRegresivaCaida);
+            const modal = document.getElementById('modal-alerta-caida');
+            if (modal) modal.style.display = 'none';
+            const preparado = compartirUbicacionWhatsApp();
+            hablar(preparado
+                ? "Se abrió WhatsApp con un mensaje preparado. Debés elegir un contacto y pulsar enviar."
+                : "No se pudo preparar el aviso de emergencia. Pedí ayuda por otro medio.");
         }
 
         // ========================================================
@@ -3246,6 +3267,50 @@
         // INICIO, FINALIZACIÓN Y CRONÓMETRO DE SESIÓN
         // ========================================================
         function iniciarRecorrido() {
+            if (recorridoActivo) return;
+            if (!("geolocation" in navigator)) {
+                alert("Este dispositivo o navegador no soporta GPS.");
+                return;
+            }
+            if (gpsWatchId !== null) {
+                navigator.geolocation.clearWatch(gpsWatchId);
+                gpsWatchId = null;
+            }
+            clearInterval(cronometro);
+            segundosTranscurridos = 0;
+            segundosEnMovimiento = 0;
+            distanciaTotal = 0;
+            ultimaPosicion = null;
+            ultimaAltitud = null;
+            ultimaAltitudAcumulada = null;
+            ultimaMarcaMovimientoMs = null;
+            ultimaMuestraFueMovimiento = false;
+            distanciaParaPendiente = 0;
+            pendienteFiltrada = 0;
+            desnivelPositivoTotal = 0;
+            desnivelNegativoTotal = 0;
+            altitudMaxima = -9999;
+            altitudMinima = 9999;
+            velocidadMaximaKmh = 0;
+            paredMaxima = 0;
+            paredMaximaKm = 0;
+            segundosZ1 = 0;
+            segundosZ2 = 0;
+            segundosZ3 = 0;
+            zonaActual = "NINGUNA";
+            ultimoTiempoVozZona = 0;
+            trackPuntosGrabados = [];
+            segmentoActivo = null;
+            segmentosSesionCompletados = [];
+            const camposReinicio = {
+                'ui-velocidad': '0.0', 'ui-pendiente': '0.0',
+                'ui-potencia': '0', 'ui-tss': '0', 'ui-distancia': '0.00',
+                'ui-tiempo': '00:00', 'ui-desnivel': '+0 m', 'ui-calorias': '0'
+            };
+            Object.entries(camposReinicio).forEach(([id, value]) => {
+                const el = document.getElementById(id);
+                if (el) el.innerText = value;
+            });
             desbloquearAudiosMobile();
             solicitarWakeLock();
             recorridoActivo = true;
@@ -3318,18 +3383,23 @@
 
             cronometro = setInterval(actualizarTiempo, 1000);
 
-            if ("geolocation" in navigator) {
-                navigator.geolocation.watchPosition(procesarGPS, errorGPS, {
+            try {
+                gpsWatchId = navigator.geolocation.watchPosition(procesarGPS, errorGPS, {
                     enableHighAccuracy: true,
                     maximumAge: 0,
                     timeout: 5000
                 });
-            } else {
-                alert("Tu dispositivo o navegador no soporta GPS.");
+            } catch (error) {
+                recorridoActivo = false;
+                clearInterval(cronometro);
+                document.getElementById('btn-start').style.display = 'block';
+                document.getElementById('btn-finish').style.display = 'none';
+                errorGPS(error);
             }
         }
 
         function actualizarTiempo() {
+            if (!recorridoActivo) return;
             segundosTranscurridos++;
 
             // Sumar a la zona correspondiente en TrainingPeaks
@@ -3611,6 +3681,7 @@
         // PROCESAMIENTO GPS CON FILTRADO SATELITAL AVANZADO
         // ========================================================
         function procesarGPS(posicion) {
+            if (!recorridoActivo) return;
             let lat = posicion.coords.latitude;
             let lon = posicion.coords.longitude;
             let altitudActual = posicion.coords.altitude; 
@@ -3662,6 +3733,17 @@
             ultimoTimestampGPS = ahoraMs;
             ultimaVelocidadKmh = velocidadKmh;
 
+            // Tiempo de movimiento medido entre dos muestras consecutivas en movimiento,
+            // no sumando arbitrariamente un segundo por lectura GPS.
+            const marcaGPS = Number.isFinite(posicion.timestamp) ? posicion.timestamp : Date.now();
+            if (ultimaMarcaMovimientoMs !== null && ultimaMuestraFueMovimiento && velocidadKmh >= 1.2) {
+                const deltaSeg = (marcaGPS - ultimaMarcaMovimientoMs) / 1000;
+                // Un vacío largo de señal no se imputa como pedaleo confirmado.
+                if (deltaSeg > 0 && deltaSeg <= 15) segundosEnMovimiento += deltaSeg;
+            }
+            ultimaMarcaMovimientoMs = marcaGPS;
+            ultimaMuestraFueMovimiento = velocidadKmh >= 1.2;
+
             // 4. MODO VEHÍCULO: Desactivado por defecto.
             // En bajadas de cerro (pendiente < -1%) NUNCA se activa auto, respetando velocidades altas de MTB
             if (autoDeteccionVehiculo && !esModoVehiculo) {
@@ -3697,23 +3779,24 @@
 
                 // FILTRO DE PARADA: Si el avance es menor a 0.5m o velocidad < 1.2 km/h, ignorar ruido estacionario
                 if (distMetros >= 0.5 && velocidadKmh >= 1.2) {
-                    segundosEnMovimiento++;
                     distanciaTotal += distKm;
                     document.getElementById('ui-distancia').innerText = distanciaTotal.toFixed(2);
 
                     if (altitudActual !== null) {
                         distanciaParaPendiente += distMetros;
 
-                        // Desnivel acumulado (+D y -D)
-                        if (ultimaAltitud !== null) {
-                            let diffAlt = altitudActual - ultimaAltitud;
-                            if (diffAlt > 0.25) {
+                        // Desnivel acumulado independiente de la ventana de pendiente.
+                        // Umbral simple de ruido: seguir validando con rutas reales.
+                        if (ultimaAltitudAcumulada !== null) {
+                            const diffAlt = altitudActual - ultimaAltitudAcumulada;
+                            if (diffAlt > 1.5) {
                                 desnivelPositivoTotal += diffAlt;
                                 document.getElementById('ui-desnivel').innerText = `+${Math.round(desnivelPositivoTotal)} m`;
-                            } else if (diffAlt < -0.25) {
+                            } else if (diffAlt < -1.5) {
                                 desnivelNegativoTotal += Math.abs(diffAlt);
                             }
                         }
+                        ultimaAltitudAcumulada = altitudActual;
 
                         // Cálculo de pendiente representativa en ventana de >= 25 metros
                         if (ultimaAltitud !== null && distanciaParaPendiente >= DISTANCIA_VENTANA_PENDIENTE) {
@@ -4066,9 +4149,19 @@
         // ANÁLISIS POST-ENTRENAMIENTO (Strava, Garmin, TP, VeloViewer)
         // ========================================================
         function finalizarEntrenamiento() {
+            if (!recorridoActivo) return;
             recorridoActivo = false;
             recorridoPausado = false;
             clearInterval(cronometro);
+            if (gpsWatchId !== null) {
+                navigator.geolocation.clearWatch(gpsWatchId);
+                gpsWatchId = null;
+            }
+            const btnIniciar = document.getElementById('btn-start');
+            const btnFinalizar = document.getElementById('btn-finish');
+            if (btnIniciar) btnIniciar.style.display = 'block';
+            if (btnFinalizar) btnFinalizar.style.display = 'none';
+            detenerKeepAliveAudio();
             detenerEmisionPrevia();
             detenerKeepAliveAudio();
             liberarWakeLock();
@@ -4208,7 +4301,11 @@
                 segmentosSesion: [...segmentosSesionCompletados],
                 puntos: trackPuntosGrabados
             };
-            guardarEnHistorial(sesionData);
+            const guardadoLocal = guardarEnHistorial(sesionData);
+            if (!guardadoLocal && badgeSync) {
+                badgeSync.innerText = "⚠️ Sin guardar en el dispositivo — exportá GPX";
+                badgeSync.style.color = "#EF553B";
+            }
             sincronizarActividadConFirestore(sesionData);
 
             // Reiniciar estado de segmentos en curso para la próxima sesión
@@ -4850,8 +4947,8 @@
 
         async function sincronizarActividadConFirestore(sesion) {
             if (!db) {
-                console.log("[Firestore] Base de datos no inicializada, guardado local completado.");
-                return;
+                console.log("[Firestore] Base de datos no inicializada; sincronización pendiente.");
+                return false;
             }
             try {
                 let docData = { ...sesion, sincronizadoNube: true };
@@ -4871,8 +4968,10 @@
                     badgeSync.style.color = "#00CC96";
                     badgeSync.style.borderColor = "#00CC96";
                 }
+                return true;
             } catch (err) {
-                console.warn("[Firestore] Aviso: Queda en cola offline para cuando haya señal 4G/Wi-Fi:", err);
+                console.warn("[Firestore] Sincronización no confirmada; pendiente de reintento:", err);
+                return false;
             }
         }
 
@@ -4905,13 +5004,13 @@
             let subidas = 0;
             for (const act of pendientes) {
                 try {
-                    await sincronizarActividadConFirestore(act);
-                    subidas++;
+                    const confirmado = await sincronizarActividadConFirestore(act);
+                    if (confirmado) subidas++;
                 } catch (e) {
                     console.warn("Fallo subida:", e);
                 }
             }
-            alert(`Sincronización completada: ${subidas} actividad(es) respaldada(s) en Firestore.`);
+            alert(`Sincronizadas y confirmadas: ${subidas} de ${pendientes.length} actividad(es). Las restantes siguen pendientes.`);
             renderizarListaActividades();
         }
 
@@ -4956,16 +5055,16 @@
 
         function guardarEnHistorial(sesion) {
             const acts = obtenerActividadesGuardadas();
-            acts.unshift(sesion); // Agrega la más reciente al inicio
+            acts.unshift(sesion);
             try {
                 localStorage.setItem('mtb_actividades_guardadas', JSON.stringify(acts));
+                actualizarContadorActividades();
+                return true;
             } catch (e) {
-                console.warn("Storage lleno, reduciendo detalle:", e);
-                sesion.puntos = [];
-                acts[0] = sesion;
-                localStorage.setItem('mtb_actividades_guardadas', JSON.stringify(acts));
+                console.error("No se pudo guardar el historial completo:", e);
+                alert("Almacenamiento lleno: esta salida NO se guardó localmente. Descargá el GPX desde el reporte antes de cerrar la aplicación.");
+                return false; // Nunca eliminar puntos GPS silenciosamente.
             }
-            actualizarContadorActividades();
         }
 
         function abrirModalHistorial() {
