@@ -169,6 +169,43 @@ El código de muchas de estas funciones existe, **pero no está certificado** pa
 
 **Estado de arranque:** se crearon las 16 issues como propuestas de trabajo. No están implementadas por su creación y no se ha activado ningún agente automático. Claude mantiene su trabajo de diseño independiente; no se le transfieren tareas sin solicitud del usuario.
 
+
+## K. Backlog ampliado de mejoras — 28/10/2026
+**Se agregaron 12 issues nuevas, MTB-17 a MTB-28**, a las 16 anteriores. **Total: 28 tareas.** Cada tarea tiene responsable de desarrollo y la IA contraria revisa el pull request. Esto es una **propuesta de asignación en GitHub**, no una ejecución automática ni una asignación a una cuenta de GitHub de Antigravity.
+
+**Regla de prioridad:** no iniciar trabajos P2 ni rediseños mientras GPS Android/registro de actividad/copia local y estados de nube P0 no hayan superado sus pruebas. Ante conflicto, primero resolver continuidad de GPS y datos.
+
+| ID | Prioridad | Mejora nueva | Implementa | Revisa | Issue |
+|---|---|---|---|---|---|
+| MTB-17 | P1 | Chequeo pre-salida (GPS, permisos, batería, recursos offline) | Antigravity | ChatGPT | [#23](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/23) |
+| MTB-18 | P1 | Privacidad de rutas para compartir y exportación protegida | ChatGPT | Antigravity | [#24](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/24) |
+| MTB-19 | P1 | IDs de sesiones, deduplicación y multi-pestaña | ChatGPT | Antigravity | [#25](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/25) |
+| MTB-20 | P2 | Biblioteca GPX, búsqueda, etiquetas y favoritos sin internet | Antigravity | ChatGPT | [#26](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/26) |
+| MTB-21 | P2 | Entrenamientos por RPE, duración y zonas con datos reales | ChatGPT | Antigravity | [#27](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/27) |
+| MTB-22 | P2 | Garaje con múltiples bicicletas y mantenimientos | Antigravity | ChatGPT | [#28](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/28) |
+| MTB-23 | P1 | Diagnósticos de errores locales sin revelar ubicaciones | ChatGPT | Antigravity | [#29](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/29) |
+| MTB-24 | P2 | Waypoints y desvíos con regreso asistido | Antigravity | ChatGPT | [#30](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/30) |
+| MTB-25 | P1 | Rendimiento, consumo de batería y memoria | ChatGPT | Antigravity | [#31](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/31) |
+| MTB-26 | P2 | Compatibilidad GPX, TCX y evaluación FIT | Antigravity | ChatGPT | [#32](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/32) |
+| MTB-27 | P1 | Pruebas de desconexión, cuota y recuperación extrema | ChatGPT | Antigravity | [#33](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/33) |
+| MTB-28 | P1 | Entorno de staging Netlify, versiones y rollback | Antigravity | ChatGPT | [#34](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/34) |
+
+### Desarrollo sin instrucciones repetidas
+1. Cada IA revisa el **único** \`ROADMAP_FUTURO.md\`, GitHub Issues y PRs cuando inicia su sesión o trabajo autorizado.
+2. Selecciona **primero una tarea de su responsabilidad** cuya dependencia esté cumplida. No trabaja simultáneamente en el mismo archivo que otra IA sin coordinar cambios por PR.
+3. Al completar la implementación, abre PR; **la IA contraria revisa** código, pruebas, riesgos de seguridad y consistencia con el diseño y exige correcciones, sin fusionar directamente.
+4. Registra estado real, pruebas realizadas y pendientes en este roadmap. **No crear otro Markdown de informe por tarea.**
+5. El usuario aprueba merge y despliegue; GitHub Issues no activa por sí solo Antigravity, ChatGPT ni una revisión automática.
+6. Prioridad en continuidad del GPS: [PR #22](https://github.com/fernandezbjuanma-wq/proyectmtb/pull/22) compiló APK Android de prueba por CI, pero **falta prueba física de bloqueo, salida de la app y exportación real**. No llamar a eso «solucionado» hasta demostrarlo en dispositivo y validar que Netlify sigue funcionando.
+
+### Elección de entorno
+- **Chat**: decisiones, consultas, revisión puntual de estado y prioridades.
+- **Work**: trabajos multi-etapa con archivos, aplicaciones, navegador y entrega verificable, cuando el usuario dispone del modo y concede acceso.
+- **Codex**: desarrollo, corrección de código, compilaciones, ejecución de pruebas, ramas y PRs; especialmente si se trabaja en la carpeta local de Windows.
+- Para conservar contexto, usar un proyecto de ChatGPT y GitHub como repositorio central; **Work web no tiene acceso automático a los archivos locales**, la app de escritorio puede solicitar permisos para acceder a carpetas.
+- El usuario no tiene que asignar manualmente cada issue, pero una sesión o automatización autorizada debe iniciar la ejecución; no se ha configurado un agente Antigravity que ejecute issues por sí solo.
+
+
 ## I. Referencia histórica y recuperación
 Los archivos de notas antiguos eliminados en la rama de consolidación permanecen recuperables en GitHub por historial de commits y en la rama de referencia:
 [Estado previo a consolidación](https://github.com/fernandezbjuanma-wq/proyectmtb/tree/36fbd4119bb4c27c6fc0e62730a1f735fcca4bd0).
