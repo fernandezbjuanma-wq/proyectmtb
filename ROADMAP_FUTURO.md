@@ -243,3 +243,23 @@ Inspección del `index.html` de main `1e8ccd0` (sin cambios funcionales web en e
 
 ### Handoff de esta continuidad
 Antigravity: revisar el diff acotado de #6 y ejecutar las pruebas Kotlin/SQLite y la matriz móvil; comentar hallazgos y volver a revisar correcciones. Esta es una acción pendiente para una sesión habilitada, no una revisión ya realizada. ChatGPT mantiene pendientes #8/#10 y revisará los PR de #7/#11 cuando existan. Usuario: decidir aceptación y merge únicamente después de evidencia y revisión cruzada.
+
+## Revisión web y propuesta de aplicación propia — 2026-10-28
+
+**Pedido del usuario:** comprobar si el enlace Netlify puede registrar desde Chrome sin interrupciones y proponer el paso a una app. Informes por el chat; no crear nuevos MD. Esta sección es un registro breve para continuidad, no una aprobación de arquitectura ni de merge.
+
+### Resultado comprobado y límite de la revisión
+- GitHub `main` sigue en `1e8ccd06`; los PR #22 y #35 siguen abiertos como borradores, sin fusionar. La parte Android no se incorpora al sitio por visitar un enlace ni por instalar la PWA.
+- El código web de main registra con `navigator.geolocation.watchPosition`, usa Screen Wake Lock/audio y conserva el track en memoria durante la grabación; la escritura permanente de la actividad se hace al finalizar. No demuestra continuidad ni recuperación automática si Android suspende/cierra Chrome.
+- El Service Worker v7 cachea recursos y no implementa un grabador GPS. Instalar la PWA con un icono propio no agrega un servicio nativo de ubicación.
+- La [especificación Geolocation](https://www.w3.org/TR/geolocation/#request-a-position) limita la entrega de actualizaciones a documentos activos y visibles; [Chrome documenta suspensión y descarte de páginas](https://developer.chrome.com/docs/web-platform/page-lifecycle-api). Screen Wake Lock mantiene la pantalla encendida cuando puede; no garantiza GPS al bloquearla.
+- Al abrir `https://proyectmtb.netlify.app/`, Netlify mostró **Team protection / This site is private** y pidió cuenta invitada. No se cambió acceso ni se inició sesión. No se pudo inspeccionar el HTML publicado ni verificar su SHA. Otro documento menciona `mtbproyect.netlify.app`: se pidió al usuario confirmar el enlace que usa. La evidencia de main no se presenta como prueba de su despliegue exacto.
+- No se realizaron pruebas en el celular del usuario. **No dar por resuelto el registro con pantalla bloqueada desde Chrome.**
+
+### Propuesta de evolución (pendiente de aprobación)
+1. **Primera versión Android de prueba:** aprovechar el APK ya compilado de #35 ([run, intento 2](https://github.com/fernandezbjuanma-wq/proyectmtb/actions/runs/40764807561/attempts/2), artifact `radar-mtb-android-debug` ID `12849842749`). El grabador usa servicio nativo y SQLite, sin abrir Chrome. Antes de uso habitual: resolver permisos/notificaciones y pausa; probar bloqueo, cierre/interrupción, almacenamiento y GPX en un teléfono real. Compilación no equivale a aceptación de campo.
+2. **Aplicación autosuficiente:** incluir HTML/CSS/JS y dependencias esenciales dentro del APK con [contenido local de WebView](https://developer.android.com/develop/ui/views/layout/webapps/load-local-content), conservando las cuatro áreas. Actualmente MainActivity carga Netlify en un WebView: si ese sitio requiere acceso o no hay red, la interfaz completa no está disponible. Conectar interfaz y servicio mediante un puente de operaciones limitadas y origen restringido; una sola fuente de GPS y SQLite como fuente de verdad. Mapas descargados requieren trabajo separado.
+3. **Historial, respaldo y distribución:** mostrar en Radar/Historial los puntos y sesiones SQLite, con IDs estables, recuperación, GPX y estados de guardado reales; luego cola de sincronización privada con autenticación/reglas probadas. Preparar firma estable y actualizaciones que conserven datos. Primero prueba instalable privada; publicación en tienda como etapa posterior.
+
+**Orden propuesto:** #6/#7 → evidencia física #9 → integración de Historial/recuperación #8/#25 → sincronización privada #10/#11. Revisión cruzada pendiente según responsables de cada issue; el usuario aprueba integración a main. No se cambia producción, permisos Netlify, datos ni reglas Firebase con esta propuesta.
+
