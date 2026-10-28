@@ -1,3 +1,150 @@
+# RADAR TÁCTICO MTB — DOCUMENTO ÚNICO DEL PROYECTO
+Última actualización: **28/10/2026**. Responsable de las decisiones: **el usuario**.
+**Regla permanente:** novedades, decisiones, errores, pendientes, pruebas, arquitectura, roadmap, diseño y handoffs se actualizan **solo aquí**. No generar más notas \`.md\` por cada tarea. \`AGENTS.md\` y \`CLAUDE.md\` son excepciones técnicas que únicamente indican dónde está esta fuente de verdad.
+
+> **Estados claros:** "código escrito" ≠ "compilado" ≠ "probado en teléfono" ≠ "desplegado". Las funciones históricamente rotuladas "100% completadas" no necesariamente han sido validadas.
+
+## A. Resumen y prioridades del usuario
+- Proyecto: Radar Táctico MTB, app para entrenamiento, navegación, seguimiento GPS, análisis y seguridad en montaña.
+- Interfaz con **cuatro pestañas fijas y en orden:** Preparación → Radar Live → Laboratorio → Historial.
+- El usuario quiere trabajar también con Antigravity y Claude, **sin delegación de tareas salvo pedido expreso**. Antigravity ha trabajado en Netlify y un reproductor/scrubber interactivo de rutas; los cambios locales aún no aparecían en GitHub al último control. Claude trabaja en un diseño visual favorito del usuario: **no sustituir ni inventar su diseño**.
+- Respaldo intocable: \`respaldo/original-antigravity-2026-10-24\`; otro respaldo \`respaldo/actual-con-documentacion-2026-10-24\`.
+- **Prioridad inmediata:** conservar recorridos, corregir grabación GPS interrumpida al bloquear o cerrar la app, confirmar realmente el estado de la nube y evitar indicaciones SOS engañosas.
+- URL de la web informada por el usuario: https://proyectmtb.netlify.app/ . En la última comprobación no se pudo recuperar su contenido; no afirmar que coincide con GitHub sin inspeccionarlo.
+
+## B. Estado real por entrega
+| Trabajo | Ubicación | Estado real |
+|---|---|---|
+| Base web anterior, mapa Leaflet, telemetría, Laboratorio, Historial, GPX, BikeFit, Ghost y Escuadrón | \`main\` | Código existente; muchas funciones requieren pruebas reales |
+| Coordinación de IAs | PR #1 fusionado en \`main\` | Documentación, no cambia código de aplicación |
+| Reparación GPS web, reinicio de sesión, cálculo temporal, SOS sin coordenadas ficticias, fallos de guardado | [PR #2](https://github.com/fernandezbjuanma-wq/proyectmtb/pull/2) | Borrador, sin pruebas con hardware ni merge |
+| IndexedDB checkpoints GPS, recuperación interrumpida, estadísticas mensuales, comparador de rutas, privacidad básica | [PR #3](https://github.com/fernandezbjuanma-wq/proyectmtb/pull/3) | Borrador; depende del PR #2; no probado en dispositivos |
+| Prototipo Android con foreground service, SQLite, controles nativos y GPX básico; bosquejo de reglas Firebase | [PR #4](https://github.com/fernandezbjuanma-wq/proyectmtb/pull/4) | **EXPERIMENTAL**; depende del PR #3; no compilado ni probado; NO despliegue de reglas |
+| Netlify + reproductor/scrubber de Antigravity | Copia local de Antigravity (según usuario) | No se encontró en \`main\` o ramas de trabajo publicadas al revisar |
+| Diseño de Claude | Trabajo independiente de Claude | Pendiente de que el usuario comparta el artefacto elegido y apruebe la integración |
+
+**Dependencias GitHub:** PR #4 se basa en PR #3, que se basa en PR #2; no fusionar fuera de orden y revisar conflictos con el trabajo local antes de llevar nada a \`main\`.
+
+## C. Novedades (bitácora única)
+### 28/10/2026 — diagnóstico GPS web
+- El sitio está alojado en Netlify, pero una página web/PWA no puede garantizar seguimiento GPS con el teléfono bloqueado o el navegador cerrado.
+- Mantener audio silencioso, Screen Wake Lock y MediaSession **no crea un servicio GPS nativo**. Netlify es hosting web, no motor de localización en segundo plano.
+- El usuario probó y observó pérdida de grabación; problema **NO resuelto en su despliegue público**.
+
+### 28/10/2026 — PR #2: correcciones propuestas del código web
+- Evitar duplicar \`watchPosition\`, guardar su ID y ejecutar \`clearWatch\` al finalizar.
+- Reiniciar métricas, track, segmentos y contadores al comenzar otra salida.
+- Tiempo en movimiento basado en timestamps GPS y tratamiento de huecos.
+- Desnivel acumulado separado de cálculo de pendiente; pendiente validar filtros con GPX reales.
+- Mensajes SOS con última posición conocida (no inventada) y aclaración de envío **manual** por WhatsApp.
+- Guardado lleno: avisar y ofrecer exportar GPX, no borrar puntos silenciosamente.
+- Sincronización: contador solamente de intentos exitosos reportados; **Firestore offline puede resolver operaciones desde caché sin confirmación remota**.
+
+### 28/10/2026 — PR #3: seis áreas de mejora
+- \`mtb-store.js\`: IndexedDB local, checkpoints por punto, borrador activo y recuperación opcional; no reactivar GPS automáticamente. Existe una limitación de cuota/cierre forzado, requiere pruebas.
+- \`mtb-core.js\`: Haversine, tiempo movimiento, filtro de altitud, estadísticas por mes, GPX y comparación global de recorridos coincidentes (no comparador de segmentos parciales).
+- \`tests/mtb-core.test.cjs\`: pruebas automatizadas para Node, sin dependencias adicionales. Se verificó sintaxis JavaScript y comprobaciones aisladas; no pruebas de navegador ni CI afirmadas.
+- Historial: resumen mensual y migración no destructiva de sesiones. Borrado revisado.
+- Escuadrón: consentimiento inicial, sanitización de nombres y limpieza de suscripciones; **la seguridad de Firestore del lado servidor sigue sin verificar**.
+- No se modificó la estética favorita de Claude ni el reproductor de Antigravity.
+
+### 28/10/2026 — PR #4: inicio solución Android y nube
+- Directorio \`android/\`: estructura Gradle experimental, \`MainActivity.kt\`, \`TrackingService.kt\`, \`TrackDatabase.kt\`, \`GpxExport.kt\`, manifest.
+- El servicio Android tipo \`location\` inicia GPS con notificación y escribe posiciones en SQLite; este esquema es la dirección correcta para continuar con pantalla apagada, sujeto a permisos y pruebas.
+- WebView usa https://proyectmtb.netlify.app/; los botones de tracking web y Android **todavía NO están coordinados**. Hay riesgo de registrar dos sesiones. **NO es APK terminado**.
+- Exportación nativa inicial comparte texto GPX; falta exportar un archivo GPX real.
+- \`firebase.rules\` contiene ejemplo de **denegación por defecto** para actividades por usuario autenticado. **NO DESPLEGAR** hasta migrar cliente/colecciones: bloquearía al cliente antiguo.
+- No se pudo confirmar desde aquí la configuración activa del proyecto Firebase ni acceder al contenido público de Netlify.
+
+### 28/10/2026 — limpieza documental
+- Se concentra el trabajo en **este mismo \`ROADMAP_FUTURO.md\`**. Se retiran documentos de informes redundantes de la rama de limpieza.
+- \`AGENTS.md\` y \`CLAUDE.md\` quedan como punteros técnicos, sin almacenar avances divergentes.
+- Todos los documentos retirados son recuperables mediante el historial y los respaldos de GitHub.
+
+## D. Lista única de pendientes priorizados
+### P0 — Antes de utilizarlo como grabador GPS confiable
+- [ ] Compilar el prototipo Android y resolver errores de Kotlin/Gradle/manifest; generar e instalar APK de prueba.
+- [ ] Comprobar permisos de ubicación y restricciones de servicio en Android actual con interacción explícita del usuario.
+- [ ] Integrar UI web y servicio nativo con **una sola** fuente de tracking (no doble GPS), estado visible y control seguro de inicio/fin.
+- [ ] Escribir y recuperar tracks SQLite aun si se suspende/cierra WebView; convertir exportación a archivo GPX verificable y restaurarlo en Historial.
+- [ ] Probar pantalla bloqueada, otras apps, pérdida de internet, modo ahorro de batería, interrupciones GPS, reinicio de proceso y cierre forzado. **Forzar detención desde Ajustes puede parar el servicio.**
+- [ ] Comprobar que el guardado web IndexedDB no pierde puntos y maneja correctamente conflictos multi-pestaña, cuotas y borradores.
+- [ ] Verificar Netlify real con acceso a contenido publicado y comparar versión desplegada con GitHub/Antigravity antes de integrar.
+- [ ] Probar rutas consecutivas sin mezcla de GPS y comprobar timeouts, precisión y distancias sobre GPX conocido.
+
+### P1 — Nube, privacidad y recuperación
+- [ ] Identificar el proyecto Firebase real; datos de \`FIREBASE_DEFAULT_CONFIG\` en web son demostrativos. No compartir secretos de administración.
+- [ ] Habilitar Firebase Auth, definir aislamiento por UID y migrar con copia de seguridad de \`actividades_mtb\` a \`usuarios/{uid}/actividades/{id}\`.
+- [ ] Probar reglas restrictivas en emulador antes de publicar. Revisión especial de \`escuadron_salas\`: autenticación, miembros autorizados, vencimiento, desconexión y control de retención de ubicación.
+- [ ] Separar estados UI: guardado local / pendiente de envío / confirmado por servidor. No confundir escritura en caché con entrega real.
+- [ ] Exportar/restaurar el Historial completo para proteger los entrenamientos y detectar duplicados de sincronización.
+- [ ] Comprobar que recursos necesarios funcionan desconectados; los MP3 offline mencionados en el código web no aparecen en el árbol GitHub inspeccionado.
+- [ ] Revisar uso de plantillas HTML dinámicas con datos de usuarios/Firestore restantes y errores asíncronos.
+- [ ] No habilitar localización compartida como característica de seguridad hasta verificar reglas reales de acceso.
+
+### P2 — Producto, diseño y análisis
+- [ ] Importar y validar el diseño de Claude que el usuario prefirió, sin eliminar funciones.
+- [ ] Integrar el scrubber de Antigravity después de comparar lo publicado con las ramas existentes.
+- [ ] Optimizar ClimbPro por distancia acumulada real sobre el track y desnivel filtrado.
+- [ ] Desarrollar mapas offline autorizados (tiles/archivos/licencia y cuotas) y trackback diferenciando huella inversa de rutas transitables.
+- [ ] Mejorar comparador global y extenderlo a segmentos equivalentes con validación robusta.
+- [ ] Configuración de panel Radar Live y coach de voz offline; esclarecer límites de audio ducking Spotify.
+- [ ] Mejoras en garaje, mantenimiento y progreso mensual, señalando los parámetros estimados.
+- [ ] En Laboratorio, dejar claro que Watts, TSS/IF, calorías, hidratación y recomendaciones son **estimaciones**, salvo mediciones con sensor.
+
+## E. Roadmap de funcionalidades (visión vs evidencia)
+**Quince áreas del roadmap histórico:** UI de 4 pestañas; GPS y keep-alive; mapas especializados; Laboratorio; nube offline; exportación Strava; telemetría de Escuadrón; presión y coach; SOS/detección de caídas; BikeFit; segmentos privados; Ghost Pacer; voz con ducking; odómetro; ClimbPro.
+
+El código de muchas de estas funciones existe, **pero no está certificado** para uso en campo; no asumir "100% comprobado". Pueden usarse como base para la V2 sin reescritura total.
+
+**Ocho mejoras V2 aprobadas como dirección:** (1) mapas offline y volver al inicio, (2) Radar Live personalizable, (3) ClimbPro mejorado, (4) coach de voz, (5) comparador de recorridos, (6) garaje/mantenimiento, (7) Escuadrón/seguridad, (8) desafíos/progreso. Se implementan por etapas cuando el usuario lo indique, sin asignación autónoma a otras IAs.
+
+## F. Diseño y decisiones ya tomadas
+| Decisión | Estado |
+|---|---|
+| Orden de 4 pestañas fijo | APROBADO |
+| Organización básica del antiguo boceto de ChatGPT | ACEPTADA solo como estructura |
+| Estética del antiguo boceto de ChatGPT | NO adoptada |
+| Diseño visual realizado por Claude | Favorito del usuario, falta archivo/capturas y aprobación de integración |
+| Antigravity como entorno de trabajo del usuario | MANTENER |
+| Colaboración ChatGPT/Antigravity/Claude | Solo bajo tareas encargadas explícitamente por el usuario |
+| GitHub como espacio de versiones y revisiones | APROBADO |
+| Nunca cambiar main ni respaldos sin revisión y aprobación | REGLA DE SEGURIDAD |
+| PWA web vs solución Android para GPS bloqueado | Seguimiento nativo en estudio, sin pruebas terminadas |
+| Fuente/licencia de mapas offline y backend privado | PENDIENTE |
+
+**Distribución de pestañas:** Preparación (GPX, mapas descargados, perfiles, garaje y ajustes); Radar Live (mapa, velocidad, GPS, grabación, ClimbPro, SOS); Laboratorio (entrenamiento, elevación, potencia estimada, comparaciones); Historial (actividades, sincronización, récords y evolución). Priorizar legibilidad bajo sol, funcionamiento sin red y claridad de fallos y datos estimados.
+
+## G. Tecnología y guía de integración
+**Web actual:** HTML/CSS/JS en \`index.html\` (~4200 líneas al estado original), Service Worker \`sw.js\`, \`manifest.json\`, Leaflet/GPX, Firebase SDK y datos en localStorage. En los PRs futuros hay módulos \`mtb-core.js\` y \`mtb-store.js\`.
+
+**Android experimental:** carpeta \`android/\`, Kotlin/Gradle/SQLite. Abrir en Android Studio, revisar \`android/app/build.gradle.kts\`, compilar y corregir según SDK actual; conceder permisos con gesto voluntario, revisar restricciones actuales de Android para servicios foreground, conectar TrackDatabase con controles UI, exportar GPX como archivo y verificar en dispositivo. No dejar dos grabadores a la vez.
+
+**Firebase:** el frontend antiguo usa colecciones globales sin usuario autenticado. El archivo \`firebase.rules\` del PR #4 es una propuesta sin despliegue: aplicar recién después de migrar cliente y datos, con pruebas de reglas y copias. Los estados de nube deben distinguir caché vs confirmación remota.
+
+**Netlify:** aloja la web, no mantiene servicios GPS del navegador en background ni administra automáticamente las actividades. Revisar URL y logs de despliegue solo con acceso autorizado.
+
+## H. Protocolo breve de trabajo y validación
+1. El usuario asigna una tarea. La IA consulta **este documento** y el código efectivo, comprueba \`main\` y PRs abiertos.
+2. Antes de cambiar funcionalidad, crear rama temática desde la versión correcta; conservar respaldos.
+3. Codificar y ejecutar pruebas sintácticas/unitarias y, cuando corresponda, ensayos móviles. Identificar lo no probado.
+4. Abrir PR con descripción técnica y pasos de prueba. **No fusionar sin aprobación del usuario.**
+5. Registrar novedades, decisiones, errores, pruebas y tareas pendientes **aquí mismo**, con fecha y enlace al PR. **NO crear un informe .md nuevo por tarea.**
+6. No publicar contraseñas, teléfonos, rastros personales, claves privadas ni ubicaciones sensibles en un repositorio público.
+7. No prometer SOS automático, GPS continuo en navegador cerrado ni sincronización confirmada sin evidencia.
+8. Si las otras IAs tienen cambios locales, evitar pisarlos y solicitar que se contrasten antes de integrar.
+
+### Plantilla de entrada para nuevas tareas (agregar aquí)
+\`AAAA-MM-DD | Tarea | Rama/PR | Cambios verificables | Pruebas realizadas | Límites | Pendientes | Decisión del usuario\`.
+
+## I. Referencia histórica y recuperación
+Los archivos de notas antiguos eliminados en la rama de consolidación permanecen recuperables en GitHub por historial de commits y en la rama de referencia:
+[Estado previo a consolidación](https://github.com/fernandezbjuanma-wq/proyectmtb/tree/36fbd4119bb4c27c6fc0e62730a1f735fcca4bd0).
+
+### Anexo: roadmap original (conservado íntegro como referencia histórica)
+
+> **Nota:** se transcribe la visión original tal como fue escrita. Sus afirmaciones de "100% completo" no deben interpretarse como pruebas funcionales.
+
 # 🚵‍♂️ RADAR TÁCTICO MTB - ROADMAP DEFINITIVO (VISIÓN + ARQUITECTURA)
 **Documento Central para el Agente de Desarrollo (Antigravity)**
 
