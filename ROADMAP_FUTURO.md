@@ -117,3 +117,40 @@
 *   **La Idea (Visión):** Planificar la salida junto a la IA según el objetivo del día (Escalada, Fondo, Intervalos HIIT o Recuperación) recibiendo instrucciones paso a paso durante la ruta.
 *   **Implementación Técnica:** Tarjeta en pestaña Preparación con 4 planes y desglose de fases (Calentamiento, Bloque Principal, Enfriamiento). Widget interactivo en vivo `#widget-plan-entrenamiento` en Radar Live con barra de progreso, temporizador de fase y órdenes de voz automáticas en cada transición.
 *   **Estado:** **COMPLETADO.**
+
+---
+
+## AVANCE REAL — 2026-10-28 — Registro GPS Android con pantalla bloqueada
+**Responsable:** ChatGPT · **Revisión cruzada propuesta:** Antigravity · **Trabajo:** MTB-01/02/03/04 · **Rama:** \`feat/gps-android-grabacion-nativa-final-20261028\`
+
+**Problema confirmado por el usuario:** La PWA alojada en \`https://proyectmtb.netlify.app/\` deja de grabar cuando Android suspende el navegador, se apaga la pantalla o se cierra la web. Audio silencioso y Screen Wake Lock **no garantizan** continuidad. No prometerlo para el sitio web.
+
+### Código agregado en rama independiente desde main actualizado de Antigravity
+- \`android/app/src/main/java/ar/mtb/radar/TrackingService.kt\`: servicio foreground de tipo \`location\`, notificación persistente con acción de detener, escucha GPS y escritura SQLite. Funciona conceptualmente aunque WebView esté en segundo plano, sujeto a las restricciones de Android. Sin internet requerido para las coordenadas.
+- \`TrackDatabase.kt\`: sesiones con ID, timestamps, coordenadas aceptadas, índice, deduplicación y filtro de precisión/saltos. Registro local independiente del navegador. Si un proceso muere, los puntos ya escritos permanecen y la sesión inconclusa puede reanudarse a pedido del usuario.
+- \`MainActivity.kt\`: controles nativos Iniciar/Detener GPS, estado de puntos guardados, listado de sesiones, elección de nueva ruta vs continuar ruta interrumpida, visor WebView restringido al origen Netlify. Los controles de grabación web se interceptan dentro de la app Android para evitar doble registro.
+- \`GpxExport.kt\`: escritura streaming de GPX válido por el selector \`ACTION_CREATE_DOCUMENT\` de Android (archivo, no texto de WhatsApp).
+- \`android/*gradle* / AndroidManifest.xml\`: proyecto Android Gradle/Kotlin minSdk26/target35, permisos requeridos.
+- \`.github/workflows/android-gps.yml\`: compilación de APK debug como artifact de GitHub Actions al subir cambios a la rama o abrir PR. No se incorporó a Netlify ni se modificó la web publicada.
+
+### Lo que NO debe confundirse con terminado
+- El **sitio Netlify** no adquiere GPS de segundo plano por este trabajo: solo la aplicación Android instalada, una vez compilada, podrá intentarlo.
+- La grabación nativa es inicialmente independiente del Historial web/Firestore: aparece en el listado nativo y se exporta a GPX. Importación automática a Historial web y sincronización nube requieren integración adicional.
+- **No se ha probado aún en un teléfono físico** ni verificado autonomía/batería. No usar como sistema de rescate. Android puede detenerlo mediante «Forzar detención», restricciones del fabricante o permisos revocados.
+- Confirmar **CI Android APK** antes de presentar APK como compilado; si falla, corregir errores en esta misma rama.
+- Probar en teléfono: 10/30/60 min pantalla apagada, abrir otra app, cerrar vista, perder datos móviles, GPS desactivado, permisos denegados, interrupción/cierre del proceso, exportación y reimportación GPX. Validar cantidad y timestamps de puntos grabados.
+- No fusionar main ni tocar respaldos sin revisión y aprobación del usuario.
+
+### Próximo orden
+1. Comprobar éxito de GitHub Actions y disponer del APK debug de prueba.
+2. Instalar APK en Android, autorizar ubicación precisa, pulsar **▶ GPS**, comprobar notificación, bloquear pantalla y hacer recorrido breve. Verificar \`GPX guardados\` y exportación en formato .gpx.
+3. Corregir lo observado en la prueba móvil y sincronizar esa fuente GPS con Radar Live/Historial.
+4. Solo después integrar la versión probada con el diseño de Claude y el despliegue Netlify.
+
+### Compilación Android verificada el 28/10/2026
+- GitHub Actions **BUILD SUCCESSFUL**, run `40758066360`: https://github.com/fernandezbjuanma-wq/proyectmtb/actions/runs/40758066360
+- Artifact ZIP **radar-mtb-android-debug** ID `12847387191` (incluye `app-debug.apk`, firmado para depuración). No es APK final de Play Store.
+- SHA de código compilado: `2f73497f8a3d56d5de1371c9ada10ef8f7ac3667` (el cambio posterior en ROADMAP no modifica binario).
+- Verificación disponible: compilación y empaquetado Android exitosos; **aún no hubo prueba física en teléfono**. No presentar la función como validada con pantalla bloqueada.
+- Instalación de prueba: entrar al enlace de Actions, sección **Artifacts**, bajar `radar-mtb-android-debug`, extraer `app-debug.apk` e instalar en Android. Aceptar permisos de ubicación precisa e iniciar desde botón superior ▶ GPS.
+- Después de grabar, pulsar **■ Parar** → **GPX guardados** → seleccionar sesión y guardar archivo `.gpx`. Los puntos de ese archivo se guardan en SQLite aunque la web no esté visible. La nube y el Historial web aún no se completan automáticamente.
