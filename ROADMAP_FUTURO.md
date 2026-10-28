@@ -146,3 +146,11 @@
 2. Instalar APK en Android, autorizar ubicación precisa, pulsar **▶ GPS**, comprobar notificación, bloquear pantalla y hacer recorrido breve. Verificar \`GPX guardados\` y exportación en formato .gpx.
 3. Corregir lo observado en la prueba móvil y sincronizar esa fuente GPS con Radar Live/Historial.
 4. Solo después integrar la versión probada con el diseño de Claude y el despliegue Netlify.
+
+### Compilación Android verificada el 28/10/2026
+- GitHub Actions **BUILD SUCCESSFUL**, run `40758066360`: https://github.com/fernandezbjuanma-wq/proyectmtb/actions/runs/40758066360
+- Artifact ZIP **radar-mtb-android-debug** ID `12847387191` (incluye `app-debug.apk`, firmado para depuración). No es APK final de Play Store.
+- SHA de código compilado: `2f73497f8a3d56d5de1371c9ada10ef8f7ac3667` (el cambio posterior en ROADMAP no modifica binario).
+- Verificación disponible: compilación y empaquetado Android exitosos; **aún no hubo prueba física en teléfono**. No presentar la función como validada con pantalla bloqueada.
+- Instalación de prueba: entrar al enlace de Actions, sección **Artifacts**, bajar `radar-mtb-android-debug`, extraer `app-debug.apk` e instalar en Android. Aceptar permisos de ubicación precisa e iniciar desde botón superior ▶ GPS.
+- Después de grabar, pulsar **■ Parar** → **GPX guardados** → seleccionar sesión y guardar archivo `.gpx`. Los puntos de ese archivo se guardan en SQLite aunque la web no esté visible. La nube y el Historial web aún no se completan automáticamente.
