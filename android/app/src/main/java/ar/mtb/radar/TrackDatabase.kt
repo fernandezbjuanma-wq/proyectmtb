@@ -5,6 +5,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.location.Location
+import android.os.SystemClock
 import java.util.UUID
 import kotlin.math.*
 
@@ -54,32 +55,45 @@ class TrackDatabase(context: Context) : SQLiteOpenHelper(context, "radar_tracks_
         return 6371000.0*2*atan2(sqrt(q.coerceIn(0.0,1.0)),sqrt((1-q).coerceIn(0.0,1.0)))
     }
     @Synchronized fun record(id: String,loc: Location): Boolean {
-        if(!loc.latitude.isFinite() || !loc.longitude.isFinite()) return false
-        if(abs(loc.latitude)>90 || abs(loc.longitude)>180) return false
-        if(!loc.hasAccuracy() || !loc.accuracy.isFinite() || loc.accuracy>40f) return false
-        val now=System.currentTimeMillis()
-        val timestamp=loc.time.takeIf { it>0 && abs(now-it)<120000L } ?: now
-        val p=Point(loc.latitude,loc.longitude,if(loc.hasAltitude())loc.altitude else null,
-            loc.accuracy,if(loc.hasSpeed())loc.speed else 0f,timestamp)
-        readableDatabase.rawQuery(
-            "SELECT lat,lon,elevation,accuracy,speed,utc_ms FROM positions WHERE session_id=? ORDER BY id DESC LIMIT 1",
-            arrayOf(id)
-        ).use {
-            if(it.moveToFirst()){
-                val last=Point(it.getDouble(0),it.getDouble(1),if(it.isNull(2))null else it.getDouble(2),
-                    it.getFloat(3),it.getFloat(4),it.getLong(5))
-                val seconds=(p.timeMs-last.timeMs)/1000.0
-                if(seconds<=0) return false
-                val distance=meters(last,p)
-                if(distance>70.0 && distance/seconds>45.0) return false
+        val fix=GpsFixPolicy.validate(
+            GpsFixPolicy.Fix(loc.latitude,loc.longitude,if(loc.hasAccuracy())loc.accuracy else null,
+                loc.time,loc.elapsedRealtimeNanos,if(loc.hasAltitude())loc.altitude else null,
+                if(loc.hasSpeed())loc.speed else null),
+            System.currentTimeMillis(),SystemClock.elapsedRealtimeNanos()
+        ) ?: return false
+        val p=Point(fix.latitude,fix.longitude,fix.elevation,fix.accuracy!!,fix.speed ?: 0f,fix.timeMs)
+        val database=writableDatabase
+        // La transacción también serializa otros helpers (por ejemplo, la Activity).
+        // Ningún callback pendiente puede agregar puntos después de finish().
+        database.beginTransaction()
+        try {
+            database.rawQuery("SELECT 1 FROM sessions WHERE id=? AND ended_at IS NULL",arrayOf(id)).use {
+                if(!it.moveToFirst()) return false
             }
+            database.rawQuery(
+                "SELECT lat,lon,elevation,accuracy,speed,utc_ms FROM positions WHERE session_id=? ORDER BY id DESC LIMIT 1",
+                arrayOf(id)
+            ).use {
+                if(it.moveToFirst()){
+                    val last=Point(it.getDouble(0),it.getDouble(1),if(it.isNull(2))null else it.getDouble(2),
+                        it.getFloat(3),it.getFloat(4),it.getLong(5))
+                    if(p.timeMs<=last.timeMs) return false
+                    val seconds=(p.timeMs.toDouble()-last.timeMs.toDouble())/1000.0
+                    val distance=meters(last,p)
+                    if(distance>70.0 && distance/seconds>45.0) return false
+                }
+            }
+            val v=ContentValues().apply {
+                put("session_id",id);put("lat",p.lat);put("lon",p.lon)
+                if(p.elevation!=null)put("elevation",p.elevation)else putNull("elevation")
+                put("accuracy",p.accuracy);put("speed",p.speed);put("utc_ms",p.timeMs)
+            }
+            val inserted=database.insertWithOnConflict("positions",null,v,SQLiteDatabase.CONFLICT_IGNORE)!=-1L
+            database.setTransactionSuccessful()
+            return inserted
+        } finally {
+            database.endTransaction()
         }
-        val v=ContentValues().apply {
-            put("session_id",id);put("lat",p.lat);put("lon",p.lon)
-            if(p.elevation!=null)put("elevation",p.elevation)else putNull("elevation")
-            put("accuracy",p.accuracy);put("speed",p.speed);put("utc_ms",p.timeMs)
-        }
-        return writableDatabase.insertWithOnConflict("positions",null,v,SQLiteDatabase.CONFLICT_IGNORE)!=-1L
     }
     @Synchronized fun sessions(limit: Int=30): List<Session> {
         val out=mutableListOf<Session>()
