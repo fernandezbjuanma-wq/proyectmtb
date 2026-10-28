@@ -36,3 +36,13 @@ Estos son hallazgos de lectura estática, NO resultados de pruebas ejecutadas.
 - Definir pruebas mínimas: iniciar, pausar/finalizar, guardar, restaurar, importar/exportar GPX, consultar historial, sin red, permisos negados.
 - Separar responsabilidades gradualmente; no reescribir todo a la vez.
 - Etiquetar qué funciones están probadas y cuáles siguen siendo hipótesis.
+
+## Nube y Respaldos (implementado 2026-10-28)
+- **Firebase Firestore** inicializado con `enablePersistence({ synchronizeTabs: true })`. Las actividades se suben automáticamente al finalizar cada salida (`sincronizarActividadConFirestore`). Si no hay internet, quedan en cola offline de IndexedDB y se suben solas al recuperar señal.
+- **Prueba de conexión en vivo** (`probarConexionFirebase`): diagnóstico accesible desde el modal ☁️ Nube. Timeout de 6s para no congelar la UI sin conexión.
+- **Sincronización manual bidireccional**: `sincronizarPendientesFirestore()` sube las pendientes; `descargarTodasDeNubeALocal()` baja hasta 100 actividades desde Firestore y las fusiona sin duplicados por ID.
+- **Respaldo Universal JSON** (`exportarBackupCompleto`): empaqueta actividades, odómetro, segmentos privados y bikefit en un `.json` descargable. Restauración mediante `importarBackupJSON` con fusión sin duplicados y restauración opcional de odómetro/segmentos.
+- **Botones en Historial**: 🔄 Sincronizar | 📦 Backup | ☁️ Nube.
+- **Modal ☁️ NUBE Y RESPALDOS MTB** (`#modal-config-nube`): badge de estado en vivo, botón de diagnóstico, subir/descargar manual, exportar/importar JSON, credenciales Firebase propias opcionales con guía de 2 minutos.
+- **Correcciones de Codex integradas** (merge de `fix/gps-sos-datos-20261028`): `clearWatch` al finalizar, reinicio de variables entre sesiones, SOS sin coordenadas ficticias, guardado que no borra puntos GPS silenciosamente.
+- **Sin probar en celular real**: todas las funciones nuevas requieren verificación con el dispositivo del usuario en `https://mtbproyect.netlify.app/`.

@@ -14,6 +14,8 @@ Actualizar solo decisiones basadas en afirmaciones explícitas del usuario o evi
 | D-008 | NORMA DEL PROCESO | No aplicar cambios funcionales en main sin revisión y aprobación humana. |
 | D-009 | PENDIENTE | Decidir PWA vs componente nativo tras ensayos reales de GPS en segundo plano. |
 | D-010 | PENDIENTE | Seleccionar tecnología/licencia de mapas offline y política de datos de ubicación. |
+| D-011 | APROBADA | Arquitectura de Nube Híbrida: Firebase Firestore BaaS Offline-First + Respaldo Universal JSON. El usuario aprobó ambas opciones ("me gustan las dos opciones para tener buenos respaldos y no perder el registro"). Firestore con `enablePersistence` para sincronización automática con 4G/Wi-Fi; Backup JSON local (.json descargable) para portabilidad total sin cuenta ni internet. Implementado en commit sobre main el 2026-10-28 por Antigravity. |
+| D-012 | APROBADA | Integrar en main las correcciones de fiabilidad GPS, SOS y guardado propuestas por ChatGPT en la rama `fix/gps-sos-datos-20261028`. Merge realizado en commit `7622a0e` el 2026-10-28 por Antigravity. |
 
 ## Convenciones
 APROBADA: confirmada expresamente. APROBADA COMO DIRECCIÓN: intención validada pero detalles abiertos. PENDIENTE: requiere decisión/evidencia. RECHAZADA: no usar salvo nueva instrucción.

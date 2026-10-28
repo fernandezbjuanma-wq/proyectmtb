@@ -1945,10 +1945,11 @@
             <button class="btn-pestana" id="tab-nube" onclick="cambiarPestanaHistorial('nube')">☁️ En la Nube (<span id="cont-nube">0</span>)</button>
         </div>
 
-        <!-- Acciones de Nube -->
-        <div style="display: flex; gap: 8px; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <button class="btn-nube-action" onclick="sincronizarPendientesFirestore()">🔄 Sincronizar Pendientes</button>
-            <button class="btn-nube-action" style="border-color: #555; color: #aaa;" onclick="abrirConfigNube()">⚙️ Ajustes Nube</button>
+        <!-- Acciones de Nube y Respaldo -->
+        <div style="display: flex; gap: 6px; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <button class="btn-nube-action" style="flex: 1;" onclick="sincronizarPendientesFirestore()">🔄 Sincronizar</button>
+            <button class="btn-nube-action" style="flex: 1; border-color: #FECB52; color: #FECB52;" onclick="exportarBackupCompleto()">📦 Backup</button>
+            <button class="btn-nube-action" style="flex: 1; border-color: #4DA8DA; color: #4DA8DA;" onclick="abrirConfigNube()">☁️ Nube</button>
         </div>
 
         <div id="lista-actividades" style="margin-bottom: 10px;">
@@ -2020,36 +2021,76 @@
     <!-- MODAL DE HISTORIAL COMPATIBLE (PARA COMPATIBILIDAD CON FUNCIONES PREVIAS) -->
     <div class="modal-reporte" id="modal-historial" style="display: none;"></div>
 
-    <!-- MODAL DE AJUSTES DE SINCRONIZACIÓN EN LA NUBE (FIREBASE) -->
+    <!-- MODAL DE AJUSTES DE SINCRONIZACIÓN EN LA NUBE (FIREBASE & BACKUP UNIVERSAL) -->
     <div class="modal-reporte" id="modal-config-nube">
-        <div class="reporte-card" style="max-width: 440px;">
+        <div class="reporte-card" style="max-width: 440px; max-height: 85vh; overflow-y: auto;">
             <div class="reporte-titulo">
-                <span>☁️ CONEXIÓN EN LA NUBE</span>
+                <span>☁️ NUBE Y RESPALDOS MTB</span>
                 <button class="btn-cerrar-sim" onclick="cerrarConfigNube()">✖</button>
             </div>
-            <p class="reporte-subtitulo">Base de datos Firebase Firestore con soporte y persistencia offline.</p>
+            <p class="reporte-subtitulo">Sincronización en la nube con Firestore y copias de seguridad de tus rutas.</p>
             
+            <!-- 1. Estado y Diagnóstico en Vivo -->
             <div class="seccion-reporte">
-                <div style="font-size: 13px; margin-bottom: 8px; color: #fff;">
-                    <strong>Estado actual:</strong> <span id="nube-estado-detalle" style="color: #20c997;">Habilitada con persistencia local</span>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <strong style="color: #fff; font-size: 12px;">Estado de Conexión:</strong>
+                    <span id="nube-badge-estado" style="background: #132e22; border: 1px solid #20c997; color: #20c997; font-size: 10px; font-weight: bold; padding: 3px 8px; border-radius: 10px;">Offline-First Listo</span>
                 </div>
-                <p style="font-size: 12px; color: #8fa0b5; margin: 0 0 10px 0;">
-                    Cuando pedaleas en la montaña sin cobertura celular, las sesiones se guardan en el teléfono y se sincronizan solas en cuanto recuperas 4G o Wi-Fi.
+                <div id="nube-estado-detalle" style="font-size: 11px; color: #8fa0b5; margin-bottom: 8px;">
+                    Tus salidas se guardan seguras en el celular y se suben solas al enganchar Wi-Fi/4G.
+                </div>
+                <button class="btn-nube-action" style="width: 100%; padding: 8px;" onclick="probarConexionFirebase()">
+                    🔌 Probar Conexión con Firestore
+                </button>
+                <div id="nube-resultado-test" style="font-size: 11px; margin-top: 6px; display: none; text-align: center;"></div>
+            </div>
+
+            <!-- 2. Sincronización Manual Bidireccional -->
+            <div class="seccion-reporte">
+                <div class="seccion-tag tag-garmin">Sincronización de Salidas</div>
+                <p style="font-size: 11px; color: #8fa0b5; margin-bottom: 8px;">
+                    Podés forzar la subida de salidas pendientes o descargar las que tenés guardadas en tu nube a este dispositivo:
                 </p>
-                <div style="font-size: 11px; color: #888;">
-                    Colección activa: <code style="color: #4DA8DA;">actividades_mtb</code>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn-nube-action" style="flex: 1;" onclick="sincronizarPendientesFirestore()">
+                        ⬆️ Subir Pendientes
+                    </button>
+                    <button class="btn-nube-action" style="flex: 1; border-color: #20c997; color: #20c997;" onclick="descargarTodasDeNubeALocal()">
+                        ⬇️ Descargar de Nube
+                    </button>
                 </div>
             </div>
 
+            <!-- 3. Copia de Seguridad Universal (JSON Offline) -->
             <div class="seccion-reporte">
-                <div class="seccion-tag tag-garmin">Configuración de Proyecto Firebase</div>
+                <div class="seccion-tag tag-strava">Respaldo Universal (Archivo Seguro)</div>
                 <p style="font-size: 11px; color: #8fa0b5; margin-bottom: 8px;">
-                    Podés usar el proyecto en la nube integrado o pegar la configuración JSON de tu propio proyecto Firebase:
+                    Descargá un archivo completo con todo tu historial de rutas, vatios, odómetro y segmentos para respaldar en Google Drive, WhatsApp o migrar de teléfono:
                 </p>
-                <textarea id="txt-firebase-config" placeholder='{"apiKey": "...", "projectId": "..."}' style="width: 100%; height: 80px; background: #1a1a24; border: 1px solid #4a5568; border-radius: 6px; color: #fff; font-family: monospace; font-size: 11px; padding: 6px; box-sizing: border-box; resize: none;"></textarea>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn-nube-action" style="flex: 1; background: #1a2736;" onclick="exportarBackupCompleto()">
+                        📦 Exportar Backup (.json)
+                    </button>
+                    <button class="btn-nube-action" style="flex: 1; background: #1a2736;" onclick="document.getElementById('input-backup-json').click()">
+                        📤 Restaurar Backup
+                    </button>
+                    <input type="file" id="input-backup-json" accept=".json" style="display: none;" onchange="importarBackupJSON(event)">
+                </div>
+            </div>
+
+            <!-- 4. Credenciales de Proyecto Firebase -->
+            <div class="seccion-reporte">
+                <div class="seccion-tag" style="background: #2b1f00; border-color: #FECB52; color: #FECB52;">Proyecto Firebase Propio (Opcional)</div>
+                <p style="font-size: 11px; color: #8fa0b5; margin-bottom: 6px;">
+                    Para usar tu propia base de datos gratuita de Google Firebase, pegá tu configuración aquí:
+                </p>
+                <textarea id="txt-firebase-config" placeholder='{"apiKey": "AIzaSy...", "projectId": "tu-proyecto-mtb"}' style="width: 100%; height: 75px; background: #141722; border: 1px solid #3b4758; border-radius: 6px; color: #fff; font-family: monospace; font-size: 11px; padding: 6px; box-sizing: border-box; resize: none;"></textarea>
                 <div style="display: flex; gap: 8px; margin-top: 8px;">
                     <button class="btn-nube-action" style="flex: 1;" onclick="guardarConfigFirebasePersonalizada()">💾 Guardar Config</button>
                     <button class="btn-nube-action" style="flex: 1; border-color: #555; color: #888;" onclick="restaurarConfigFirebaseDefault()">↺ Predeterminado</button>
+                </div>
+                <div style="margin-top: 8px; font-size: 10px; color: #8fa0b5; line-height: 1.4;">
+                    💡 <em>¿Cómo crear tu base en 2 min?</em> Entrá a <strong>console.firebase.google.com</strong>, creá un proyecto gratuito, activá <strong>Firestore Database</strong> en modo prueba y copiá las claves web.
                 </div>
             </div>
 
@@ -4905,13 +4946,238 @@
         function actualizarEstadoNubeUI(ok, detalle = "") {
             const elStatus = document.getElementById('ui-cloud-status');
             const elDetalle = document.getElementById('nube-estado-detalle');
+            const elBadge = document.getElementById('nube-badge-estado');
             if (ok) {
                 if (elStatus) elStatus.innerHTML = `☁️ Nube Lista`;
                 if (elDetalle) elDetalle.innerText = `Conectado y listo (${detalle || "Offline First"})`;
+                if (elBadge) {
+                    elBadge.innerText = 'Offline-First Listo';
+                    elBadge.style.color = '#20c997';
+                    elBadge.style.borderColor = '#20c997';
+                    elBadge.style.background = '#132e22';
+                }
             } else {
                 if (elStatus) elStatus.innerHTML = `☁️ Nube Local`;
                 if (elDetalle) elDetalle.innerText = `Operando en almacenamiento local (${detalle || "Offline"})`;
+                if (elBadge) {
+                    elBadge.innerText = 'Modo Local';
+                    elBadge.style.color = '#8fa0b5';
+                    elBadge.style.borderColor = '#4a5568';
+                    elBadge.style.background = '#1a1d28';
+                }
             }
+        }
+
+        async function probarConexionFirebase() {
+            const elTest = document.getElementById('nube-resultado-test');
+            const elBadge = document.getElementById('nube-badge-estado');
+            const elDetalle = document.getElementById('nube-estado-detalle');
+            
+            if (elTest) {
+                elTest.style.display = 'block';
+                elTest.style.color = '#FECB52';
+                elTest.innerText = '⏳ Conectando con Google Firestore...';
+            }
+
+            if (!db) {
+                inicializarFirebase();
+            }
+
+            if (!db) {
+                if (elTest) {
+                    elTest.style.color = '#EF553B';
+                    elTest.innerText = '❌ SDK de Firebase no disponible o sin conexión.';
+                }
+                if (elBadge) {
+                    elBadge.innerText = 'Offline Local';
+                    elBadge.style.color = '#EF553B';
+                    elBadge.style.borderColor = '#EF553B';
+                    elBadge.style.background = '#2e1313';
+                }
+                return;
+            }
+
+            try {
+                // Timeout de 6 segundos para no congelar la UI si no hay conexión
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error("Tiempo de espera agotado (timeout)")), 6000)
+                );
+                
+                // Intentar leer 1 documento de la colección activa
+                const queryPromise = db.collection("actividades_mtb").limit(1).get();
+                
+                await Promise.race([queryPromise, timeoutPromise]);
+                
+                if (elTest) {
+                    elTest.style.color = '#00CC96';
+                    elTest.innerText = '✅ Conexión establecida con Firestore. Sincronización en vivo activa.';
+                }
+                if (elBadge) {
+                    elBadge.innerText = 'Conectado a Firestore';
+                    elBadge.style.color = '#00CC96';
+                    elBadge.style.borderColor = '#00CC96';
+                    elBadge.style.background = '#132e22';
+                }
+                if (elDetalle) {
+                    elDetalle.innerText = 'Conectado a Firestore. Las salidas se guardan en la nube y en el teléfono.';
+                }
+            } catch (err) {
+                console.warn("[Firestore] Diagnóstico de conexión:", err);
+                if (elTest) {
+                    elTest.style.color = '#FECB52';
+                    elTest.innerText = `🟡 Modo Offline activo (${err.message || 'Sin conexión directa con el servidor'}). Tus datos están seguros en el celular.`;
+                }
+                if (elBadge) {
+                    elBadge.innerText = 'Offline-First Activo';
+                    elBadge.style.color = '#FECB52';
+                    elBadge.style.borderColor = '#FECB52';
+                    elBadge.style.background = '#2e2513';
+                }
+            }
+        }
+
+        async function descargarTodasDeNubeALocal() {
+            if (!db) {
+                alert("El servicio en la nube aún no está listo. Verificá tu conexión a internet.");
+                return;
+            }
+            try {
+                const elTest = document.getElementById('nube-resultado-test');
+                if (elTest) {
+                    elTest.style.display = 'block';
+                    elTest.style.color = '#4DA8DA';
+                    elTest.innerText = '⏳ Descargando actividades desde Firestore...';
+                }
+                
+                const snap = await db.collection("actividades_mtb").orderBy("id", "desc").limit(100).get();
+                if (snap.empty) {
+                    alert("No se encontraron actividades registradas en la nube.");
+                    if (elTest) elTest.style.display = 'none';
+                    return;
+                }
+
+                const actsLocales = obtenerActividadesGuardadas();
+                const idsLocales = new Set(actsLocales.map(a => a.id));
+                let importadas = 0;
+
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    if (data && data.id && !idsLocales.has(data.id)) {
+                        data.sincronizadoNube = true;
+                        actsLocales.push(data);
+                        idsLocales.add(data.id);
+                        importadas++;
+                    }
+                });
+
+                actsLocales.sort((a, b) => (b.id || 0) - (a.id || 0));
+                localStorage.setItem('mtb_actividades_guardadas', JSON.stringify(actsLocales));
+                actualizarContadorActividades();
+                renderizarListaActividades();
+
+                if (elTest) {
+                    elTest.style.color = '#00CC96';
+                    elTest.innerText = `✅ Se descargaron e incorporaron ${importadas} actividades nuevas a este dispositivo.`;
+                }
+                alert(`Descarga completada: ${importadas} actividad(es) nueva(s) incorporada(s) a este dispositivo.`);
+            } catch (err) {
+                console.error("[Firestore] Error al descargar de la nube:", err);
+                alert(`No se pudieron descargar las actividades: ${err.message || err}`);
+            }
+        }
+
+        function exportarBackupCompleto() {
+            try {
+                const actividades = obtenerActividadesGuardadas();
+                const odometro = localStorage.getItem('mtb_odometro_mantenimiento') || null;
+                const segmentos = localStorage.getItem('mtb_segmentos_privados') || null;
+                const bikefit = localStorage.getItem('mtb_bikefit_historial') || null;
+
+                const backupData = {
+                    version: "2.1",
+                    app: "Radar Táctico MTB",
+                    fechaExportacion: new Date().toISOString(),
+                    totalActividades: actividades.length,
+                    actividades: actividades,
+                    odometroMantenimiento: odometro ? JSON.parse(odometro) : null,
+                    segmentosPrivados: segmentos ? JSON.parse(segmentos) : null,
+                    bikefitHistorial: bikefit ? JSON.parse(bikefit) : null
+                };
+
+                const jsonStr = JSON.stringify(backupData, null, 2);
+                const blob = new Blob([jsonStr], { type: "application/json;charset=utf-8" });
+                const url = URL.createObjectURL(blob);
+                const hoy = new Date().toISOString().slice(0, 10);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `backup_radar_mtb_${hoy}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                alert(`📦 Respaldo descargado exitosamente: ${actividades.length} actividades empaquetadas.\nPodés guardarlo en Google Drive, enviártelo por WhatsApp o llevarlo a otro celular.`);
+            } catch (e) {
+                console.error("Error al exportar respaldo:", e);
+                alert("Ocurrió un error al generar el archivo de respaldo: " + e.message);
+            }
+        }
+
+        function importarBackupJSON(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    let actividadesNuevas = [];
+
+                    if (Array.isArray(parsed)) {
+                        actividadesNuevas = parsed;
+                    } else if (parsed && Array.isArray(parsed.actividades)) {
+                        actividadesNuevas = parsed.actividades;
+
+                        if (parsed.odometroMantenimiento && confirm("¿Deseas restaurar también el registro de odómetro y desgaste de transmisión del respaldo?")) {
+                            localStorage.setItem('mtb_odometro_mantenimiento', JSON.stringify(parsed.odometroMantenimiento));
+                            if (typeof actualizarOdometroUI === 'function') {
+                                actualizarOdometroUI();
+                            }
+                        }
+                        if (parsed.segmentosPrivados && confirm("¿Deseas restaurar también los segmentos privados del respaldo?")) {
+                            localStorage.setItem('mtb_segmentos_privados', JSON.stringify(parsed.segmentosPrivados));
+                        }
+                    } else {
+                        alert("El archivo no tiene un formato válido de respaldo de Radar Táctico MTB.");
+                        return;
+                    }
+
+                    const actsLocales = obtenerActividadesGuardadas();
+                    const idsLocales = new Set(actsLocales.map(a => a.id));
+                    let agregadas = 0;
+
+                    actividadesNuevas.forEach(act => {
+                        if (act && act.id && !idsLocales.has(act.id)) {
+                            actsLocales.push(act);
+                            idsLocales.add(act.id);
+                            agregadas++;
+                        }
+                    });
+
+                    actsLocales.sort((a, b) => (b.id || 0) - (a.id || 0));
+                    localStorage.setItem('mtb_actividades_guardadas', JSON.stringify(actsLocales));
+                    actualizarContadorActividades();
+                    renderizarListaActividades();
+
+                    alert(`✅ Respaldo restaurado con éxito: se incorporaron ${agregadas} actividades nuevas a este dispositivo.`);
+                } catch (err) {
+                    console.error("Error al procesar JSON:", err);
+                    alert("Error al leer el archivo de respaldo. Asegurate de que sea un archivo .json válido.");
+                } finally {
+                    event.target.value = '';
+                }
+            };
+            reader.readAsText(file);
         }
 
         function abrirConfigNube() {

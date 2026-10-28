@@ -50,3 +50,46 @@ Evitar «terminado» sin PR/commit y verificaciones. Si se proponen cambios desd
 Lee AGENTS.md y ESTADO_ACTUAL.md. Este PR es de DOCUMENTACIÓN; no actualices la UI ni funciones hasta que el usuario apruebe una issue concreta y entregue el diseño elegido de Claude.
 ## Primer handoff para Claude
 Lee CLAUDE.md y DISENO_MTB.md. Tu diseño anterior fue el favorito del usuario, pero aún no está incluido; pide al usuario el artefacto original y documenta su lenguaje visual antes de proponer implementación.
+
+### HANDOFF — Antigravity | 2026-10-28 | Cloud + Backup + Merge Codex
+**Fecha:** 2026-10-28
+**Issue/PR:** Trabajo directo sobre main por indicación del usuario.
+**Commits/rama:** main, sobre `d3645e0` → merge `7622a0e` (integra Codex `fix/gps-sos-datos-20261028`) → commit pendiente de cloud.
+
+**Hecho:**
+1. Merge limpio de la rama de Codex `fix/gps-sos-datos-20261028` (commits `fe0a513` + `8069504`) a main. Sin conflictos. Incluye: `clearWatch` GPS, reinicio de variables entre sesiones, SOS sin coordenadas ficticias, guardado que no descarta puntos silenciosamente.
+2. Modal `#modal-config-nube` ampliado con 4 secciones: badge de estado en vivo, sincronización bidireccional, respaldo JSON universal, credenciales Firebase propias.
+3. Funciones JS implementadas: `probarConexionFirebase()` (diagnóstico con timeout 6s), `descargarTodasDeNubeALocal()` (descarga hasta 100 actividades + fusión sin duplicados), `exportarBackupCompleto()` (empaqueta actividades + odómetro + segmentos + bikefit en JSON descargable), `importarBackupJSON(event)` (importa y fusiona desde archivo).
+4. `actualizarEstadoNubeUI()` actualizado para reflejar estado en el badge del modal.
+5. Botones de Historial reorganizados: 🔄 Sincronizar | 📦 Backup | ☁️ Nube.
+6. `DECISIONES.md` actualizado con D-011 (Cloud Híbrida) y D-012 (merge Codex).
+7. `ESTADO_ACTUAL.md` actualizado con sección de Nube y Respaldos.
+
+**NO hecho:**
+- Pruebas en celular real ni en `https://mtbproyect.netlify.app/`.
+- IndexedDB para almacenamiento incremental de sesiones largas.
+- Reglas de seguridad de Firestore (el proyecto demo no tiene restricciones).
+- Mapas offline ni GPS de segundo plano nativo.
+- Diseño visual de Claude (pendiente de aprobación por el usuario).
+
+**Archivos afectados:** `index.html`, `DECISIONES.md`, `ESTADO_ACTUAL.md`, `PROTOCOLO_HANDOFF.md`.
+
+**Decisiones tomadas:**
+- Fusionar Codex sin PR formal por indicación del usuario.
+- Usar `Promise.race` con timeout en el diagnóstico de conexión para no congelar la app sin señal.
+- Exportación JSON incluye todos los datos locales (no solo actividades) para migración completa.
+
+**Pruebas ejecutadas:** Verificación sintáctica (llaves balanceadas: `{ = 1171, } = 1171`), presencia de las 4 funciones nuevas, renderizado headless con Edge.
+**Pruebas NO ejecutadas:** Funcionalidad real de Firestore, flujo offline → reconexión, importación de respaldo, celular con GPS real.
+
+**Riesgos:**
+- Firebase demo config (`AIzaSyDemoMTBRadarKey2026`) es ficticia; el usuario debe pegar su propio proyecto o no habrá sincronización real.
+- `localStorage` puede llenarse con muchas actividades con puntos GPS; IndexedDB es la siguiente prioridad.
+- El `clearWatch` de Codex y el reproductor de ruta de Antigravity tocan variables de GPS similares; verificar que no interfieran.
+
+**Preguntas para el próximo agente:**
+1. ¿El usuario ya creó su proyecto Firebase? Si no, guiarlo con el instructivo del modal.
+2. ¿Se confirma que el merge de Codex no introdujo regresiones en el simulador GPX?
+3. ¿Cuándo se aplica el diseño visual de Claude?
+
+**Acción pedida a usuario:** Hacer push desde GitHub Desktop, verificar en `https://mtbproyect.netlify.app/` y probar el flujo completo de backup/restauración.
