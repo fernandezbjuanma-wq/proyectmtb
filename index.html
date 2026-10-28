@@ -849,6 +849,165 @@
         body.modo-solar .header { color: #00FFFF !important; }
         body.modo-solar .zona { border: 3px solid #FFFFFF !important; }
 
+        /* Widget Reproductor y Scrubber de Ruta en Mapa */
+        .widget-reproductor-ruta {
+            background: #141724;
+            border: 2px solid #20c997;
+            border-radius: 14px;
+            padding: 12px;
+            margin-top: -4px;
+            margin-bottom: 12px;
+            box-shadow: 0 8px 24px rgba(32, 201, 151, 0.15);
+            animation: fadeIn 0.3s ease;
+            text-align: left;
+        }
+        .reproductor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #283347;
+            padding-bottom: 6px;
+        }
+        .badge-rep-punto {
+            background: #192a38;
+            color: #20c997;
+            border: 1px solid #20c997;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        .grid-telemetria-scrubber {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+        .caja-scrubber-stat {
+            background: #1c2230;
+            border: 1px solid #2d384d;
+            border-radius: 8px;
+            padding: 5px 6px;
+            text-align: center;
+        }
+        .stat-scrubber-lbl {
+            display: block;
+            font-size: 9px;
+            color: #8fa0b5;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+        .stat-scrubber-val {
+            display: block;
+            font-size: 14px;
+            font-weight: 900;
+            line-height: 1.1;
+        }
+        .stat-scrubber-val small {
+            font-size: 9px;
+            font-weight: normal;
+            color: #8fa0b5;
+        }
+        .scrubber-slider-container {
+            margin: 10px 0 8px 0;
+            padding: 0 2px;
+        }
+        .scrubber-range {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #253042;
+            outline: none;
+            cursor: pointer;
+            -webkit-appearance: none;
+            accent-color: #20c997;
+        }
+        .scrubber-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #20c997;
+            border: 3px solid #141724;
+            box-shadow: 0 0 10px rgba(32, 201, 151, 0.9);
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .scrubber-range::-webkit-slider-thumb:hover, .scrubber-range::-webkit-slider-thumb:active {
+            transform: scale(1.25);
+        }
+        .scrubber-controles-fila {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 6px;
+            margin-top: 6px;
+        }
+        .btn-scrub-ctrl {
+            background: #1f2737;
+            border: 1px solid #3b4758;
+            color: #e2e8f0;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-scrub-ctrl:hover {
+            background: #2b364c;
+            border-color: #20c997;
+        }
+        .btn-scrub-play {
+            flex: 1;
+            background: #20c997;
+            color: #121212;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 2px 10px rgba(32, 201, 151, 0.4);
+        }
+        .btn-scrub-play:hover {
+            filter: brightness(1.1);
+        }
+        .select-scrub-speed {
+            background: #1f2737;
+            border: 1px solid #3b4758;
+            color: #20c997;
+            padding: 5px 8px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            outline: none;
+        }
+        .btn-flotante-scrubber {
+            background: #141724;
+            border: 1px solid #20c997;
+            color: #20c997;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+            transition: 0.2s;
+        }
+        .btn-flotante-scrubber:hover {
+            background: #20c997;
+            color: #121212;
+        }
+
         /* Widget Ghost Pacer (Prioridad 4, Ítem 12) */
         .widget-ghost { background: #1c2635; border: 1px solid #3b4758; border-radius: 12px; padding: 10px; margin-bottom: 10px; display: none; text-align: left; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
         .ghost-header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: bold; color: #4DA8DA; margin-bottom: 6px; }
@@ -1486,6 +1645,80 @@
 
         <div id="mapa"></div>
 
+        <!-- Botón para reabrir el reproductor si hay un recorrido cargado -->
+        <div id="contenedor-btn-reabrir-scrubber" style="display: none; text-align: center; margin-top: -6px; margin-bottom: 8px;">
+            <button class="btn-flotante-scrubber" onclick="reabrirReproductorRuta()">
+                <span>🧭</span> <span>Rebobinar / Explorar Recorrido en Mapa</span>
+            </button>
+        </div>
+
+        <!-- Widget Reproductor y Scrubber de Recorrido en Mapa -->
+        <div id="widget-reproductor-ruta" class="widget-reproductor-ruta" style="display: none;">
+            <div class="reproductor-header">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 16px;">🧭</span>
+                    <div>
+                        <strong style="color: #20c997; font-size: 12px; display: block;" id="scrub-titulo-recorrido">EXPLORADOR DE RECORRIDO</strong>
+                        <span style="font-size: 10px; color: #8fa0b5;">Deslizá la barra o tocá el trazado para analizar cada tramo</span>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span class="badge-rep-punto" id="rep-ruta-indice-txt">0 / 0</span>
+                    <button onclick="minimizarReproductorRuta()" style="background: transparent; border: none; color: #8fa0b5; font-size: 14px; cursor: pointer; padding: 2px 6px;" title="Minimizar explorador">✖</button>
+                </div>
+            </div>
+
+            <!-- HUD de Telemetría en el punto exacto -->
+            <div class="grid-telemetria-scrubber">
+                <div class="caja-scrubber-stat">
+                    <span class="stat-scrubber-lbl">VELOCIDAD</span>
+                    <span class="stat-scrubber-val color-velocidad" id="scrub-vel">0.0 <small>km/h</small></span>
+                </div>
+                <div class="caja-scrubber-stat">
+                    <span class="stat-scrubber-lbl">ALTITUD</span>
+                    <span class="stat-scrubber-val color-desnivel" id="scrub-alt">0 <small>m</small></span>
+                </div>
+                <div class="caja-scrubber-stat">
+                    <span class="stat-scrubber-lbl">PENDIENTE</span>
+                    <span class="stat-scrubber-val color-pendiente" id="scrub-pend">0.0 <small>%</small></span>
+                </div>
+                <div class="caja-scrubber-stat">
+                    <span class="stat-scrubber-lbl">POTENCIA</span>
+                    <span class="stat-scrubber-val color-potencia" id="scrub-watts">0 <small>W</small></span>
+                </div>
+                <div class="caja-scrubber-stat">
+                    <span class="stat-scrubber-lbl">DISTANCIA</span>
+                    <span class="stat-scrubber-val color-distancia" id="scrub-dist">0.00 <small>km</small></span>
+                </div>
+                <div class="caja-scrubber-stat">
+                    <span class="stat-scrubber-lbl">HORA / TIEMPO</span>
+                    <span class="stat-scrubber-val color-tiempo" id="scrub-tiempo">--:--</span>
+                </div>
+            </div>
+
+            <!-- Barra Slider Scrubber interactiva -->
+            <div class="scrubber-slider-container">
+                <input type="range" id="slider-reproductor-ruta" min="0" max="100" value="0" step="1" 
+                       oninput="onMoverScrubberRuta(this.value)" 
+                       class="scrubber-range">
+            </div>
+
+            <!-- Controles de Reproducción y Avance -->
+            <div class="scrubber-controles-fila">
+                <button class="btn-scrub-ctrl" onclick="saltarPuntoRuta(-10)" title="Retroceder 10 puntos">⏪ -10</button>
+                <button class="btn-scrub-ctrl" onclick="saltarPuntoRuta(-1)" title="Punto anterior">◀</button>
+                <button class="btn-scrub-play" id="btn-scrub-play" onclick="togglePlayReproductorRuta()">▶️ Reproducir</button>
+                <button class="btn-scrub-ctrl" onclick="saltarPuntoRuta(1)" title="Punto siguiente">▶</button>
+                <button class="btn-scrub-ctrl" onclick="saltarPuntoRuta(10)" title="Avanzar 10 puntos">+10 ⏩</button>
+                <select id="sel-scrub-velocidad" class="select-scrub-speed" onchange="cambiarVelocidadReproductor(this.value)" title="Velocidad de reproducción">
+                    <option value="1">1x</option>
+                    <option value="2" selected>2x</option>
+                    <option value="5">5x</option>
+                    <option value="10">10x</option>
+                </select>
+            </div>
+        </div>
+
         <!-- BOTONES DE CONTROL DE SESIÓN (Boceto Página 1) -->
         <div class="botones-control-boceto">
             <button class="btn-control-principal" id="btn-start" onclick="toggleIniciarPausar()">
@@ -1777,8 +2010,9 @@
                 </div>
             </div>
 
-            <button class="btn-descargar-gpx" onclick="cerrarReporte(); cambiarPestanaApp('lab');" style="margin-top: 5px;">🧪 VER INFORME COMPLETO EN LABORATORIO</button>
-            <a class="btn-descargar-gpx" id="btn-descarga-gpx" href="#" style="background: #2d3748; border: 1px solid #4DA8DA; color: #4DA8DA; margin-top: 8px;">📥 DESCARGAR ARCHIVO GPX</a>
+            <button class="btn-descargar-gpx" onclick="cerrarReporte(); enfocarMapaScrubber();" style="margin-top: 5px; background: #132e22; border: 1px solid #20c997; color: #20c997;">🧭 EXPLORAR Y REBOBINAR RUTA EN MAPA</button>
+            <button class="btn-descargar-gpx" onclick="cerrarReporte(); cambiarPestanaApp('lab');" style="margin-top: 6px;">🧪 VER INFORME COMPLETO EN LABORATORIO</button>
+            <a class="btn-descargar-gpx" id="btn-descarga-gpx" href="#" style="background: #2d3748; border: 1px solid #4DA8DA; color: #4DA8DA; margin-top: 6px;">📥 DESCARGAR ARCHIVO GPX</a>
             <button class="btn-cerrar-reporte" onclick="cerrarReporte()">Continuar</button>
         </div>
     </div>
@@ -3044,6 +3278,31 @@
             document.getElementById('ui-potencia').innerText = "0";
             document.getElementById('ui-calorias').innerText = "0";
 
+            // Ocultar reproductor/scrubber de ruta previa si estaba activo
+            if (typeof scrubberTimer !== 'undefined' && scrubberTimer) {
+                clearInterval(scrubberTimer);
+                scrubberTimer = null;
+            }
+            const widgetScrub = document.getElementById('widget-reproductor-ruta');
+            if (widgetScrub) widgetScrub.style.display = 'none';
+            const btnReabrir = document.getElementById('contenedor-btn-reabrir-scrubber');
+            if (btnReabrir) btnReabrir.style.display = 'none';
+            if (typeof mapa !== 'undefined' && mapa) {
+                if (typeof trazadoRutaCompleto !== 'undefined' && trazadoRutaCompleto) {
+                    mapa.removeLayer(trazadoRutaCompleto);
+                    trazadoRutaCompleto = null;
+                }
+                if (typeof trazadoRutaProgreso !== 'undefined' && trazadoRutaProgreso) {
+                    mapa.removeLayer(trazadoRutaProgreso);
+                    trazadoRutaProgreso = null;
+                }
+                if (typeof marcadorScrubber !== 'undefined' && marcadorScrubber) {
+                    mapa.removeLayer(marcadorScrubber);
+                    marcadorScrubber = null;
+                }
+            }
+            trackPuntosGrabados = [];
+
             const btnStart = document.getElementById('btn-start');
             const btnFinish = document.getElementById('btn-finish');
             if (btnStart) {
@@ -3965,6 +4224,11 @@
             cargarLaboratorioConDatos(sesionData);
             actualizarTotalesCiclistaHistorial();
 
+            // 10. Si hay puntos registrados, inicializar el Reproductor y Scrubber de Ruta en el mapa
+            if (trackPuntosGrabados && trackPuntosGrabados.length > 1) {
+                inicializarReproductorRuta(trackPuntosGrabados, "Recorrido Recién Finalizado");
+            }
+
             // 9. Debriefing hablado del Entrenador Táctico adaptado al modo
             let debrief = esModoVehiculo ?
                 `Prueba en vehículo finalizada. Se registraron ${distanciaTotal.toFixed(1)} kilómetros a velocidad máxima de ${velocidadMaximaKmh.toFixed(0)} kilómetros por hora. Datos sincronizados.` :
@@ -3974,6 +4238,312 @@
 
         function cerrarReporte() {
             document.getElementById('modal-reporte').style.display = 'none';
+        }
+
+        // ========================================================
+        // REPRODUCTOR INTERACTIVO Y SCRUBBER DE RUTA EN MAPA
+        // ========================================================
+        let rutaScrubberPuntos = [];
+        let scrubberIndiceActual = 0;
+        let scrubberTimer = null;
+        let scrubberVelocidadMultiplicador = 2;
+        let trazadoRutaProgreso = null;
+        let trazadoRutaCompleto = null;
+        let marcadorScrubber = null;
+        let distanciasAcumuladasRuta = [];
+
+        function inicializarReproductorRuta(puntos, nombreRuta = "Recorrido Grabado") {
+            if (!puntos || puntos.length < 2) {
+                console.warn("[Scrubber] Puntos insuficientes para reproducir ruta:", puntos);
+                return;
+            }
+
+            rutaScrubberPuntos = puntos;
+            scrubberIndiceActual = 0;
+            if (scrubberTimer) {
+                clearInterval(scrubberTimer);
+                scrubberTimer = null;
+            }
+
+            // Precalcular distancias acumuladas en km
+            distanciasAcumuladasRuta = [0];
+            let dAcum = 0;
+            for (let i = 1; i < puntos.length; i++) {
+                let segDist = calcularDistancia(puntos[i-1].lat, puntos[i-1].lon, puntos[i].lat, puntos[i].lon);
+                dAcum += segDist;
+                distanciasAcumuladasRuta.push(dAcum);
+            }
+
+            // Asegurar visibilidad del mapa y del widget
+            const mapaEl = document.getElementById('mapa');
+            if (mapaEl) mapaEl.style.display = 'block';
+
+            const widget = document.getElementById('widget-reproductor-ruta');
+            if (widget) widget.style.display = 'block';
+
+            const btnReabrir = document.getElementById('contenedor-btn-reabrir-scrubber');
+            if (btnReabrir) btnReabrir.style.display = 'none';
+
+            const tituloEl = document.getElementById('scrub-titulo-recorrido');
+            if (tituloEl) tituloEl.innerText = `🧭 ${nombreRuta.toUpperCase()}`;
+
+            // Configurar slider
+            const slider = document.getElementById('slider-reproductor-ruta');
+            if (slider) {
+                slider.min = "0";
+                slider.max = (puntos.length - 1).toString();
+                slider.value = "0";
+            }
+
+            const btnPlay = document.getElementById('btn-scrub-play');
+            if (btnPlay) btnPlay.innerHTML = '▶️ Reproducir';
+
+            // Inicializar mapa de Leaflet si aún no existe
+            if (!mapa) {
+                actualizarMapa(puntos[0].lat, puntos[0].lon);
+            }
+
+            setTimeout(() => {
+                if (!mapa) return;
+                mapa.invalidateSize();
+
+                const latLngs = puntos.map(p => [p.lat, p.lon]);
+
+                // Limpiar capas previas si existen
+                if (trazadoRutaCompleto) mapa.removeLayer(trazadoRutaCompleto);
+                if (trazadoRutaProgreso) mapa.removeLayer(trazadoRutaProgreso);
+                if (trazadoRuta) mapa.removeLayer(trazadoRuta);
+
+                // Capa base completa (trazado general)
+                trazadoRutaCompleto = L.polyline(latLngs, {
+                    color: '#334155',
+                    weight: 5,
+                    opacity: 0.85
+                }).addTo(mapa);
+
+                // Permitir hacer clic en cualquier parte del trazado para saltar el scrubber ahí
+                trazadoRutaCompleto.on('click', function(e) {
+                    let clickLat = e.latlng.lat;
+                    let clickLon = e.latlng.lng;
+                    let minDist = Infinity;
+                    let bestIdx = 0;
+                    for (let i = 0; i < rutaScrubberPuntos.length; i++) {
+                        let d = Math.pow(rutaScrubberPuntos[i].lat - clickLat, 2) + Math.pow(rutaScrubberPuntos[i].lon - clickLon, 2);
+                        if (d < minDist) {
+                            minDist = d;
+                            bestIdx = i;
+                        }
+                    }
+                    actualizarScrubberEnIndice(bestIdx, true);
+                });
+
+                // Capa de progreso (lo recorrido hasta el punto del slider)
+                trazadoRutaProgreso = L.polyline([latLngs[0]], {
+                    color: '#20c997',
+                    weight: 6,
+                    opacity: 0.95
+                }).addTo(mapa);
+
+                // Ícono táctico del ciclista para el scrubber
+                if (marcadorScrubber) {
+                    mapa.removeLayer(marcadorScrubber);
+                }
+                const iconoTacticoCiclista = L.divIcon({
+                    className: 'icono-ciclista-radar',
+                    html: `<div style="width: 32px; height: 32px; background: #1a1a24; border: 2px solid #20c997; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 16px rgba(32, 201, 151, 1); font-size: 17px;">🚴</div>`,
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 16]
+                });
+                marcadorScrubber = L.marker(latLngs[0], { icon: iconoTacticoCiclista, zIndexOffset: 1000 }).addTo(mapa);
+
+                // Ocultar marcador live previo si existe
+                if (marcador) mapa.removeLayer(marcador);
+
+                // Ajustar encuadre al recorrido completo con margen
+                try {
+                    mapa.fitBounds(trazadoRutaCompleto.getBounds(), { padding: [35, 35] });
+                } catch(e) {}
+
+                actualizarScrubberEnIndice(0, false);
+            }, 150);
+        }
+
+        function onMoverScrubberRuta(val) {
+            actualizarScrubberEnIndice(parseInt(val, 10), true);
+        }
+
+        function actualizarScrubberEnIndice(idx, centrarMapa = false) {
+            if (!rutaScrubberPuntos || rutaScrubberPuntos.length === 0) return;
+            idx = Math.max(0, Math.min(rutaScrubberPuntos.length - 1, idx));
+            scrubberIndiceActual = idx;
+
+            const p = rutaScrubberPuntos[idx];
+            const totalPuntos = rutaScrubberPuntos.length;
+            const pct = Math.round((idx / (totalPuntos - 1)) * 100);
+
+            // Actualizar Slider y badge
+            const slider = document.getElementById('slider-reproductor-ruta');
+            if (slider && parseInt(slider.value, 10) !== idx) {
+                slider.value = idx.toString();
+            }
+            const badgeIndice = document.getElementById('rep-ruta-indice-txt');
+            if (badgeIndice) {
+                badgeIndice.innerText = `${idx + 1} / ${totalPuntos} (${pct}%)`;
+            }
+
+            // Actualizar HUD de Telemetría
+            const elVel = document.getElementById('scrub-vel');
+            const elAlt = document.getElementById('scrub-alt');
+            const elPend = document.getElementById('scrub-pend');
+            const elWatts = document.getElementById('scrub-watts');
+            const elDist = document.getElementById('scrub-dist');
+            const elTiempo = document.getElementById('scrub-tiempo');
+
+            if (elVel) elVel.innerHTML = `${(p.speed || 0).toFixed(1)} <small>km/h</small>`;
+            if (elAlt) elAlt.innerHTML = `${Math.round(p.ele || 0)} <small>m</small>`;
+            if (elPend) {
+                let pend = p.pendiente || 0;
+                let signo = pend > 0 ? "+" : "";
+                elPend.innerHTML = `${signo}${pend.toFixed(1)} <small>%</small>`;
+            }
+            if (elWatts) elWatts.innerHTML = `${Math.round(p.watts || 0)} <small>W</small>`;
+            if (elDist) {
+                let d = distanciasAcumuladasRuta[idx] || 0;
+                elDist.innerHTML = `${d.toFixed(2)} <small>km</small>`;
+            }
+            if (elTiempo) {
+                if (p.time) {
+                    try {
+                        let dObj = new Date(p.time);
+                        if (!isNaN(dObj.getTime())) {
+                            elTiempo.innerText = dObj.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                        } else {
+                            elTiempo.innerText = p.time;
+                        }
+                    } catch(e) {
+                        elTiempo.innerText = p.time;
+                    }
+                } else {
+                    elTiempo.innerText = `--:--`;
+                }
+            }
+
+            // Mover marcador y actualizar polyline de progreso
+            if (marcadorScrubber && p.lat && p.lon) {
+                marcadorScrubber.setLatLng([p.lat, p.lon]);
+            }
+            if (trazadoRutaProgreso && rutaScrubberPuntos.length > 0) {
+                const coordsProgreso = rutaScrubberPuntos.slice(0, idx + 1).map(pt => [pt.lat, pt.lon]);
+                trazadoRutaProgreso.setLatLngs(coordsProgreso);
+            }
+
+            // Mantener centrado suave si el usuario lo pide o durante la reproducción
+            if (centrarMapa && mapa && p.lat && p.lon) {
+                if (!mapa.getBounds().contains([p.lat, p.lon])) {
+                    mapa.panTo([p.lat, p.lon], { animate: true, duration: 0.25 });
+                }
+            }
+        }
+
+        function togglePlayReproductorRuta() {
+            const btnPlay = document.getElementById('btn-scrub-play');
+            if (scrubberTimer) {
+                // Pausar
+                clearInterval(scrubberTimer);
+                scrubberTimer = null;
+                if (btnPlay) btnPlay.innerHTML = '▶️ Reproducir';
+            } else {
+                // Reproducir
+                if (scrubberIndiceActual >= rutaScrubberPuntos.length - 1) {
+                    scrubberIndiceActual = 0; // Reiniciar si llegó al final
+                }
+                if (btnPlay) btnPlay.innerHTML = '⏸️ Pausar';
+                const intervaloMs = Math.max(25, Math.round(150 / scrubberVelocidadMultiplicador));
+                scrubberTimer = setInterval(() => {
+                    if (scrubberIndiceActual < rutaScrubberPuntos.length - 1) {
+                        scrubberIndiceActual++;
+                        actualizarScrubberEnIndice(scrubberIndiceActual, true);
+                    } else {
+                        clearInterval(scrubberTimer);
+                        scrubberTimer = null;
+                        if (btnPlay) btnPlay.innerHTML = '▶️ Reproducir';
+                    }
+                }, intervaloMs);
+            }
+        }
+
+        function saltarPuntoRuta(delta) {
+            if (scrubberTimer) {
+                clearInterval(scrubberTimer);
+                scrubberTimer = null;
+                const btnPlay = document.getElementById('btn-scrub-play');
+                if (btnPlay) btnPlay.innerHTML = '▶️ Reproducir';
+            }
+            actualizarScrubberEnIndice(scrubberIndiceActual + delta, true);
+        }
+
+        function cambiarVelocidadReproductor(vel) {
+            scrubberVelocidadMultiplicador = parseFloat(vel) || 2;
+            if (scrubberTimer) {
+                clearInterval(scrubberTimer);
+                scrubberTimer = null;
+                togglePlayReproductorRuta();
+            }
+        }
+
+        function minimizarReproductorRuta() {
+            if (scrubberTimer) {
+                clearInterval(scrubberTimer);
+                scrubberTimer = null;
+            }
+            const widget = document.getElementById('widget-reproductor-ruta');
+            if (widget) widget.style.display = 'none';
+
+            const btnReabrir = document.getElementById('contenedor-btn-reabrir-scrubber');
+            if (btnReabrir && rutaScrubberPuntos.length > 1) {
+                btnReabrir.style.display = 'block';
+            }
+        }
+
+        function reabrirReproductorRuta() {
+            const widget = document.getElementById('widget-reproductor-ruta');
+            if (widget) widget.style.display = 'block';
+
+            const btnReabrir = document.getElementById('contenedor-btn-reabrir-scrubber');
+            if (btnReabrir) btnReabrir.style.display = 'none';
+
+            if (mapa && trazadoRutaCompleto) {
+                mapa.invalidateSize();
+                try {
+                    mapa.fitBounds(trazadoRutaCompleto.getBounds(), { padding: [30, 30] });
+                } catch(e) {}
+            }
+        }
+
+        function enfocarMapaScrubber() {
+            cambiarPestanaApp('radar');
+            if (trackPuntosGrabados && trackPuntosGrabados.length > 1) {
+                inicializarReproductorRuta(trackPuntosGrabados, "Recorrido Recién Finalizado");
+            }
+            const mapaEl = document.getElementById('mapa');
+            if (mapaEl) {
+                mapaEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function abrirActividadEnMapaScrubber(idx, fuente) {
+            const acts = fuente === 'local' ? obtenerActividadesGuardadas() : actividadesNubeCache;
+            const act = acts[idx];
+            if (!act || !act.puntos || act.puntos.length < 2) {
+                alert("Esta sesión no tiene suficientes puntos GPS detallados para reproducir en mapa.");
+                return;
+            }
+            cambiarPestanaApp('radar');
+            inicializarReproductorRuta(act.puntos, `${act.titulo || 'Salida MTB'} (${act.fecha || ''})`);
+            const mapaEl = document.getElementById('mapa');
+            if (mapaEl) {
+                mapaEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
         }
 
         function formatearSegundos(seg) {
@@ -4459,6 +5029,7 @@
                     </div>
                     <div class="actividad-acciones">
                         <button class="btn-acc-act" onclick="verReporteDeActividadObjeto(${idx}, '${pestanaActivaHistorial}')">📊 Ver Informe</button>
+                        <button class="btn-acc-act" onclick="abrirActividadEnMapaScrubber(${idx}, '${pestanaActivaHistorial}')" style="border-color: #20c997; color: #20c997;">🧭 Ver en Mapa</button>
                         <button class="btn-acc-act" onclick="descargarGPXDeActividadObjeto(${idx}, '${pestanaActivaHistorial}')">📥 Descargar GPX</button>
                         ${pestanaActivaHistorial === 'local' ? `<button class="btn-acc-del" onclick="eliminarActividad(${idx})">🗑️</button>` : ''}
                     </div>
