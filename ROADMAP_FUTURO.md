@@ -164,7 +164,7 @@
 - Copia original inspeccionada: rama `main`, HEAD `decaef7`, un commit local no publicado sobre `origin/main` (`1e8ccd0`). Ese commit agrega `TAREAS_PENDIENTES.md` con 17 tareas; no equivale al plan vigente de 28 issues.
 - No había modificaciones en archivos versionados ni cambios en staging. Había dos PDFs sin seguimiento (`Radar Táctico MTB - Bocetos.pdf` y `Radar Táctico MTB - Bocetos-selection.pdf`): no se editaron, copiaron ni publicaron.
 - El acceso de escritura a metadatos Git del original quedó restringido. Se creó una copia de trabajo aislada y la rama `fix/mtb-01-timestamps-gps-20261028`, desde el head `edaef402` del PR #22. La copia original, su commit sin publicar y los PDFs se conservan.
-- Leídos `AGENTS.md`, los seis documentos de contexto requeridos, este roadmap, las 28 issues abiertas y los cuatro PR abiertos. Solo este roadmap recibe documentación nueva; no se borran ni consolidan otros MD.
+- Leídos `AGENTS.md`, los seis documentos de contexto requeridos, este roadmap, las 28 issues abiertas y los cuatro PR abiertos al inicio; después se abrió el PR #35. Solo este roadmap recibe documentación nueva; no se borran ni consolidan otros MD.
 - Contradicción documental: el encabezado histórico declaraba «100% completado», mientras el código y los handoffs no demuestran GPS bloqueado, recuperación ni privacidad de servidor. Las marcas históricas no constituyen aceptación.
 
 ### Pull requests abiertos y dependencias
@@ -175,7 +175,7 @@
 | [#5](https://github.com/fernandezbjuanma-wq/proyectmtb/pull/5) | rama de #4 → `docs/roadmap-unico-20261028` | Borrador encadenado a #4; elimina documentos en su propuesta. Esta entrega no aplica esas eliminaciones. |
 | [#22](https://github.com/fernandezbjuanma-wq/proyectmtb/pull/22) | `main` → `feat/gps-android-grabacion-nativa-final-20261028` | Borrador independiente sobre main `1e8ccd0`. Check `android-debug` exitoso para head `edaef402`: [run 40758465010](https://github.com/fernandezbjuanma-wq/proyectmtb/actions/runs/40758465010). No hay revisión Antigravity registrada ni prueba física demostrada. |
 
-La nueva rama es una continuación acotada de #22, no una integración de #3/#4/#5. Su PR debe apuntar a la rama de #22 para mostrar solo las correcciones y mantener ambas propuestas pendientes de aprobación.
+La nueva rama es una continuación acotada de #22, no una integración de #3/#4/#5. El [PR #35](https://github.com/fernandezbjuanma-wq/proyectmtb/pull/35) apunta a la rama de #22 para mostrar solo las correcciones y mantener ambas propuestas pendientes de aprobación.
 
 ### Plan vigente de 28 tareas y revisión cruzada
 La flecha indica implementador → revisor requerido. La tabla refleja alcance y antecedentes; ninguna asignación inicia automáticamente una sesión ni acredita revisión de la otra IA.
@@ -225,6 +225,7 @@ La flecha indica implementador → revisor requerido. La tabla refleja alcance y
 - Guardado propuesto: transacción SQLite que comprueba sesión existente y abierta antes de leer el último punto e insertar. Conserva el esquema y las sesiones existentes, sin migración destructiva.
 - Archivos funcionales: `TrackDatabase.kt`, `GpsFixPolicy.kt`; pruebas en `android/app/src/test/java/ar/mtb/radar/GpsFixPolicyTest.kt`. JUnit 4 se usa solo para pruebas; no se agrega dependencia de producción.
 - Verificación de esta corrección: **14 pruebas JUnit4 pasaron** con Kotlin 2.0.21 y JDK 17 efímeros, sin Android ni red durante su ejecución. Cubren límite de edad, posiciones viejas/futuras/cero, reloj monotónico, overflow, coordenadas/precisión y valores opcionales. Comando previsto en entorno Android: `gradle -p android :app:testDebugUnitTest :app:assembleDebug`; la ejecución local usó el compilador Kotlin y JUnitCore directamente, sin SDK Android. `git diff --check` pasó. El éxito previo de CI corresponde a #22 antes de este arreglo.
+- **Compilación de esta corrección confirmada:** `android-debug` exitoso para commit `06a5ac0bf87c6df3da96e062bae68cc1eb7793d8`, [run 40764807561, intento 2](https://github.com/fernandezbjuanma-wq/proyectmtb/actions/runs/40764807561/attempts/2). El intento 1 falló por handshake TLS al descargar una dependencia de Maven; se reintentó el job sin alterar workflow ni seguridad TLS. Esto demuestra compilación/empaquetado, no pruebas móviles ni ejecución de los tests unitarios en CI.
 - La transacción y su interacción con `finish()` recibieron revisión estática interna de ChatGPT; no se ejecutó una prueba SQLite Android ni se comprobó esta versión en teléfono. El callback de notificación de `TrackingService` también requiere ensayar detener mientras llega un punto: persiste un riesgo previo de aviso tardío aunque la sesión ya esté cerrada.
 - El workflow de CI existente se conserva. La revisión automática rechazó ampliarlo por interpretar que excedía el alcance documental y agregaba efectos persistentes; no se aplicó esa modificación.
 - No implementado aquí: pausa/reanudación completa, permiso de notificaciones Android 13+ (#7), integración SQLite→Historial/Firestore ni garantía bajo «Forzar detención».
