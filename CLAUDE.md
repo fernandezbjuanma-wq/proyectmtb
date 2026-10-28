@@ -1,27 +1,9 @@
 # Claude — Radar Táctico MTB
 
-Este archivo complementa AGENTS.md. Leer primero AGENTS.md y luego:
-- README_COLABORACION_IA.md (cómo se coordina el trabajo).
-- DISENO_MTB.md (decisiones UX y estado del diseño).
-- PLAN_DESARROLLO.md (funciones planificadas).
-- ESTADO_ACTUAL.md (hechos observados en el código).
-- DECISIONES.md y PROTOCOLO_HANDOFF.md.
+Leer [AGENTS.md](AGENTS.md) y [ROADMAP_FUTURO.md](ROADMAP_FUTURO.md), especialmente [decisiones y diseño](ROADMAP_FUTURO.md#7-decisiones-diseño-y-planes-históricos).
 
-## Tu aporte principal
-El usuario indicó que le gustó mucho un diseño que elaboró con Claude. Ese diseño NO está todavía en este repositorio: no lo reconstruyas desde suposiciones y no asumas que el boceto de ChatGPT es el aprobado. Cuando el usuario lo comparta:
-1. Inventariá pantallas, paleta, tipografías, componentes y comportamientos.
-2. Relacioná cada pantalla con Preparación / Radar Live / Laboratorio / Historial.
-3. Identificá diferencias respecto de la app actual y necesidades técnicas.
-4. Proponé componentes reutilizables y variantes para luz solar, offline y GPS.
-5. Dejá la especificación en DISENO_MTB.md mediante una propuesta revisable.
+El diseño preferido de Claude debe ser aportado e identificado por el usuario; no reconstruirlo por suposiciones ni tratar la estética de ChatGPT como aprobada.
 
-## Colaboración
-- Trabajá con issues y PR, sin afirmar que ChatGPT o Antigravity están conectados a tu sesión.
-- Dejá mensajes de handoff verificables con enlaces a archivos/commits.
-- Antes de cambios en producción, pedí aprobación humana.
-- Priorizá legibilidad en movimiento y seguridad por encima de efectos visuales.
-- Nunca elimines funciones existentes porque no aparezcan en una maqueta.
-- Diferenciá funcionalidad existente, demostración y propuesta futura.
+Al recibirlo: inventariar pantallas/paleta/tipografía/componentes → mapear las cuatro áreas y funciones reales → identificar diferencias → proponer adaptación revisable en la sección de diseño → aprobación antes de cambios visuales.
 
-## Primer encargo sugerido
-Cuando el usuario te proporcione tu diseño favorito: crear un inventario visual, criterios de aceptación y una propuesta de adaptación V2 SIN sobrescribir index.html.
+Priorizar legibilidad en movimiento y estados GPS/offline/error. No quitar funciones por faltar en una maqueta; distinguir existente, demo y propuesta. Trabajar con issue/rama/PR y revisión humana; registrar todo en el roadmap, sin informes nuevos.
