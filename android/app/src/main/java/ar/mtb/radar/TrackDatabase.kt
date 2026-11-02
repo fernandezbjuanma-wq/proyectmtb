@@ -39,6 +39,24 @@ class TrackDatabase(context: Context) : SQLiteOpenHelper(context, "radar_tracks_
         writableDatabase.insertOrThrow("sessions",null,v)
         return id
     }
+    /** Cerrar una sesión interrumpida y crear otra es una única operación reversible. */
+    @Synchronized fun beginNewAfter(expectedId: String): String {
+        val database = writableDatabase
+        database.beginTransaction()
+        try {
+            check(currentSession() == expectedId) { "La sesión interrumpida cambió" }
+            val now = System.currentTimeMillis()
+            val closed = ContentValues().apply { put("ended_at",now) }
+            check(database.update("sessions",closed,"id=? AND ended_at IS NULL",arrayOf(expectedId)) == 1)
+            val id = UUID.randomUUID().toString()
+            val values = ContentValues().apply { put("id",id);put("started_at",now) }
+            database.insertOrThrow("sessions",null,values)
+            database.setTransactionSuccessful()
+            return id
+        } finally {
+            database.endTransaction()
+        }
+    }
     @Synchronized fun finish(id: String) {
         writableDatabase.execSQL("UPDATE sessions SET ended_at=? WHERE id=? AND ended_at IS NULL",
             arrayOf<Any>(System.currentTimeMillis(),id))
@@ -88,9 +106,10 @@ class TrackDatabase(context: Context) : SQLiteOpenHelper(context, "radar_tracks_
                 if(p.elevation!=null)put("elevation",p.elevation)else putNull("elevation")
                 put("accuracy",p.accuracy);put("speed",p.speed);put("utc_ms",p.timeMs)
             }
-            val inserted=database.insertWithOnConflict("positions",null,v,SQLiteDatabase.CONFLICT_IGNORE)!=-1L
+            // Un fallo SQL debe llegar al servicio; false queda reservado al filtro de puntos.
+            database.insertOrThrow("positions",null,v)
             database.setTransactionSuccessful()
-            return inserted
+            return true
         } finally {
             database.endTransaction()
         }
@@ -115,5 +134,13 @@ class TrackDatabase(context: Context) : SQLiteOpenHelper(context, "radar_tracks_
             while(it.moveToNext())consumer(Point(it.getDouble(0),it.getDouble(1),
                 if(it.isNull(2))null else it.getDouble(2),it.getFloat(3),it.getFloat(4),it.getLong(5)))
         }
+    }
+    /** Cursor en segundo plano: no copia una ruta completa a memoria. */
+    @Synchronized fun summary(id: String): TrackSummary {
+        val accumulator = TrackSummaryAccumulator()
+        forEachPoint(id) { p ->
+            accumulator.add(TrackSample(p.lat,p.lon,p.elevation,p.accuracy,p.speed,p.timeMs))
+        }
+        return accumulator.summary()
     }
 }

@@ -1,7 +1,7 @@
 # 🚵‍♂️ RADAR TÁCTICO MTB - ROADMAP DEFINITIVO (VISIÓN + ARQUITECTURA)
 **Documento Central para el Agente de Desarrollo (Antigravity)**
 
-**Estado verificado al 2026-10-28:** EN DESARROLLO. Hay 28 tareas abiertas; GPS Android, recuperación de actividades y sincronización privada siguen pendientes de aceptación.
+**Estado vigente:** EN DESARROLLO. Hay 28 tareas funcionales y un proyecto padre de aplicación Android propia ([#37](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/37)); GPS, recuperación, distribución y sincronización privada siguen sujetos a pruebas y aceptación.
 
 > Las secciones históricas 1–19 conservan la visión original y sus declaraciones de «completado». No representan pruebas ejecutadas ni aprobación del usuario. El seguimiento vigente está en «Continuidad y prioridades — 2026-10-28», al final de este documento.
 
@@ -262,4 +262,48 @@ Antigravity: revisar el diff acotado de #6 y ejecutar las pruebas Kotlin/SQLite 
 3. **Historial, respaldo y distribución:** mostrar en Radar/Historial los puntos y sesiones SQLite, con IDs estables, recuperación, GPX y estados de guardado reales; luego cola de sincronización privada con autenticación/reglas probadas. Preparar firma estable y actualizaciones que conserven datos. Primero prueba instalable privada; publicación en tienda como etapa posterior.
 
 **Orden propuesto:** #6/#7 → evidencia física #9 → integración de Historial/recuperación #8/#25 → sincronización privada #10/#11. Revisión cruzada pendiente según responsables de cada issue; el usuario aprueba integración a main. No se cambia producción, permisos Netlify, datos ni reglas Firebase con esta propuesta.
+## Proyecto vigente: Radar MTB Android propia
 
+**Dirección expresamente solicitada por el usuario:** construir la aplicación propia y dejar de depender de Chrome y Netlify. Seguimiento del proyecto en [#37](https://github.com/fernandezbjuanma-wq/proyectmtb/issues/37), creado el 02/11/2026 a partir del pedido del 29/10. La planificación siguiente reemplaza la propuesta anterior de usar una pantalla WebView, sin borrar ese antecedente.
+
+### Arquitectura y límites
+- **Interfaz:** cuatro áreas Android nativas incluidas en el APK: Preparación, Radar Live, Laboratorio e Historial. No WebView, carga de HTML remoto, puente JavaScript ni cuenta obligatoria para registrar.
+- **Grabación:** un único servicio foreground de ubicación, iniciado por acción visible del usuario, con permisos y estados de señal/guardado. Ni un servicio foreground ni una app nativa garantizan continuidad bajo «Forzar detención» o restricciones del fabricante: se exige evidencia de teléfono.
+- **Datos:** SQLite como fuente de verdad, escritura por punto, sesión interrumpida recuperable por elección explícita, consultas fuera del hilo de interfaz y exportación de sesiones cerradas a GPX. El tiempo entre muestras incluye interrupciones; las métricas se identifican como estimadas.
+- **Red:** la primera alpha autónoma elimina el permiso `INTERNET`. La aplicación puede abrir su interfaz y consultar registros sin red. Esto no incorpora mapas descargados, que siguen en #13.
+- **Conservación:** código web existente y sus datos permanecen intactos. La app no puede leer directamente el almacenamiento privado de Chrome ni el de otra aplicación. Importación de respaldo/GPX y sincronización privada quedan como migraciones explícitas, sin reemplazar originales.
+- **Distribución:** el debug usa `ar.mtb.radar.nativealpha` y el nombre «Radar MTB Nativa» para coexistir con el prototipo previo, cuya firma de CI no es estable ni recuperable desde su APK. No solicitar desinstalar el anterior ni borrar datos para instalar esta alpha. Preparar firma estable antes del uso habitual/actualizaciones; el debug de CI no se presenta como versión estable.
+- **Diseño:** navegación y controles Android funcionales de base; no se declara integrado ni aprobado el diseño final de Claude. Las funciones de la SPA se trasladan por etapas, sin simularlas como disponibles.
+
+### Hitos y criterios de terminado
+| Hito | Tareas existentes | Evidencia requerida |
+| --- | --- | --- |
+| H1. Arranque autónomo | #7, #21 | Instalación limpia, primer arranque en modo avión y Netlify inaccesible; cuatro áreas y estados vacíos reales; versión identificable. |
+| H2. Un solo grabador | #6, #7, #25 | Iniciar, finalizar, pausa/reanudación real cuando se implemente, errores visibles, ningún segundo GPS web; sin puntos/avisos tardíos tras finalizar. |
+| H3. Actividades y recuperación | #8, #18, #25, #26 | Recuperar interrupciones; historial SQLite coherente; exportar/reimportar; importar dos veces/corrupto sin pérdida. #8 conserva IndexedDB para la versión web. |
+| H4. Aceptación física | #9, #23, #29, #31, #33 | Teléfono/Android/condiciones registrados; bloqueo 5/30/90 min, otra app, sin red, permisos/GPS revocados, reinicio y almacenamiento lleno; puntos, batería y GPX comprobados. |
+| H5. Nube privada opcional | #10 → #11 | Registrar sin cuenta; al elegir sincronizar usar UID, reglas entre usuarios probadas y confirmación real del servidor; migración reversible. |
+| H6. Instalación y actualización | #34, #20, #21 | Canal de pruebas separado, firma estable, APK/versionado reproducibles, actualización que conserva sesiones y recuperación de datos anterior. No depende de un enlace de descarga efímero. |
+
+Las 28 tareas funcionales siguen vigentes; #37 las agrupa y no crea otras 28. No se cierran criterios por existir código. En esta primera entrega, H1–H3 tienen avance parcial; H4/H5/H6 siguen pendientes de aceptación y trabajo adicional.
+
+### Primer incremento implementado en rama
+Rama: `feat/app-android-independiente-20261029`, basada en `a7dbd158` del PR #35. Dependencia de integración: #35 → #22 → main; no se realiza ningún merge automáticamente. La consolidación documental del PR #36 permanece aparte y debe preservarse al integrar; no se recrean informes MD sueltos.
+
+- `MainActivity.kt`: cuatro áreas SDK nativas, permisos de ubicación/notificaciones, preparación, estado GPS/frescura, historial SQLite ampliable, selección de sesión, laboratorio calculado, recuperación explícita y exportación de sesiones cerradas. Las consultas usan un executor y cierran el helper/cursor.
+- `TrackingService.kt`: un HandlerThread serializa inicio, detención, callbacks, SQLite y avisos sin bloquear la interfaz. Las órdenes validan sesión y las notificaciones identifican su instancia; callbacks anteriores no escriben en otra actividad. Una escritura fallida deja la sesión interrumpida y muestra error; callbacks compatibles con API26.
+- `TrackDatabase.kt`: mantiene nombre/esquema de la base; `insertOrThrow` propaga errores de almacenamiento en lugar de confundirlos con un fix filtrado. Resumen por cursor sin cargar todos los puntos en memoria.
+- `TrackSummary.kt`: acumulación pura de distancia, intervalo, velocidad y desnivel estimados; no une con una recta los intervalos GPS mayores de 60 s; descarta datos inválidos solo para calcular y conserva el registro original.
+- Manifest/build: sin permiso de internet, versión `0.3.0-alpha`, canal debug separado. No se agregan dependencias de producción ni se modifica el workflow existente.
+- Funcionalidad pendiente de portar: pausa/reanudación completa, importación y transferencia de respaldos anteriores, mapas y rutas offline, entrenador de voz, planificación, garaje, comparador, segmentos, BikeFit, Escuadrón/SOS y nube. Las issues existentes conservan su alcance; esta alpha no implica paridad con la web.
+
+### Verificaciones y aceptación pendiente
+- **26 pruebas JUnit aprobadas:** 14 de validación GPS y 12 nuevas de resumen con datos sintéticos. Incluyen sesiones vacías/separadas, distancia de referencia, puntos fuera de orden, huecos, ruido/ausencia de altitud, velocidades inválidas y límites enteros. Kotlin 2.0.21/JDK17, ejecución local sin Android.
+- El servicio usa un único HandlerThread. Iniciar una nueva actividad tras una interrupción usa una transacción; cerrar exige el ID de la sesión. La comprobación reproducible está en `tests/verify_android_service.py`; requiere JDK17 y Kotlin locales, acepta `--source`, `--java-home` y `--kotlin-home` y crea únicamente archivos temporales. Usa dobles Android/SQLite: no reemplaza instrumentación ni prueba física.
+- **14 escenarios JVM del servicio aprobados el 02/11/2026 sobre esta fuente:** disco bloqueado sin esperar desde UI, inicio duplicado, comandos pendientes/obsoletos, callbacks de sesiones anteriores, permisos, errores de escritura/cierre y aislamiento de notificaciones entre instancias. Incluye conservar una posición entregada en el hilo GPS antes de STOP: se procesa sin volver a encolarla detrás del cierre. No prueban el motor SQLite ni el GPS Android reales.
+- Comprobación estática: interfaz sin WebView ni URL Netlify, manifest sin `INTERNET`, una sola fuente de posiciones. Espacios de nombres XML/GPX no son llamadas de red.
+- Compilación Android y pruebas reales de arranque: pendientes para esta nueva implementación. No reutilizar el éxito de compilación de #35 para afirmar que esta alpha pasó.
+- La revisión técnica interna de ChatGPT no sustituye la **revisión cruzada pendiente de Antigravity** ni la aprobación del usuario. El usuario decide antes de integrar a main o publicar una versión estable.
+
+### Handoff
+Antigravity: revisar el PR de esta base, correr comprobaciones Android/SQLite y la matriz física H4; registrar correcciones y nueva revisión. ChatGPT: mantener integridad de sesiones y cerrar, por hitos verificables, migración, firma y sincronización. Las asignaciones no ejecutan automáticamente otras sesiones. Informar al usuario por este chat; documentar solo en este roadmap los avances que otras IAs deban conservar.
