@@ -9,13 +9,20 @@ android {
         applicationId = "ar.mtb.radar"
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
-        versionName = "0.2.0-alpha"
+        versionCode = 3
+        versionName = "0.3.0-alpha"
     }
-    buildTypes { release { isMinifyEnabled = false } }
+    buildTypes {
+        // Canal aislado: nunca pedir desinstalar la alpha anterior para instalar este APK.
+        debug { applicationIdSuffix = ".nativealpha" }
+        release { isMinifyEnabled = false }
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions { jvmTarget = "17" }
+}
+dependencies {
+    testImplementation("junit:junit:4.13.2")
 }
