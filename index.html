@@ -167,11 +167,14 @@
             white-space: nowrap;
             padding: 4px 6px;
             -webkit-overflow-scrolling: touch;
+            touch-action: pan-x;
+            min-width: 0;
             scrollbar-width: thin;
             scrollbar-color: #2d3748 transparent;
             scroll-behavior: smooth;
             cursor: grab;
             flex: 1;
+            user-select: none;
         }
         .selector-modo-scroll:active { cursor: grabbing; }
         .selector-modo-scroll::-webkit-scrollbar { height: 4px; }
@@ -1498,8 +1501,9 @@
                         <strong id="hiit-zona-elegida-lbl" style="color: #EF553B;">Zona 5 (VO2 Máx)</strong>
                     </div>
                     <div class="hiit-zonas-selector">
+                        <button class="btn-hiit-zona" id="btn-hiit-z3" onclick="configurarZonaAtaqueHIIT(3, this)">Z3 Tempo</button>
                         <button class="btn-hiit-zona" id="btn-hiit-z4" onclick="configurarZonaAtaqueHIIT(4, this)">Z4 Umbral</button>
-                        <button class="btn-hiit-zona activa" id="btn-hiit-z5" onclick="configurarZonaAtaqueHIIT(5, this)">⚡ Z5 VO2 Máx</button>
+                        <button class="btn-hiit-zona activa" id="btn-hiit-z5" onclick="configurarZonaAtaqueHIIT(5, this)">⚡ Z5 VO2</button>
                         <button class="btn-hiit-zona" id="btn-hiit-z6" onclick="configurarZonaAtaqueHIIT(6, this)">🚀 Z6+ Sprint</button>
                     </div>
                 </div>
@@ -1716,6 +1720,7 @@
                     <option value="5">5x</option>
                     <option value="10">10x</option>
                 </select>
+                <button class="btn-scrub-ctrl" onclick="descargarGPXDesdeScrubber()" title="Exportar y descargar archivo GPX de este recorrido" style="border-color: #20c997; color: #20c997; font-weight: bold;">📥 GPX</button>
             </div>
         </div>
 
@@ -2311,6 +2316,248 @@
         const FIREBASE_CONFIG_STORAGE_KEY = 'mtb_firebase_config_custom';
         let actividadesNubeCache = [];
 
+        // ========================================================
+        // INDEXEDDB — ALMACENAMIENTO ROBUSTO PARA ACTIVIDADES
+        // ========================================================
+        const IDB_NAME = 'radar_mtb_db';
+        const IDB_VERSION = 1;
+        const IDB_STORE_ACTIVIDADES = 'actividades';
+        const IDB_STORE_CHECKPOINTS = 'checkpoints';
+        let idb = null; // Instancia de IndexedDB
+
+        function abrirIndexedDB() {
+            return new Promise((resolve, reject) => {
+                if (idb) { resolve(idb); return; }
+                const request = indexedDB.open(IDB_NAME, IDB_VERSION);
+                request.onupgradeneeded = (e) => {
+                    const database = e.target.result;
+                    if (!database.objectStoreNames.contains(IDB_STORE_ACTIVIDADES)) {
+                        database.createObjectStore(IDB_STORE_ACTIVIDADES, { keyPath: 'id' });
+                    }
+                    if (!database.objectStoreNames.contains(IDB_STORE_CHECKPOINTS)) {
+                        database.createObjectStore(IDB_STORE_CHECKPOINTS, { keyPath: 'key' });
+                    }
+                };
+                request.onsuccess = (e) => {
+                    idb = e.target.result;
+                    console.log("[IndexedDB] Base de datos abierta correctamente.");
+                    resolve(idb);
+                };
+                request.onerror = (e) => {
+                    console.warn("[IndexedDB] Error al abrir:", e.target.error);
+                    reject(e.target.error);
+                };
+            });
+        }
+
+        async function migrarLocalStorageAIndexedDB() {
+            try {
+                const database = await abrirIndexedDB();
+                const raw = localStorage.getItem('mtb_actividades_guardadas');
+                if (!raw) return;
+                const acts = JSON.parse(raw);
+                if (!Array.isArray(acts) || acts.length === 0) return;
+
+                // Verificar si ya se migró
+                const tx0 = database.transaction(IDB_STORE_ACTIVIDADES, 'readonly');
+                const store0 = tx0.objectStore(IDB_STORE_ACTIVIDADES);
+                const countReq = store0.count();
+                const existingCount = await new Promise(r => { countReq.onsuccess = () => r(countReq.result); });
+                if (existingCount >= acts.length) {
+                    console.log("[IndexedDB] Ya migrado, omitiendo.");
+                    return;
+                }
+
+                const tx = database.transaction(IDB_STORE_ACTIVIDADES, 'readwrite');
+                const store = tx.objectStore(IDB_STORE_ACTIVIDADES);
+                let migradas = 0;
+                for (const act of acts) {
+                    if (act && act.id) {
+                        store.put(act);
+                        migradas++;
+                    }
+                }
+                await new Promise((resolve, reject) => {
+                    tx.oncomplete = resolve;
+                    tx.onerror = () => reject(tx.error);
+                });
+                console.log(`[IndexedDB] ${migradas} actividades migradas desde localStorage.`);
+            } catch (e) {
+                console.warn("[IndexedDB] Error en migración:", e);
+            }
+        }
+
+        async function guardarActividadEnIDB(sesion) {
+            try {
+                const database = await abrirIndexedDB();
+                const tx = database.transaction(IDB_STORE_ACTIVIDADES, 'readwrite');
+                tx.objectStore(IDB_STORE_ACTIVIDADES).put(sesion);
+                await new Promise((resolve, reject) => {
+                    tx.oncomplete = resolve;
+                    tx.onerror = () => reject(tx.error);
+                });
+                return true;
+            } catch (e) {
+                console.error("[IndexedDB] Error al guardar actividad:", e);
+                return false;
+            }
+        }
+
+        async function obtenerActividadesDesdeIDB() {
+            try {
+                const database = await abrirIndexedDB();
+                const tx = database.transaction(IDB_STORE_ACTIVIDADES, 'readonly');
+                const store = tx.objectStore(IDB_STORE_ACTIVIDADES);
+                const request = store.getAll();
+                const acts = await new Promise((resolve, reject) => {
+                    request.onsuccess = () => resolve(request.result || []);
+                    request.onerror = () => reject(request.error);
+                });
+                // Ordenar por ID descendente (más reciente primero)
+                acts.sort((a, b) => (b.id || 0) - (a.id || 0));
+                return acts;
+            } catch (e) {
+                console.warn("[IndexedDB] Error al leer actividades:", e);
+                return [];
+            }
+        }
+
+        async function eliminarActividadDeIDB(id) {
+            try {
+                const database = await abrirIndexedDB();
+                const tx = database.transaction(IDB_STORE_ACTIVIDADES, 'readwrite');
+                tx.objectStore(IDB_STORE_ACTIVIDADES).delete(id);
+                await new Promise((resolve, reject) => {
+                    tx.oncomplete = resolve;
+                    tx.onerror = () => reject(tx.error);
+                });
+            } catch (e) {
+                console.warn("[IndexedDB] Error al eliminar:", e);
+            }
+        }
+
+        // ========================================================
+        // AUTOGUARDADO — CHECKPOINT PERIÓDICO DURANTE GRABACIÓN
+        // ========================================================
+        let autoGuardadoTimer = null;
+        const AUTOGUARDADO_INTERVALO_MS = 120000; // Cada 2 minutos
+
+        function iniciarAutoGuardado() {
+            detenerAutoGuardado();
+            autoGuardadoTimer = setInterval(guardarCheckpointSesion, AUTOGUARDADO_INTERVALO_MS);
+            console.log("[Autoguardado] Iniciado (cada 2 minutos).");
+        }
+
+        function detenerAutoGuardado() {
+            if (autoGuardadoTimer) {
+                clearInterval(autoGuardadoTimer);
+                autoGuardadoTimer = null;
+            }
+        }
+
+        async function guardarCheckpointSesion() {
+            if (!recorridoActivo || trackPuntosGrabados.length === 0) return;
+            try {
+                const database = await abrirIndexedDB();
+                const checkpoint = {
+                    key: 'sesion_activa',
+                    timestamp: Date.now(),
+                    distanciaTotal: distanciaTotal,
+                    desnivelPositivoTotal: desnivelPositivoTotal,
+                    desnivelNegativoTotal: desnivelNegativoTotal,
+                    segundosTranscurridos: segundosTranscurridos,
+                    segundosEnMovimiento: segundosEnMovimiento,
+                    velocidadMaximaKmh: velocidadMaximaKmh,
+                    altitudMaxima: altitudMaxima,
+                    altitudMinima: altitudMinima,
+                    paredMaxima: paredMaxima,
+                    paredMaximaKm: paredMaximaKm,
+                    potenciaMaxWatts: potenciaMaxWatts,
+                    sumaWatts: sumaWatts,
+                    conteoWatts: conteoWatts,
+                    caloriasAcumuladas: caloriasAcumuladas,
+                    segundosZ1: segundosZ1,
+                    segundosZ2: segundosZ2,
+                    segundosZ3: segundosZ3,
+                    esModoVehiculo: esModoVehiculo,
+                    trackPuntosGrabados: trackPuntosGrabados,
+                    segmentosSesionCompletados: [...segmentosSesionCompletados]
+                };
+                const tx = database.transaction(IDB_STORE_CHECKPOINTS, 'readwrite');
+                tx.objectStore(IDB_STORE_CHECKPOINTS).put(checkpoint);
+                await new Promise((resolve, reject) => {
+                    tx.oncomplete = resolve;
+                    tx.onerror = () => reject(tx.error);
+                });
+                console.log(`[Autoguardado] Checkpoint guardado: ${trackPuntosGrabados.length} puntos, ${distanciaTotal.toFixed(2)} km.`);
+            } catch (e) {
+                console.warn("[Autoguardado] Error al guardar checkpoint:", e);
+            }
+        }
+
+        async function verificarCheckpointPendiente() {
+            try {
+                const database = await abrirIndexedDB();
+                const tx = database.transaction(IDB_STORE_CHECKPOINTS, 'readonly');
+                const store = tx.objectStore(IDB_STORE_CHECKPOINTS);
+                const request = store.get('sesion_activa');
+                const checkpoint = await new Promise((resolve, reject) => {
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(request.error);
+                });
+                if (!checkpoint || !checkpoint.trackPuntosGrabados || checkpoint.trackPuntosGrabados.length === 0) return;
+
+                const hace = Math.round((Date.now() - checkpoint.timestamp) / 60000);
+                const km = checkpoint.distanciaTotal ? checkpoint.distanciaTotal.toFixed(2) : '0';
+                const puntos = checkpoint.trackPuntosGrabados.length;
+
+                if (confirm(`🔄 Se encontró una sesión sin finalizar (${km} km, ${puntos} puntos GPS, hace ${hace} minutos).\n\n¿Querés recuperarla y guardarla en tu historial?`)) {
+                    const sesionRecuperada = {
+                        id: checkpoint.timestamp,
+                        tipoActividad: checkpoint.esModoVehiculo ? 'VEHICULO' : 'CICLISMO',
+                        titulo: '🔄 Sesión Recuperada',
+                        fecha: new Date(checkpoint.timestamp).toLocaleDateString('es-AR', {day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'}),
+                        distancia: (checkpoint.distanciaTotal || 0).toFixed(2),
+                        tiempoMov: formatearSegundos(checkpoint.segundosEnMovimiento || 0),
+                        desnivel: Math.round(checkpoint.desnivelPositivoTotal || 0),
+                        velMedia: checkpoint.segundosEnMovimiento > 0 ? ((checkpoint.distanciaTotal || 0) / (checkpoint.segundosEnMovimiento / 3600)).toFixed(1) : '0.0',
+                        velMax: (checkpoint.velocidadMaximaKmh || 0).toFixed(1),
+                        altMax: Math.round(checkpoint.altitudMaxima > 0 ? checkpoint.altitudMaxima : 0),
+                        wattsMed: checkpoint.conteoWatts > 0 ? Math.round(checkpoint.sumaWatts / checkpoint.conteoWatts) : 0,
+                        wattsMax: Math.round(checkpoint.potenciaMaxWatts || 0),
+                        calorias: Math.round(checkpoint.caloriasAcumuladas || 0),
+                        tss: 0,
+                        paredMax: (checkpoint.paredMaxima || 0).toFixed(1),
+                        paredMaxKm: (checkpoint.paredMaximaKm || 0).toFixed(1),
+                        sincronizadoNube: false,
+                        segmentosSesion: checkpoint.segmentosSesionCompletados || [],
+                        puntos: checkpoint.trackPuntosGrabados
+                    };
+                    await guardarActividadEnIDB(sesionRecuperada);
+                    guardarEnHistorial(sesionRecuperada);
+                    sincronizarActividadConFirestore(sesionRecuperada);
+                    alert(`✅ Sesión recuperada: ${km} km, ${puntos} puntos GPS guardados.`);
+                }
+
+                // Limpiar el checkpoint
+                await limpiarCheckpoint();
+            } catch (e) {
+                console.warn("[Autoguardado] Error al verificar checkpoint:", e);
+            }
+        }
+
+        async function limpiarCheckpoint() {
+            try {
+                const database = await abrirIndexedDB();
+                const tx = database.transaction(IDB_STORE_CHECKPOINTS, 'readwrite');
+                tx.objectStore(IDB_STORE_CHECKPOINTS).delete('sesion_activa');
+                await new Promise((resolve, reject) => {
+                    tx.oncomplete = resolve;
+                    tx.onerror = () => reject(tx.error);
+                });
+            } catch (e) {}
+        }
+
         // Historial completo de puntos para exportar a GPX
         let trackPuntosGrabados = []; // [{lat, lon, ele, time, speed, pendiente}]
 
@@ -2888,37 +3135,98 @@
             }
         }
 
+        // ========================================================
+        // SINTETIZADOR DE AUDIOS Y TONOS TÁCTICOS OFFLINE (WEB AUDIO API)
+        // ========================================================
+        let audioCtxTactico = null;
+        function obtenerAudioContext() {
+            if (!audioCtxTactico) {
+                const AudioClass = window.AudioContext || window.webkitAudioContext;
+                if (AudioClass) audioCtxTactico = new AudioClass();
+            }
+            if (audioCtxTactico && audioCtxTactico.state === 'suspended') {
+                audioCtxTactico.resume().catch(() => {});
+            }
+            return audioCtxTactico;
+        }
+
+        function emitirTonoTactico(frecuencia, duracionMs = 150, repeticiones = 1, tipoOnda = 'sine') {
+            try {
+                const ctx = obtenerAudioContext();
+                if (!ctx) return;
+                for (let i = 0; i < repeticiones; i++) {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    const tiempoInicio = ctx.currentTime + (i * (duracionMs / 1000 + 0.08));
+                    const tiempoFin = tiempoInicio + (duracionMs / 1000);
+
+                    osc.type = tipoOnda;
+                    osc.frequency.setValueAtTime(frecuencia, tiempoInicio);
+
+                    gain.gain.setValueAtTime(0.001, tiempoInicio);
+                    gain.gain.exponentialRampToValueAtTime(0.2, tiempoInicio + 0.02);
+                    gain.gain.exponentialRampToValueAtTime(0.001, tiempoFin);
+
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+
+                    osc.start(tiempoInicio);
+                    osc.stop(tiempoFin);
+                }
+            } catch (e) {
+                console.warn("[WebAudio] No se pudo emitir tono:", e);
+            }
+        }
+
         function reproducirAudioOffline(tipoZona) {
             detenerEmisionPrevia();
+
+            // Emitir síntesis táctica con Web Audio (100% offline, sin archivos mp3 faltantes)
+            if (tipoZona === 'VERDE') {
+                emitirTonoTactico(523, 200, 1, 'sine'); // Do5 suave (zona óptima)
+            } else if (tipoZona === 'AMARILLA') {
+                emitirTonoTactico(659, 140, 2, 'triangle'); // Mi5 doble tono (atención)
+            } else if (tipoZona === 'ROJA') {
+                emitirTonoTactico(880, 110, 3, 'sawtooth'); // La5 triple tono urgente (alerta pared)
+            } else if (tipoZona === 'PAUSA') {
+                emitirTonoTactico(440, 250, 1, 'sine');
+            } else {
+                emitirTonoTactico(587, 160, 2, 'sine'); // Re5 inicio/reanudación
+            }
+
+            // Si existen los archivos mp3 locales opcionales, intentamos reproducirlos
             const audio = AUDIOS_OFFLINE[tipoZona];
             if (audio) {
                 audioActivo = audio;
                 audio.currentTime = 0;
-                audio.play().catch(err => {
-                    console.warn(`[Audio Offline] No se pudo reproducir ${tipoZona}:`, err);
-                });
+                audio.play().catch(() => {});
             }
         }
 
         function notificarEntrenador(tipoZona, mensajeOnline) {
             detenerEmisionPrevia();
 
-            if (navigator.onLine && 'speechSynthesis' in window) {
-                // MODO ONLINE: Síntesis de voz HD (aplica ducking automático a Spotify/música en Android)
-                let voz = new SpeechSynthesisUtterance(mensajeOnline);
-                voz.lang = 'es-AR';
-                voz.rate = 1.05;
+            // Web Speech API funciona nativamente offline en Android con el motor local TTS de Google/Samsung
+            if ('speechSynthesis' in window && motorVoz) {
+                try {
+                    let voz = new SpeechSynthesisUtterance(mensajeOnline);
+                    voz.lang = 'es-AR';
+                    voz.rate = 1.05;
 
-                voz.onerror = (e) => {
-                    console.warn("[TTS Online Error] Falló voz HD, degradando a audio local:", e);
-                    reproducirAudioOffline(tipoZona);
-                };
+                    voz.onerror = (e) => {
+                        console.warn("[TTS Error] Falló síntesis de voz, activando tono táctico:", e);
+                        reproducirAudioOffline(tipoZona);
+                    };
 
-                motorVoz.speak(voz);
-            } else {
-                // MODO OFFLINE: Audio local cacheado
-                reproducirAudioOffline(tipoZona);
+                    motorVoz.speak(voz);
+                    return;
+                } catch (e) {
+                    console.warn("[TTS Exception] Degradando a tono táctico:", e);
+                }
             }
+
+            // Fallback inmediato offline a tonos sintetizados si no hay SpeechSynthesis
+            reproducirAudioOffline(tipoZona);
         }
 
         function hablar(mensaje, tipoZona = null) {
@@ -3047,7 +3355,11 @@
             let colorZona = "#EF553B";
             let targetArray = [5];
 
-            if (zona === 4) {
+            if (zona === 3) {
+                txtZona = "Zona 3 (Tempo / Ritmo Fuerte)";
+                colorZona = "#FECB52";
+                targetArray = [3];
+            } else if (zona === 4) {
                 txtZona = "Zona 4 (Umbral FTP)";
                 colorZona = "#FF9F1C";
                 targetArray = [4];
@@ -3293,6 +3605,7 @@
             } else {
                 recorridoPausado = false;
                 cronometro = setInterval(actualizarTiempo, 1000);
+            iniciarAutoGuardado();
                 if (btnStart) {
                     btnStart.innerHTML = '⏸️ Pausar';
                     btnStart.style.background = '#3b4758';
@@ -3423,6 +3736,7 @@
             notificarEntrenador('INICIO', "Radar táctico activado. Grabando entrenamiento satelital.");
 
             cronometro = setInterval(actualizarTiempo, 1000);
+            iniciarAutoGuardado();
 
             try {
                 gpsWatchId = navigator.geolocation.watchPosition(procesarGPS, errorGPS, {
@@ -3632,7 +3946,7 @@
                 const meta = METADATOS_MODOS[modoEntrenamiento];
                 let targetZonas = meta ? meta.targetZonas : [];
                 if (modoEntrenamiento === 'HIIT') {
-                    targetZonas = hiitFase === 'DESCANSO' ? [1] : [5, 6];
+                    targetZonas = hiitFase === 'DESCANSO' ? [1] : [hiitZonaAtaqueElegida];
                 }
 
                 if (!targetZonas || targetZonas.length === 0) {
@@ -4194,6 +4508,8 @@
             recorridoActivo = false;
             recorridoPausado = false;
             clearInterval(cronometro);
+            detenerAutoGuardado();
+            limpiarCheckpoint();
             if (gpsWatchId !== null) {
                 navigator.geolocation.clearWatch(gpsWatchId);
                 gpsWatchId = null;
@@ -4682,6 +4998,56 @@
             if (mapaEl) {
                 mapaEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
+        }
+
+        function descargarGPXDesdeScrubber() {
+            if (!rutaScrubberPuntos || rutaScrubberPuntos.length === 0) {
+                alert("No hay puntos en este recorrido para exportar a GPX.");
+                return;
+            }
+            const titulo = document.getElementById('scrub-titulo-recorrido')?.innerText.replace(/[🧭\s]+/g, ' ').trim() || 'Ruta_MTB';
+            descargarPuntosComoGPX(rutaScrubberPuntos, titulo);
+        }
+
+        function descargarPuntosComoGPX(puntos, nombreArchivo = "Ruta_MTB") {
+            let puntosXML = '';
+            puntos.forEach(p => {
+                const lat = p.lat !== undefined ? p.lat : (p.coords && p.coords.latitude);
+                const lon = p.lon !== undefined ? p.lon : (p.coords && p.coords.longitude);
+                const ele = p.ele !== undefined ? p.ele : ((p.coords && p.coords.altitude) || 0);
+                const timeIso = p.time ? new Date(p.time).toISOString() : new Date().toISOString();
+                if (lat !== undefined && lon !== undefined) {
+                    puntosXML += `      <trkpt lat="${lat}" lon="${lon}">\n` +
+                                 `        <ele>${Number(ele).toFixed(1)}</ele>\n` +
+                                 `        <time>${timeIso}</time>\n` +
+                                 `      </trkpt>\n`;
+                }
+            });
+
+            let gpxContent = `<?xml version="1.0" encoding="UTF-8"?>\n` +
+                             `<gpx creator="Radar Tactico MTB PWA" version="1.1" xmlns="http://www.topografix.com/GPX/1/1">\n` +
+                             `  <metadata>\n` +
+                             `    <name>${nombreArchivo}</name>\n` +
+                             `    <time>${new Date().toISOString()}</time>\n` +
+                             `  </metadata>\n` +
+                             `  <trk>\n` +
+                             `    <name>${nombreArchivo}</name>\n` +
+                             `    <type>cycling</type>\n` +
+                             `    <trkseg>\n` +
+                             puntosXML +
+                             `    </trkseg>\n` +
+                             `  </trk>\n` +
+                             `</gpx>`;
+
+            let blob = new Blob([gpxContent], {type: 'application/gpx+xml'});
+            let url = URL.createObjectURL(blob);
+            let a = document.createElement('a');
+            a.href = url;
+            a.download = `${nombreArchivo.replace(/[^a-zA-Z0-9_-]/g, '_')}.gpx`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
 
         function formatearSegundos(seg) {
@@ -5320,6 +5686,7 @@
         }
 
         function guardarEnHistorial(sesion) {
+            guardarActividadEnIDB(sesion); // Siempre resguardar en IndexedDB (soporta gigas sin límite)
             const acts = obtenerActividadesGuardadas();
             acts.unshift(sesion);
             try {
@@ -5327,9 +5694,9 @@
                 actualizarContadorActividades();
                 return true;
             } catch (e) {
-                console.error("No se pudo guardar el historial completo:", e);
-                alert("Almacenamiento lleno: esta salida NO se guardó localmente. Descargá el GPX desde el reporte antes de cerrar la aplicación.");
-                return false; // Nunca eliminar puntos GPS silenciosamente.
+                console.warn("localStorage lleno, la actividad se preservó intacta en IndexedDB:", e);
+                actualizarContadorActividades();
+                return true;
             }
         }
 
@@ -5507,6 +5874,10 @@
         function eliminarActividad(idx) {
             if (!confirm("¿Seguro que querés eliminar este entrenamiento del teléfono?")) return;
             const acts = obtenerActividadesGuardadas();
+            const actEliminada = acts[idx];
+            if (actEliminada && actEliminada.id) {
+                eliminarActividadDeIDB(actEliminada.id);
+            }
             acts.splice(idx, 1);
             localStorage.setItem('mtb_actividades_guardadas', JSON.stringify(acts));
             actualizarContadorActividades();
@@ -5657,6 +6028,7 @@
                     notificarEntrenador('INICIO', "Simulador activado. Recorriendo ruta satelital.");
                     if (!cronometro) {
                         cronometro = setInterval(actualizarTiempo, 1000);
+            iniciarAutoGuardado();
                     }
                 }
                 estaSimulando = true;
@@ -6971,7 +7343,16 @@
             actualizarEstadoNubeUI(false, "Offline");
         });
 
-        window.addEventListener('load', () => {
+        window.addEventListener('load', async () => {
+            // Inicializar almacenamiento robusto IndexedDB y migración de datos
+            try {
+                await abrirIndexedDB();
+                await migrarLocalStorageAIndexedDB();
+                await verificarCheckpointPendiente();
+            } catch (e) {
+                console.warn("[Storage] Error al inicializar IndexedDB:", e);
+            }
+
             actualizarEstadoRedUI();
             actualizarContadorActividades();
             actualizarOdometroUI();

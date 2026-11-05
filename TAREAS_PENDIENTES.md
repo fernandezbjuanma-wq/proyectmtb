@@ -21,26 +21,14 @@ Leer junto con: `AGENTS.md`, `ESTADO_ACTUAL.md`, `DECISIONES.md`, `PROTOCOLO_HAN
 **Archivos:** No requiere cambios de código. Solo interacción del usuario con la app.
 
 ### T-002: Migrar almacenamiento de localStorage a IndexedDB
-**Estado:** Sin hacer
-**Qué:** `localStorage` tiene un límite de ~5-10 MB. Con muchas salidas con puntos GPS se llena y se pierden datos. IndexedDB soporta gigas.
-**Cómo:**
-1. Crear una capa de abstracción sobre IndexedDB (DB name: `radar_mtb_db`, stores: `actividades`, `configuracion`, `checkpoints`).
-2. Migrar las funciones `guardarEnHistorial()`, `obtenerActividadesGuardadas()` para que lean/escriban en IndexedDB.
-3. Al iniciar la app, migrar datos existentes de `localStorage` a IndexedDB automáticamente.
-4. Mantener `localStorage` solo para config ligera (Firebase config, preferencias de usuario).
-**Archivos:** `index.html` — sección JS de historial (buscar `mtb_actividades_guardadas`).
-**Keys de localStorage actuales:** `mtb_actividades_guardadas`, `mtb_odometro_mantenimiento`, `mtb_segmentos_privados`, `mtb_bikefit_historial`, `mtb_firebase_config_custom`.
-**Riesgo:** No romper la compatibilidad con datos existentes del usuario.
+**Estado:** ✅ COMPLETADA (2026-11-05 por Antigravity)
+**Qué:** Se implementó `radar_mtb_db` con ObjectStores `actividades` y `checkpoints`.
+**Detalle:** Funciones `abrirIndexedDB()`, `migrarLocalStorageAIndexedDB()`, `guardarActividadEnIDB()`, `obtenerActividadesDesdeIDB()`, `eliminarActividadDeIDB()`. Se ejecuta migración automática al cargar la página sin duplicados y se respalda cada sesión en IndexedDB independientemente del cupo de localStorage.
 
 ### T-003: Autoguardado periódico durante grabación GPS
-**Estado:** Sin hacer
-**Qué:** Si la app se cierra durante una salida larga (batería, crash, Android mata la PWA), se pierde toda la sesión.
-**Cómo:**
-1. Cada 2-3 minutos durante `recorridoActivo === true`, guardar un checkpoint en IndexedDB con el estado actual (`trackPuntosGrabados`, `distanciaTotal`, `desnivelPositivoTotal`, tiempo, etc.).
-2. Al abrir la app, verificar si hay un checkpoint sin finalizar → ofrecer recuperar la sesión.
-3. Al finalizar normalmente, borrar el checkpoint.
-**Depende de:** T-002 (IndexedDB).
-**Archivos:** `index.html` — funciones `iniciarRecorrido()`, `finalizarEntrenamiento()`, y el bloque de `watchPosition`.
+**Estado:** ✅ COMPLETADA (2026-11-05 por Antigravity)
+**Qué:** Checkpoints automáticos cada 2 minutos en IndexedDB (`sesion_activa`).
+**Detalle:** Al iniciar o pausar la sesión se activa `iniciarAutoGuardado()`. Si la app se cierra inesperadamente por batería o el sistema operativo, al reabrir la app `verificarCheckpointPendiente()` detecta la sesión interrumpida y ofrece restaurarla y guardarla en el historial con todos sus puntos GPS y métricas intactas. Al finalizar normalmente se limpia el checkpoint.
 
 ### T-004: Probar todo en celular real
 **Estado:** Sin hacer
@@ -85,10 +73,9 @@ Leer junto con: `AGENTS.md`, `ESTADO_ACTUAL.md`, `DECISIONES.md`, `PROTOCOLO_HAN
 **Archivos:** `sw.js`, `index.html` (inicialización de Leaflet).
 
 ### T-008: Audios de entrenamiento faltantes
-**Estado:** Sin hacer
-**Qué:** Los archivos `zona_verde.mp3`, `zona_amarilla.mp3`, `zona_roja.mp3` están referenciados en el código pero no existen en el repositorio. Las alertas de voz de zonas de entrenamiento no suenan.
-**Cómo:** Generar o conseguir los 3 archivos MP3 y agregarlos al repo. Alternativa: usar la Web Speech API (`speechSynthesis`) en lugar de archivos MP3.
-**Archivos:** Crear `zona_verde.mp3`, `zona_amarilla.mp3`, `zona_roja.mp3` en la raíz. Actualizar `sw.js` para cachearlos.
+**Estado:** ✅ COMPLETADA (2026-11-05 por Antigravity)
+**Qué:** Se eliminó la dependencia de archivos MP3 externos faltantes.
+**Detalle:** Se implementó `emitirTonoTactico()` con la Web Audio API nativa (Do5 en verde, Mi5 doble tono en amarillo, La5 triple tono urgente en rojo/pared). Además, `notificarEntrenador` ahora intenta `speechSynthesis` siempre (incluso offline, ya que Android dispone de los motores de voz TTS locales del sistema).
 
 ### T-009: Escuadrón — autenticación y control
 **Estado:** Sin hacer
@@ -109,18 +96,16 @@ Leer junto con: `AGENTS.md`, `ESTADO_ACTUAL.md`, `DECISIONES.md`, `PROTOCOLO_HAN
 **Acción:** El usuario debe confirmar qué colores, tipografía y layout quiere de esos bocetos. La IA que lo implemente debe respetar los 4 tabs y los IDs HTML existentes.
 
 ### T-011: Zonas de entrenamiento — barra unificada en tiempo real
-**Estado:** A medias
-**Qué:** El usuario pidió que las zonas Z1-Z5 se muestren en una barra visual única que se actualice en tiempo real durante CUALQUIER tipo de entrenamiento (no separadas por tipo). La barra ya existe en el HTML pero la lógica de actualización en tiempo real para todos los modos puede no estar completa.
-**Archivos:** `index.html` — buscar `zona-entrenamiento`, `barra-zona`, `actualizarZonaEntrenamiento`.
+**Estado:** ✅ VERIFICADA (2026-11-05 por Antigravity)
+**Qué:** La barra de 6 zonas opera en tiempo real en todos los modos (Libre, Fondo, HIIT, Escalada, Umbral, Regenerativo) con cursor dinámico y feedback de objetivo.
 
 ### T-012: Scroll en selector de tipo de entrenamiento
-**Estado:** Reportado por el usuario como bug
-**Qué:** La lista de tipos de entrenamiento no se desplazaba y no dejaba ver los que quedaban abajo.
-**Archivos:** `index.html` — el contenedor del selector de entrenamientos necesita `overflow-y: auto` y un `max-height`.
+**Estado:** ✅ COMPLETADA (2026-11-05 por Antigravity)
+**Qué:** Se optimizó `.selector-modo-scroll` con `touch-action: pan-x`, desplazamiento suave y flechas táctiles para navegación sin trabas en teléfonos.
 
 ### T-013: HIIT — revisar zonas disponibles
-**Estado:** Reportado por el usuario
-**Qué:** En modo HIIT solo aparecen Z4 y Z5. El usuario preguntó si eso es correcto. HIIT por definición trabaja en alta intensidad (Z4-Z5) pero podría tener fases de recuperación en Z1-Z2. Evaluar y documentar la decisión.
+**Estado:** ✅ COMPLETADA (2026-11-05 por Antigravity)
+**Qué:** Se incorporó `Z3 Tempo` a las opciones de ataque de intervalos (ahora disponibles Z3, Z4, Z5 y Z6+) y se sincronizó el objetivo en vivo para evaluar la zona elegida por el ciclista.
 
 ### T-014: Compresión inteligente de puntos GPS
 **Estado:** Sin hacer
@@ -132,9 +117,8 @@ Leer junto con: `AGENTS.md`, `ESTADO_ACTUAL.md`, `DECISIONES.md`, `PROTOCOLO_HAN
 **Qué:** Cuando una actividad se sube exitosamente a Firestore (especialmente al reconectar después de estar offline), mostrar un toast/snackbar en vez de solo loguearlo en consola.
 
 ### T-016: Exportar GPX desde el reproductor de ruta
-**Estado:** Sin hacer
-**Qué:** Poder descargar el GPX directamente mientras se mira el recorrido en el mapa con el scrubber, sin tener que volver al historial.
-**Archivos:** `index.html` — widget `#widget-reproductor-ruta`.
+**Estado:** ✅ COMPLETADA (2026-11-05 por Antigravity)
+**Qué:** Se agregó el botón `📥 GPX` directamente en los controles de `#widget-reproductor-ruta` junto con la función `descargarGPXDesdeScrubber()`. Permite descargar el track completo mientras se explora en el mapa.
 
 ### T-017: ClimbPro — validar con GPX conocido
 **Estado:** Sin hacer

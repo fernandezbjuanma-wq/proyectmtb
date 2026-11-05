@@ -93,3 +93,26 @@ Lee CLAUDE.md y DISENO_MTB.md. Tu diseño anterior fue el favorito del usuario, 
 3. ¿Cuándo se aplica el diseño visual de Claude?
 
 **Acción pedida a usuario:** Hacer push desde GitHub Desktop, verificar en `https://mtbproyect.netlify.app/` y probar el flujo completo de backup/restauración.
+
+### HANDOFF — Antigravity | 2026-11-05 | IndexedDB + Autoguardado + Web Audio + Zonas HIIT + Export GPX Scrubber
+**Fecha:** 2026-11-05
+**Issue/PR:** Trabajo directo sobre main por solicitud del usuario ("trabaja en el tema de las tareas pendientes empeza a realizar todo").
+**Commits/rama:** main
+
+**Hecho:**
+1. **T-002 (IndexedDB `radar_mtb_db`):** Implementada base de datos IndexedDB con ObjectStores `actividades` y `checkpoints`. Migración transparente desde `localStorage` al iniciar la app sin duplicados. Operaciones CRUD (`abrirIndexedDB`, `guardarActividadEnIDB`, `obtenerActividadesDesdeIDB`, `eliminarActividadDeIDB`). Respaldo perpetuo de actividades sin límite de 5MB.
+2. **T-003 (Autoguardado y Checkpoints):** Checkpoint periódico automático cada 2 minutos (`iniciarAutoGuardado`, `guardarCheckpointSesion`) durante grabación activa y al pausar. Al recargar o reabrir la app, `verificarCheckpointPendiente` detecta si hubo una salida interrumpida por batería o cierre del navegador y ofrece recuperarla al 100%. Limpieza automática al finalizar normalmente.
+3. **T-008 (Audios de entrenamiento):** Implementado sintetizador sonoro táctico con Web Audio API (`emitirTonoTactico`) con frecuencias distintivas (verde = 523Hz Do5, amarillo = 659Hz Mi5 doble tono, rojo/pared = 880Hz La5 triple tono urgente). Web Speech API (`speechSynthesis`) ahora se ejecuta tanto online como offline (usando motores locales TTS de Android), sin depender de archivos MP3 externos.
+4. **T-012 (Scroll en selector de entrenamiento):** Agregado `touch-action: pan-x; user-select: none;` en `.selector-modo-scroll` y optimizado para deslizamiento táctil y flechas sin trabas en teléfonos móviles.
+5. **T-013 (HIIT Zonas ampliadas):** Añadida opción `Z3 Tempo` junto a Z4, Z5 y Z6 en el selector de ataque de intervalos HIIT. Sincronizado dinámicamente con `actualizarGraficoZonas` para evaluar la zona objetivo elegida por el usuario.
+6. **T-016 (Exportar GPX desde Scrubber):** Añadido botón `📥 GPX` en `#widget-reproductor-ruta` y funciones `descargarGPXDesdeScrubber()` y `descargarPuntosComoGPX()` para exportar el track analizado directamente en el mapa.
+7. **Documentación:** Actualizados `TAREAS_PENDIENTES.md`, `DECISIONES.md` (D-013) y `PROTOCOLO_HANDOFF.md`.
+
+**NO hecho:**
+- T-001 (Proyecto Firebase real en consola Google - requiere interacción del usuario).
+- T-004 (Pruebas en campo real con celular - pendiente de feedback del usuario).
+- T-006 (Reglas de seguridad y auth en Firestore).
+- T-010 (Colores del boceto visual de Claude - pendiente de confirmación de paleta).
+
+**Pruebas ejecutadas:** Verificación sintáctica JavaScript (llaves balanceadas: 1259 open / 1259 close), renderizado headless con Microsoft Edge.
+**Acción pedida al usuario:** Abrir GitHub Desktop y hacer click en "Push origin" para publicar los cambios en Netlify (`https://mtbproyect.netlify.app/`).
