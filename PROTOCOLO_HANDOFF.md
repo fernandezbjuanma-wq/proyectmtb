@@ -106,12 +106,12 @@ Lee CLAUDE.md y DISENO_MTB.md. Tu diseño anterior fue el favorito del usuario, 
 4. **T-012 (Scroll en selector de entrenamiento):** Agregado `touch-action: pan-x; user-select: none;` en `.selector-modo-scroll` y optimizado para deslizamiento táctil y flechas sin trabas en teléfonos móviles.
 5. **T-013 (HIIT Zonas ampliadas):** Añadida opción `Z3 Tempo` junto a Z4, Z5 y Z6 en el selector de ataque de intervalos HIIT. Sincronizado dinámicamente con `actualizarGraficoZonas` para evaluar la zona objetivo elegida por el usuario.
 6. **T-016 (Exportar GPX desde Scrubber):** Añadido botón `📥 GPX` en `#widget-reproductor-ruta` y funciones `descargarGPXDesdeScrubber()` y `descargarPuntosComoGPX()` para exportar el track analizado directamente en el mapa.
-7. **Documentación:** Actualizados `TAREAS_PENDIENTES.md`, `DECISIONES.md` (D-013) y `PROTOCOLO_HANDOFF.md`.
+7. **T-001 (Proyecto Firebase real en producción):** Creado y vinculado el proyecto de Google Firebase `mtb-radar` con base de datos Firestore activa. Credenciales integradas como predeterminadas en `index.html`.
+8. **Documentación:** Actualizados `TAREAS_PENDIENTES.md`, `DECISIONES.md` (D-013, D-014) y `PROTOCOLO_HANDOFF.md`.
 
 **NO hecho:**
-- T-001 (Proyecto Firebase real en consola Google - requiere interacción del usuario).
 - T-004 (Pruebas en campo real con celular - pendiente de feedback del usuario).
-- T-006 (Reglas de seguridad y auth en Firestore).
+- T-006 (Reglas de seguridad y auth en Firestore - actualmente en modo de prueba activo).
 - T-010 (Colores del boceto visual de Claude - pendiente de confirmación de paleta).
 
 **Pruebas ejecutadas:** Verificación sintáctica JavaScript (llaves balanceadas: 1259 open / 1259 close), renderizado headless con Microsoft Edge.

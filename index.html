@@ -2085,17 +2085,14 @@
 
             <!-- 4. Credenciales de Proyecto Firebase -->
             <div class="seccion-reporte">
-                <div class="seccion-tag" style="background: #2b1f00; border-color: #FECB52; color: #FECB52;">Proyecto Firebase Propio (Opcional)</div>
+                <div class="seccion-tag" style="background: #132e22; border-color: #20c997; color: #20c997;">Proyecto Firebase Conectado (mtb-radar)</div>
                 <p style="font-size: 11px; color: #8fa0b5; margin-bottom: 6px;">
-                    Para usar tu propia base de datos gratuita de Google Firebase, pegá tu configuración aquí:
+                    Tu proyecto de Google Firebase <strong>mtb-radar</strong> está vinculado y activo como predeterminado:
                 </p>
-                <textarea id="txt-firebase-config" placeholder='{"apiKey": "AIzaSy...", "projectId": "tu-proyecto-mtb"}' style="width: 100%; height: 75px; background: #141722; border: 1px solid #3b4758; border-radius: 6px; color: #fff; font-family: monospace; font-size: 11px; padding: 6px; box-sizing: border-box; resize: none;"></textarea>
+                <textarea id="txt-firebase-config" placeholder='{"apiKey": "AIzaSy...", "projectId": "mtb-radar"}' style="width: 100%; height: 75px; background: #141722; border: 1px solid #3b4758; border-radius: 6px; color: #fff; font-family: monospace; font-size: 11px; padding: 6px; box-sizing: border-box; resize: none;"></textarea>
                 <div style="display: flex; gap: 8px; margin-top: 8px;">
                     <button class="btn-nube-action" style="flex: 1;" onclick="guardarConfigFirebasePersonalizada()">💾 Guardar Config</button>
-                    <button class="btn-nube-action" style="flex: 1; border-color: #555; color: #888;" onclick="restaurarConfigFirebaseDefault()">↺ Predeterminado</button>
-                </div>
-                <div style="margin-top: 8px; font-size: 10px; color: #8fa0b5; line-height: 1.4;">
-                    💡 <em>¿Cómo crear tu base en 2 min?</em> Entrá a <strong>console.firebase.google.com</strong>, creá un proyecto gratuito, activá <strong>Firestore Database</strong> en modo prueba y copiá las claves web.
+                    <button class="btn-nube-action" style="flex: 1; border-color: #555; color: #888;" onclick="restaurarConfigFirebaseDefault()">↺ Predeterminado (mtb-radar)</button>
                 </div>
             </div>
 
@@ -5257,18 +5254,24 @@
         // HISTORIAL Y SINCRONIZACIÓN EN LA NUBE (FIREBASE FIRESTORE)
         // ========================================================
         const FIREBASE_DEFAULT_CONFIG = {
-            apiKey: "AIzaSyDemoMTBRadarKey2026",
-            authDomain: "mtb-radar-tactico.firebaseapp.com",
-            projectId: "mtb-radar-tactico",
-            storageBucket: "mtb-radar-tactico.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "1:123456789:web:abcdef123456"
+            apiKey: "AIzaSyCixA9nkYYlPV5_zKpf5D_rE-zT0cKlJ_8",
+            authDomain: "mtb-radar.firebaseapp.com",
+            projectId: "mtb-radar",
+            storageBucket: "mtb-radar.firebasestorage.app",
+            messagingSenderId: "157352155259",
+            appId: "1:157352155259:web:120696b3a13bff55e1eade",
+            measurementId: "G-RWQM7YSNYB"
         };
 
         function obtenerConfigFirebase() {
             try {
                 const guardada = localStorage.getItem(FIREBASE_CONFIG_STORAGE_KEY);
-                if (guardada) return JSON.parse(guardada);
+                if (guardada) {
+                    const parsed = JSON.parse(guardada);
+                    if (parsed && parsed.apiKey && parsed.apiKey !== "AIzaSyDemoMTBRadarKey2026") {
+                        return parsed;
+                    }
+                }
             } catch (e) {}
             return FIREBASE_DEFAULT_CONFIG;
         }

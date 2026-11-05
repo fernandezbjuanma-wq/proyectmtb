@@ -10,15 +10,9 @@ Leer junto con: `AGENTS.md`, `ESTADO_ACTUAL.md`, `DECISIONES.md`, `PROTOCOLO_HAN
 ## 🔴 P0 — Bloqueantes para uso real
 
 ### T-001: Crear proyecto Firebase real y documentar
-**Estado:** Sin hacer
-**Qué:** La app tiene una config demo ficticia (`AIzaSyDemoMTBRadarKey2026`) que no conecta a ningún servidor. Sin un proyecto real, toda la sincronización en la nube es inerte.
-**Cómo:**
-1. El usuario debe ir a `console.firebase.google.com` y crear un proyecto gratuito.
-2. Activar **Firestore Database** en modo prueba (test).
-3. Copiar las claves web (apiKey, projectId, etc.).
-4. Pegarlas en la app: pestaña Historial → botón ☁️ Nube → sección "Proyecto Firebase Propio" → campo de texto → 💾 Guardar Config.
-**Quién:** El usuario (necesita cuenta Google). Una IA puede guiarlo paso a paso.
-**Archivos:** No requiere cambios de código. Solo interacción del usuario con la app.
+**Estado:** ✅ COMPLETADA (2026-11-05 por Juan y Antigravity)
+**Qué:** Proyecto de Google Firebase `mtb-radar` creado, base de datos Firestore habilitada e integrado como configuración predeterminada en `index.html`.
+**Detalle:** `FIREBASE_DEFAULT_CONFIG` ahora apunta al proyecto real de producción `mtb-radar` con persistencia offline activa. Sincronización en la nube habilitada al 100%.
 
 ### T-002: Migrar almacenamiento de localStorage a IndexedDB
 **Estado:** ✅ COMPLETADA (2026-11-05 por Antigravity)
