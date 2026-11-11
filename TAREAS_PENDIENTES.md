@@ -71,9 +71,14 @@ Leer junto con: `AGENTS.md`, `ESTADO_ACTUAL.md`, `DECISIONES.md`, `PROTOCOLO_HAN
 
 ## 🟢 P2 — Mejoras de calidad y UX
 
-### T-010: Aplicar diseño visual de Claude
-**Estado:** ⏸️ En espera de insumo del usuario (D-004 en `DECISIONES.md` y `DISENO_MTB.md`).
-**Qué:** Según `DISENO_MTB.md`, no se debe alterar la estética general ni inventar colores hasta que el usuario comparta y apruebe las capturas/especificaciones del diseño de Claude.
+### T-010: Aplicar diseño visual de Claude (Diseño V2 «Verde táctico»)
+**Estado:** ✅ COMPLETADA (2026-11-11 por Antigravity)
+**Qué:** Implementada en `index.html` y en el APK (`android/app/src/main/assets/index.html`) la especificación completa `DISENO_MTB_V2_ESPECIFICACION.md` junto con el prototipo de referencia `radar-tactico-v2-prototipo.html`:
+1. Paleta «Verde táctico» (`--bg: #0A110F`, `--acc: #3DDC97`, semáforo `#3DDC97` / `#FFC53D` / `#FF5C4D`) y paleta Solar de alto contraste (`#F3F0E8` / `#0A7A47`).
+2. Fuentes offline embebidas en WOFF2 (`Barlow Condensed` 500/600/700 con `tabular-nums` y `Barlow` 400/500/600/700).
+3. Radar con 3 vistas (`Mapa` protagonista por defecto con tira `km · tiempo · +m`, alerta compacta, botones de vidrio 44×44px y dock `Compacto | Completo | Oculto`; `Cabina` Boceto A; `Subida` Boceto B con tarjeta de anticipación a 104px y lista `Después`).
+4. Traza GPX coloreada por zona de terreno, círculo de precisión satelital y modo `↩ Volver al inicio` sobre la propia huella (`MTB-01`).
+5. Diálogo de confirmación obligatoria al pulsar `Finalizar` con botones separados (`Seguir grabando` / `Finalizar y guardar`), insignias `est.` en métricas estimadas, recálculo automático en SILCA y detección automática de batería `> 70%`.
 
 ### T-011: Zonas de entrenamiento — barra unificada en tiempo real
 **Estado:** ✅ COMPLETADA (2026-11-05 por Antigravity)

@@ -150,3 +150,22 @@ Lee CLAUDE.md y DISENO_MTB.md. Tu diseño anterior fue el favorito del usuario, 
 - Validación matemática sobre `Vuelta_ciclística_por_la_mañana.gpx` (10.822 puntos -> 52.58 km, +870 m / -872 m con histéresis de 2.5m, cima 1286 msnm).
 - Verificación sintáctica de JavaScript en `index.html` (`{ = 1406, } = 1406`, `( = 3190, ) = 3190`).
 - Sincronización de `assets/` de Android para compilación del APK en GitHub Actions.
+
+### HANDOFF — Antigravity | 2026-11-11 | Implementación del Diseño V2 «Verde táctico» (T-010 / D-004 / D-017)
+**Fecha:** 2026-11-11
+**Issue/PR:** Solicitud del usuario ("te dejo estos diseños para que los implementes tal cual esta ahi . quiero que subas a github estos detalles tambien").
+**Commits/rama:** main
+
+**Hecho:**
+1. **Especificación y Prototipo en el Repo:** Añadidos `DISENO_MTB_V2_ESPECIFICACION.md` y `radar-tactico-v2-prototipo.html` en la raíz del repositorio.
+2. **Sistema Visual «Verde táctico» y Tipografía Offline:** Tokens CSS `--bg: #0A110F`, `--surface: #121C19`, `--acc: #3DDC97`, semáforo `#3DDC97` / `#FFC53D` / `#FF5C4D`, paleta `body.modo-solar` (`#F3F0E8` / `#0A7A47`), y 7 fuentes WOFF2 embebidas (`Barlow Condensed` 500/600/700 con `tabular-nums` y `Barlow` 400/500/600/700).
+3. **Radar con 3 Vistas (`Mapa | Cabina | Subida`) + Chip `REC`:**
+   - **Vista Mapa (protagonista por defecto):** Mapa Leaflet inicializado al abrir la app (`inicializarMapaBaseV2()`), tira de vidrio `km · tiempo · +m` (`.v2-strip`), tarjeta de aviso compacta (`.v2-malert`), botones laterales 44×44 px (`SOS`, `↩ Huella`, `+`, `−`, `🗺️ Capas`, `🧭 Rumbo`, `◎ Centrar`), escala dinámica, círculo de precisión GPS, traza GPX coloreada por pendiente (`dibujarRutaGPXPorZonaV2`), modo `↩ Volver al inicio` sobre la propia huella (`toggleVolverAlInicioHuella`) y dock inferior con 3 modos (`Compacto`, `Completo`, `Oculto`).
+   - **Vista Cabina (Boceto A):** Modos de entrenamiento, aviso táctico, telemetría asimétrica, barra de 6 zonas, ClimbPro, minimapa y 4 métricas secundarias.
+   - **Vista Subida (Boceto B «Anticipación»):** Tarjeta de próximo tramo a 104 px (`400 m · Pared de 11 % durante 300 m`), lista `Después` (`A 700 m · Trepada 6 % · 400 m` / `A 1,1 km · Llano y bajada · 500 m`), ClimbPro y minimapa.
+4. **Reglas de Honestidad y Discrepancias Resueltas (Sección 10.2):**
+   - Confirmación obligatoria al pulsar `Finalizar` (`#modal-confirmar-finalizar`) con botones separados (`▶️ Seguir grabando` / `⏹️ Finalizar y guardar`).
+   - Insignias `<span class="est">est.</span>` en todas las métricas estimadas (Potencia, Calorías, TSS, IF, Recuperación, Nutrición).
+   - SILCA con recálculo automático en tiempo real (`20,8 / 23,3 PSI` para valores por defecto).
+   - BikeFit rotulado honestamente como guía de goniómetro manual y casilla de batería `> 70%` con lectura automática vía `navigator.getBattery()`.
+5. **Sincronización con APK Android y Service Worker (`v9`):** Actualizados `android/app/src/main/assets/index.html` y `sw.js`.

@@ -1,5 +1,5 @@
-// sw.js - Service Worker para Radar Táctico MTB v8 (Con Soporte de Mapas Offline)
-const CACHE_NAME = 'mtb-radar-v8';
+// sw.js - Service Worker para Radar Táctico MTB v9 (Diseño V2 Verde Táctico + Mapas Offline)
+const CACHE_NAME = 'mtb-radar-v9';
 const TILE_CACHE_NAME = 'mtb-map-tiles-v1';
 
 const urlsToCache = [
@@ -15,6 +15,7 @@ const urlsToCache = [
 
 const TILE_HOSTS = [
   'tile.openstreetmap.org',
+  'tile-cyclosm.openstreetmap.fr',
   'server.arcgisonline.com',
   'tile.opentopomap.org',
   'basemaps.cartocdn.com'
