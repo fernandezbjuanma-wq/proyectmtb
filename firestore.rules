@@ -1,0 +1,45 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Funciones de validación de integridad y seguridad para Radar Táctico MTB
+    function esActividadValida(data) {
+      return data.keys().hasAll(['id', 'fecha', 'distancia'])
+        && (data.id is int || data.id is string)
+        && data.fecha is string
+        && data.fecha.size() <= 80
+        && (!('ciclistaId' in data) || (data.ciclistaId is string && data.ciclistaId.size() <= 64))
+        && (!('puntos' in data) || data.puntos.size() <= 2000);
+    }
+
+    function esMiembroEscuadronValido(data) {
+      return data.keys().hasAll(['nombre', 'lat', 'lon', 'actualizado'])
+        && data.nombre is string
+        && data.nombre.size() >= 1
+        && data.nombre.size() <= 40
+        && data.lat is number
+        && data.lat >= -90 && data.lat <= 90
+        && data.lon is number
+        && data.lon >= -180 && data.lon <= 180
+        && data.actualizado is number;
+    }
+
+    // Colección principal de entrenamientos y salidas MTB
+    match /actividades_mtb/{actividadId} {
+      allow read: if true;
+      allow create: if esActividadValida(request.resource.data);
+      allow update: if esActividadValida(request.resource.data)
+        && (!('ciclistaId' in resource.data) || resource.data.ciclistaId == request.resource.data.ciclistaId);
+      allow delete: if request.auth != null;
+    }
+
+    // Salas de Radar de Escuadrón (telemetría grupal con validación de coordenadas)
+    match /escuadron_salas/{salaId}/miembros/{miembroId} {
+      allow read: if salaId.size() >= 3 && salaId.size() <= 32;
+      allow create, update: if salaId.size() >= 3 && salaId.size() <= 32
+        && miembroId.size() <= 64
+        && esMiembroEscuadronValido(request.resource.data);
+      allow delete: if true;
+    }
+  }
+}

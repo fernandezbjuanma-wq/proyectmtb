@@ -40,6 +40,7 @@ jobs:
           cp index.html android/app/src/main/assets/
           cp manifest.json android/app/src/main/assets/
           cp sw.js android/app/src/main/assets/
+          cp Vuelta_ciclística_por_la_mañana.gpx android/app/src/main/assets/ || true
 
       - name: Compilar APK Debug
         run: |

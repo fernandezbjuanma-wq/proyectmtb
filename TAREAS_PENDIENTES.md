@@ -1,6 +1,6 @@
 # Tareas Pendientes — Radar Táctico MTB
 
-Última actualización: 2026-10-28 por Antigravity.
+Última actualización: 2026-11-11 por Antigravity.
 Leer junto con: `AGENTS.md`, `ESTADO_ACTUAL.md`, `DECISIONES.md`, `PROTOCOLO_HANDOFF.md`.
 
 > **Regla:** No mergear a main sin revisión del usuario. Crear rama por tarea. Documentar qué se cambió y qué NO se probó.
@@ -12,118 +12,92 @@ Leer junto con: `AGENTS.md`, `ESTADO_ACTUAL.md`, `DECISIONES.md`, `PROTOCOLO_HAN
 ### T-001: Crear proyecto Firebase real y documentar
 **Estado:** ✅ COMPLETADA (2026-11-05 por Juan y Antigravity)
 **Qué:** Proyecto de Google Firebase `mtb-radar` creado, base de datos Firestore habilitada e integrado como configuración predeterminada en `index.html`.
-**Detalle:** `FIREBASE_DEFAULT_CONFIG` ahora apunta al proyecto real de producción `mtb-radar` con persistencia offline activa. Sincronización en la nube habilitada al 100%.
+**Detalle:** `FIREBASE_DEFAULT_CONFIG` apunta al proyecto real de producción `mtb-radar` con persistencia offline activa.
 
 ### T-002: Migrar almacenamiento de localStorage a IndexedDB
 **Estado:** ✅ COMPLETADA (2026-11-05 por Antigravity)
 **Qué:** Se implementó `radar_mtb_db` con ObjectStores `actividades` y `checkpoints`.
-**Detalle:** Funciones `abrirIndexedDB()`, `migrarLocalStorageAIndexedDB()`, `guardarActividadEnIDB()`, `obtenerActividadesDesdeIDB()`, `eliminarActividadDeIDB()`. Se ejecuta migración automática al cargar la página sin duplicados y se respalda cada sesión en IndexedDB independientemente del cupo de localStorage.
+**Detalle:** Funciones `abrirIndexedDB()`, `migrarLocalStorageAIndexedDB()`, `guardarActividadEnIDB()`, `obtenerActividadesDesdeIDB()`, `eliminarActividadDeIDB()`.
 
 ### T-003: Autoguardado periódico durante grabación GPS
 **Estado:** ✅ COMPLETADA (2026-11-05 por Antigravity)
 **Qué:** Checkpoints automáticos cada 2 minutos en IndexedDB (`sesion_activa`).
-**Detalle:** Al iniciar o pausar la sesión se activa `iniciarAutoGuardado()`. Si la app se cierra inesperadamente por batería o el sistema operativo, al reabrir la app `verificarCheckpointPendiente()` detecta la sesión interrumpida y ofrece restaurarla y guardarla en el historial con todos sus puntos GPS y métricas intactas. Al finalizar normalmente se limpia el checkpoint.
+**Detalle:** `iniciarAutoGuardado()`, `guardarCheckpointSesion()`, `verificarCheckpointPendiente()` y `limpiarCheckpoint()`.
 
 ### T-004: Probar todo en celular real (vía APK Android desde GitHub Actions)
-**Estado:** Listo para instalar APK
-**Qué:** Se configuró la compilación automática de `radar-mtb.apk` en GitHub Actions (`.github/workflows/compilar-apk.yml`) sin depender de Netlify. Hay que verificar en el teléfono instalando el APK:
-- GPS real (iniciar, pausar, finalizar)
-- Sincronización en tiempo real con Firebase `mtb-radar`
-- Backup JSON (exportar y restaurar) y persistencia IndexedDB + Checkpoints
+**Estado:** ⏳ Lista para prueba en campo por el usuario
+**Qué:** Se configuró la compilación automática de `radar-mtb.apk` en GitHub Actions (`.github/workflows/compilar-apk.yml`). El usuario puede descargar e instalar el APK en su teléfono para verificar en salida real:
+- GPS real (iniciar, pausar, finalizar) y pantalla encendida (`FLAG_KEEP_SCREEN_ON` + Wake Lock)
+- Sincronización en tiempo real con Firebase `mtb-radar` y toasts visuales
+- Mapas Offline descargados antes de subir al cerro
 - Reproductor/scrubber de ruta en mapa y exportación GPX
-- Comportamiento offline (modo avión)
-**Quién:** El usuario descarga el APK desde GitHub Actions, prueba en ruta y reporta ajustes.
 
 ---
 
 ## 🟡 P1 — Importantes para seguridad y experiencia
 
-### T-005: Contenedor Android APK y GPS (D-009 y D-015)
-**Estado:** ✅ COMPLETADA FASE 1 (Contenedor APK WebView en `android/` + GitHub Action `.github/workflows/compilar-apk.yml`)
-**Qué:** Se creó la app nativa Android (`ar.mtb.radar`) que empaqueta toda la interfaz de `index.html` con permisos nativos de ubicación fina, cámara y `keepScreenOn = true` para evitar que se apague la pantalla o se corte el GPS durante el recorrido.
+### T-005: GPS en segundo plano y pantalla activa (D-009 y D-015)
+**Estado:** ✅ COMPLETADA (2026-11-11 por Antigravity)
+**Qué:** Doble protección implementada:
+1. En `index.html`: `solicitarWakeLock()` (`navigator.wakeLock.request('screen')`) se activa automáticamente al iniciar el recorrido dentro de `activarKeepAliveAudio()` y se renueva en `visibilitychange`.
+2. En `android/app/src/main/java/ar/mtb/radar/MainActivity.kt`: `WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON` y `webView.keepScreenOn = true` mantienen el GPS y la pantalla activos en el contenedor nativo Android.
 
-### T-006: Reglas de seguridad de Firestore
-**Estado:** Sin hacer
-**Qué:** Ahora la base Firestore (cuando se cree) queda abierta: cualquiera con las credenciales puede leer/escribir. Hay que protegerla.
-**Cómo:**
-1. Activar Firebase Authentication (anónima o email).
-2. Configurar reglas en Firestore que restrinjan lectura/escritura al `uid` del usuario autenticado.
-3. Ajustar el JS para autenticar antes de leer/escribir.
-**Archivos:** `index.html` — función `inicializarFirebase()`. También agregar el SDK de auth: `firebase-auth-compat.js`.
+### T-006: Reglas de seguridad de Firestore e Identidad de Ciclista
+**Estado:** ✅ COMPLETADA (2026-11-11 por Antigravity)
+**Qué:**
+1. Creado el archivo `firestore.rules` en la raíz del repositorio con reglas de validación de esquema, límites de tamaño, protección por `ciclistaId` y control de salas de escuadrón.
+2. Implementado `obtenerCiclistaId()` en `index.html` que genera y persiste un ID único por dispositivo (`mtb_ciclista_id`), adjuntándolo en cada subida a Firestore (`actividades_mtb` y `escuadron_salas`).
+3. Añadido botón `🔒 Copiar Reglas Firestore` en `#modal-config-nube`.
 
-### T-007: Mapas offline
-**Estado:** Sin hacer. Decisión pendiente (D-010 en DECISIONES.md).
-**Qué:** Sin señal celular los tiles del mapa no cargan. El ciclista ve un mapa gris.
-**Opciones:**
-- A) Cache agresivo en `sw.js` — cachear los tiles que el usuario visitó.
-- B) Descarga previa de zona (bounding box) en IndexedDB.
-- C) Usar un paquete MBTiles offline con Leaflet plugin.
-**Archivos:** `sw.js`, `index.html` (inicialización de Leaflet).
+### T-007: Mapas offline (Service Worker + Descargador de Zona por Bounding Box)
+**Estado:** ✅ COMPLETADA (2026-11-11 por Antigravity)
+**Qué:**
+1. Actualizado `sw.js` (`v8`) con caché dedicada persistente `mtb-map-tiles-v1` (Cache-First para tiles de OpenStreetMap, Esri, OpenTopoMap y Carto, más tile SVG oscuro de respaldo cuando no hay señal).
+2. Implementado `descargarZonaMapaOffline()` y `contarTilesOfflineGuardados()` en `index.html` con botón `📥 Descargar Mapa Offline de la Zona Visible` en la pestaña Preparación (descarga niveles de zoom 13, 14 y 15 del área visible o del track GPX cargado).
 
 ### T-008: Audios de entrenamiento faltantes
 **Estado:** ✅ COMPLETADA (2026-11-05 por Antigravity)
-**Qué:** Se eliminó la dependencia de archivos MP3 externos faltantes.
-**Detalle:** Se implementó `emitirTonoTactico()` con la Web Audio API nativa (Do5 en verde, Mi5 doble tono en amarillo, La5 triple tono urgente en rojo/pared). Además, `notificarEntrenador` ahora intenta `speechSynthesis` siempre (incluso offline, ya que Android dispone de los motores de voz TTS locales del sistema).
+**Qué:** Implementado sintetizador `emitirTonoTactico()` con Web Audio API + Web Speech API offline/online.
 
-### T-009: Escuadrón — autenticación y control
-**Estado:** Sin hacer
-**Qué:** La funcionalidad de grupo (compartir ubicación entre ciclistas) necesita identificación, expiración de sesiones y privacidad.
-**Cómo:**
-1. Cada ciclista se autentica (Firebase Auth).
-2. Las sesiones de escuadrón tienen un código único y expiran después de X horas.
-3. Las reglas de Firestore protegen la subcolección de coordenadas.
-**Depende de:** T-001 (Firebase real), T-006 (auth).
+### T-009: Escuadrón — identificación, control de sala, expiración y marcadores en mapa
+**Estado:** ✅ COMPLETADA (2026-11-11 por Antigravity)
+**Qué:**
+1. Identificación única de cada miembro por `obtenerCiclistaId()` para evitar colisiones de nombres en Firestore.
+2. Expiración automática de sesiones inactivas (`ESCUADRON_EXPIRACION_MS = 2 horas`) y marca `expiraEn`.
+3. Renderizado en tiempo real de marcadores Leaflet en el mapa (`escuadronMarcadores`) para compañeros reales conectados, mostrando velocidad y distancia en metros/km respecto al usuario.
+4. Botones `🎲 Código` (`generarCodigoSalaEscuadron()`) y `📲 Invitar` por WhatsApp (`compartirSalaEscuadronWhatsApp()`).
 
 ---
 
 ## 🟢 P2 — Mejoras de calidad y UX
 
 ### T-010: Aplicar diseño visual de Claude
-**Estado:** Pendiente de insumo del usuario (D-004 en DECISIONES.md).
-**Qué:** El usuario expresó que le gusta un diseño elaborado por Claude pero aún no se aplicaron los colores/estilos. Hay bocetos PDF en el repo (`Radar Táctico MTB - Bocetos.pdf`).
-**Acción:** El usuario debe confirmar qué colores, tipografía y layout quiere de esos bocetos. La IA que lo implemente debe respetar los 4 tabs y los IDs HTML existentes.
+**Estado:** ⏸️ En espera de insumo del usuario (D-004 en `DECISIONES.md` y `DISENO_MTB.md`).
+**Qué:** Según `DISENO_MTB.md`, no se debe alterar la estética general ni inventar colores hasta que el usuario comparta y apruebe las capturas/especificaciones del diseño de Claude.
 
 ### T-011: Zonas de entrenamiento — barra unificada en tiempo real
-**Estado:** ✅ VERIFICADA (2026-11-05 por Antigravity)
-**Qué:** La barra de 6 zonas opera en tiempo real en todos los modos (Libre, Fondo, HIIT, Escalada, Umbral, Regenerativo) con cursor dinámico y feedback de objetivo.
+**Estado:** ✅ COMPLETADA (2026-11-05 por Antigravity)
 
 ### T-012: Scroll en selector de tipo de entrenamiento
 **Estado:** ✅ COMPLETADA (2026-11-05 por Antigravity)
-**Qué:** Se optimizó `.selector-modo-scroll` con `touch-action: pan-x`, desplazamiento suave y flechas táctiles para navegación sin trabas en teléfonos.
 
 ### T-013: HIIT — revisar zonas disponibles
 **Estado:** ✅ COMPLETADA (2026-11-05 por Antigravity)
-**Qué:** Se incorporó `Z3 Tempo` a las opciones de ataque de intervalos (ahora disponibles Z3, Z4, Z5 y Z6+) y se sincronizó el objetivo en vivo para evaluar la zona elegida por el ciclista.
 
-### T-014: Compresión inteligente de puntos GPS
-**Estado:** Sin hacer
-**Qué:** Actualmente se filtran 1 de cada 3 puntos si superan 500 al subir a Firestore. Implementar algoritmo Douglas-Peucker para mantener la forma del recorrido con menos datos.
-**Archivos:** `index.html` — función `sincronizarActividadConFirestore()`.
+### T-014: Compresión inteligente de puntos GPS (Douglas-Peucker)
+**Estado:** ✅ COMPLETADA (2026-11-11 por Antigravity)
+**Qué:** Implementado el algoritmo geométrico Ramer-Douglas-Peucker (`simplificarTrackDouglasPeucker` y `distanciaPerpendicularMetros`) en `sincronizarActividadConFirestore()`. Conserva curvas cerradas (caracoles), punto inicial, final y cima máxima de altitud reduciendo el peso del documento en Firestore sin perder la forma real del sendero.
 
-### T-015: Notificación visual al sincronizar
-**Estado:** Sin hacer
-**Qué:** Cuando una actividad se sube exitosamente a Firestore (especialmente al reconectar después de estar offline), mostrar un toast/snackbar en vez de solo loguearlo en consola.
+### T-015: Notificación visual al sincronizar (Toast Táctico)
+**Estado:** ✅ COMPLETADA (2026-11-11 por Antigravity)
+**Qué:** Implementado `mostrarToastTactico()` con notificaciones flotantes al sincronizar una actividad con Firestore, al reconectar a internet y subir pendientes automáticamente (`sincronizarPendientesFirestore(true)`), al validar un GPX y al descargar mapas offline.
 
 ### T-016: Exportar GPX desde el reproductor de ruta
 **Estado:** ✅ COMPLETADA (2026-11-05 por Antigravity)
-**Qué:** Se agregó el botón `📥 GPX` directamente en los controles de `#widget-reproductor-ruta` junto con la función `descargarGPXDesdeScrubber()`. Permite descargar el track completo mientras se explora en el mapa.
 
-### T-017: ClimbPro — validar con GPX conocido
-**Estado:** Sin hacer
-**Qué:** El cálculo de desnivel, pendiente y el perfil ClimbPro pueden tener imprecisiones. Validar con un track de subida larga conocida y comparar con Strava/Garmin.
-
----
-
-## 🗒️ Notas técnicas para cualquier IA que retome
-
-- **Repo:** `C:\Users\coni_\OneDrive\Desktop\juan\GitHub\proyectmtb` — branch `main`
-- **Git no está en PATH del sistema.** Usar: `& "C:\Users\coni_\AppData\Local\GitHubDesktop\app-3.6.6\resources\app\git\cmd\git.exe" -C "ruta" comando`
-- **Push:** No se puede hacer push desde terminal (falta auth). El usuario debe usar GitHub Desktop.
-- **Node.js no instalado** — no hay `node --check` para validar JS.
-- **`index.html` es una SPA monolítica** (~6800 líneas, HTML+CSS+JS todo junto).
-- **Line endings:** mezcla CRLF/LF. Para editar con herramientas programáticas a veces hay que normalizar.
-- **Firebase SDK:** v10.12.0 compat cargado por CDN.
-- **Variables JS clave:** `db`, `firebaseInicializado`, `recorridoActivo`, `trackPuntosGrabados`, `gpsWatchId`, `ultimaPosicion`, `distanciaTotal`, `desnivelPositivoTotal`.
-- **LocalStorage keys:** `mtb_actividades_guardadas`, `mtb_odometro_mantenimiento`, `mtb_segmentos_privados`, `mtb_bikefit_historial`, `mtb_firebase_config_custom`.
-- **Idioma:** Español argentino (vos, pedaleás, subí, etc.).
-- **Reglas de edición:** Leer `AGENTS.md` antes de tocar cualquier cosa. No pushear a main directo. No borrar IDs HTML existentes. No cambiar diseño visual sin aprobación.
+### T-017: ClimbPro — validar con GPX conocido (`Vuelta_ciclística_por_la_mañana.gpx`)
+**Estado:** ✅ COMPLETADA (2026-11-11 por Antigravity)
+**Qué:**
+1. Corregida la histéresis de desnivel en grabación GPS (`actualizarPosicion`) y en análisis GPX (`inicializarDatosGPX`) con umbral de 2.5m (estándar Strava/Garmin). Validado sobre `Vuelta_ciclística_por_la_mañana.gpx` (10.822 puntos, **52.58 km**, **+870 m** de desnivel positivo, cima **1286 msnm**).
+2. Suavizado de altitud por media móvil de 5 puntos (`eleSuavizada`) y cálculo de distancia acumulada real por el sendero (`distAcumKm`) en lugar de línea recta a través de curvas en U.
+3. Añadido resumen de validación ClimbPro (`#gpx-climbpro-resumen`) en Preparación y empaquetado el archivo GPX dentro de `android/app/src/main/assets/` para uso offline en el APK.

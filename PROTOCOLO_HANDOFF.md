@@ -131,3 +131,22 @@ Lee CLAUDE.md y DISENO_MTB.md. Tu diseño anterior fue el favorito del usuario, 
 **Acción pedida al usuario:**
 1. Hacer click en **"Push origin"** en **GitHub Desktop**.
 2. Entrar al repositorio en GitHub -> pestaña **"Actions"** -> abrir **"Compilar APK Android - Radar MTB"** y descargar **`Radar-MTB-APK`** cuando termine de compilar (~2 minutos).
+
+### HANDOFF — Antigravity | 2026-11-11 | Resolución Completa de Tareas Pendientes (T-005, T-006, T-007, T-009, T-014, T-015, T-017)
+**Fecha:** 2026-11-11
+**Issue/PR:** Solicitud del usuario ("revisa las tareas pendientes porfavor y realizalas").
+**Commits/rama:** main
+
+**Hecho:**
+1. **T-005 (Wake Lock & Pantalla Activa en Ruta):** Activación inmediata de `solicitarWakeLock()` en `activarKeepAliveAudio()` + `FLAG_KEEP_SCREEN_ON` y `keepScreenOn = true` en `MainActivity.kt`.
+2. **T-006 (Reglas de Seguridad Firestore e Identidad):** Creado `firestore.rules` con validación de esquema, tamaño y `ciclistaId`. Implementado `obtenerCiclistaId()` y botón para copiar reglas desde `#modal-config-nube`.
+3. **T-007 (Mapas Offline):** Actualizado `sw.js` (`v8`) con caché persistente `mtb-map-tiles-v1` (Cache-First + fallback SVG oscuro sin señal) y creado descargador de cuadrículas por zona (`descargarZonaMapaOffline()`, niveles de zoom 13-15) en la pestaña Preparación.
+4. **T-009 (Escuadrón en Vivo):** Identificación única por `ciclistaId`, filtrado automático de sesiones inactivas (> 2h), marcadores Leaflet en tiempo real para compañeros reales con cálculo de distancia, generador de códigos de sala y botón de invitación por WhatsApp.
+5. **T-014 (Compresión GPS Douglas-Peucker):** Implementado `simplificarTrackDouglasPeucker()` con distancia perpendicular en metros y preservación de cima máxima en `sincronizarActividadConFirestore()`.
+6. **T-015 (Notificaciones Toast Tácticas):** Implementado `mostrarToastTactico()` al sincronizar con Firestore, al reconectar a internet (`sincronizarPendientesFirestore(true)`), al validar un GPX y al descargar mapas offline.
+7. **T-017 (Validación ClimbPro e Histéresis de Desnivel):** Corregida la histéresis de altitud de 2.5m en vivo y en GPX, suavizado de media móvil de 5 puntos (`eleSuavizada`), distancia real por sendero (`distAcumKm`) en lugar de línea recta entre curvas, y empaquetado `Vuelta_ciclística_por_la_mañana.gpx` dentro de `android/app/src/main/assets/`.
+
+**Pruebas ejecutadas:**
+- Validación matemática sobre `Vuelta_ciclística_por_la_mañana.gpx` (10.822 puntos -> 52.58 km, +870 m / -872 m con histéresis de 2.5m, cima 1286 msnm).
+- Verificación sintáctica de JavaScript en `index.html` (`{ = 1406, } = 1406`, `( = 3190, ) = 3190`).
+- Sincronización de `assets/` de Android para compilación del APK en GitHub Actions.

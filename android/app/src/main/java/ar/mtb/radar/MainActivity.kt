@@ -30,8 +30,10 @@ class MainActivity : Activity() {
             WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
             WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED
         )
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         webView = WebView(this)
+        webView.keepScreenOn = true
         setContentView(webView)
 
         solicitarPermisos()
@@ -43,6 +45,10 @@ class MainActivity : Activity() {
         settings.setGeolocationEnabled(true)
         settings.allowFileAccess = true
         settings.allowContentAccess = true
+        @Suppress("DEPRECATION")
+        settings.allowFileAccessFromFileURLs = true
+        @Suppress("DEPRECATION")
+        settings.allowUniversalAccessFromFileURLs = true
         settings.mediaPlaybackRequiresUserGesture = false
         settings.cacheMode = WebSettings.LOAD_DEFAULT
 
@@ -72,7 +78,8 @@ class MainActivity : Activity() {
     private fun solicitarPermisos() {
         val permisos = mutableListOf(
             Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.CAMERA
         )
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             permisos.add(Manifest.permission.POST_NOTIFICATIONS)

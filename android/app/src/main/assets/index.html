@@ -1205,13 +1205,25 @@
             </div>
         </div>
 
-        <!-- 3. RUTA PLANIFICADA Y CLIMBPRO -->
+        <!-- 3. RUTA PLANIFICADA, CLIMBPRO Y MAPA OFFLINE -->
         <div class="card-prep" style="clear: both;">
-            <div class="card-prep-title">🗺️ Ruta GPX Planificada (ClimbPro Anticipado)</div>
-            <p style="font-size: 11px; color: #8fa0b5; margin: 0 0 10px 0;">Cargá el track de la montaña antes de salir para que el radar dibuje el perfil de pendientes futuras.</p>
-            <div style="display: flex; gap: 8px;">
-                <button class="btn-prep-accion" onclick="document.getElementById('input-gpx').click()" style="flex: 1;">📂 Subir Track GPX</button>
-                <button class="btn-prep-accion" onclick="cargarGPXPorDefecto(); cambiarPestanaApp('radar');" style="flex: 1; background: #2d3748; border: 1px solid #20c997; color: #20c997;">⚡ Demo Cerro</button>
+            <div class="card-prep-title">🗺️ Ruta GPX Planificada (ClimbPro & Mapas Offline)</div>
+            <p style="font-size: 11px; color: #8fa0b5; margin: 0 0 10px 0;">Cargá el track de la montaña antes de salir para que el radar dibuje el perfil de pendientes futuras y guardá las cuadrículas del mapa para rodar sin señal.</p>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button class="btn-prep-accion" onclick="document.getElementById('input-gpx').click()" style="flex: 1; min-width: 120px;">📂 Subir Track GPX</button>
+                <button class="btn-prep-accion" onclick="cargarGPXPorDefecto(); cambiarPestanaApp('radar');" style="flex: 1; min-width: 120px; background: #2d3748; border: 1px solid #20c997; color: #20c997;">⚡ Demo Cerro (52.6km)</button>
+            </div>
+            <div id="gpx-climbpro-resumen" style="display: none; margin-top: 8px; background: #141821; border: 1px solid #20c997; border-radius: 8px; padding: 8px 10px; font-size: 11px; color: #e2e8f0; text-align: left;"></div>
+
+            <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #2d3748;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <span style="font-size: 11px; font-weight: bold; color: #4DA8DA;">📦 Caché de Mapa Offline (Cerro sin 4G)</span>
+                    <span id="offline-tiles-count" style="font-size: 10px; background: #162430; color: #4DA8DA; padding: 2px 7px; border-radius: 8px; border: 1px solid #4DA8DA;">Verificando caché...</span>
+                </div>
+                <button class="btn-prep-accion" id="btn-descargar-mapa-offline" onclick="descargarZonaMapaOffline()" style="width: 100%; background: #162430; border: 1px solid #4DA8DA; color: #4DA8DA;">
+                    📥 Descargar Mapa Offline de la Zona Visible
+                </button>
+                <div id="offline-map-progreso" style="display: none; font-size: 11px; color: #20c997; margin-top: 6px; text-align: center;"></div>
             </div>
         </div>
 
@@ -2094,6 +2106,10 @@
                     <button class="btn-nube-action" style="flex: 1;" onclick="guardarConfigFirebasePersonalizada()">💾 Guardar Config</button>
                     <button class="btn-nube-action" style="flex: 1; border-color: #555; color: #888;" onclick="restaurarConfigFirebaseDefault()">↺ Predeterminado (mtb-radar)</button>
                 </div>
+                <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid #2d3748; display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                    <span style="font-size: 10px; color: #8fa0b5;">ID Ciclista: <strong id="ui-ciclista-id" style="color: #20c997;">-</strong></span>
+                    <button class="btn-nube-action" style="font-size: 10px; padding: 5px 8px;" onclick="copiarReglasFirestore()">🔒 Copiar Reglas Firestore</button>
+                </div>
             </div>
 
             <button class="btn-cerrar-reporte" onclick="cerrarConfigNube()">Listo</button>
@@ -2212,8 +2228,13 @@
                         <input type="text" id="escuadron-sala-input" value="CERRO-YUNGA" class="prep-input">
                     </div>
                 </div>
-                <div style="margin-top: 10px; display: flex; gap: 8px;">
-                    <button class="btn-prep-accion" id="btn-escuadron-conectar" onclick="toggleConexionEscuadron()" style="flex: 1;">📡 Conectar Escuadrón</button>
+                <div style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button class="btn-prep-accion" id="btn-escuadron-conectar" onclick="toggleConexionEscuadron()" style="flex: 2; min-width: 150px;">📡 Conectar Escuadrón</button>
+                    <button class="btn-nube-action" onclick="generarCodigoSalaEscuadron()" style="flex: 1; font-size: 11px;" title="Generar código único de salida">🎲 Código</button>
+                    <button class="btn-nube-action" onclick="compartirSalaEscuadronWhatsApp()" style="flex: 1; font-size: 11px; border-color: #25D366; color: #25D366;">📲 Invitar</button>
+                </div>
+                <div style="font-size: 10px; color: #8fa0b5; margin-top: 6px;">
+                    🔒 Privacidad activa: cada ciclista se identifica con su ID único y las sesiones inactivas expiran automáticamente a las 2 horas.
                 </div>
             </div>
 
@@ -3063,6 +3084,9 @@
 
         function activarKeepAliveAudio() {
             try {
+                // 0. Activar Screen Wake Lock inmediatamente al iniciar grabación
+                solicitarWakeLock();
+
                 // 1. Pista silenciosa en bucle: clasifica la PWA como reproductor activo en el SO del celu
                 const audioEl = document.getElementById('audio-keepalive');
                 if (audioEl) {
@@ -4137,18 +4161,21 @@
                     if (altitudActual !== null) {
                         distanciaParaPendiente += distMetros;
 
-                        // Desnivel acumulado independiente de la ventana de pendiente.
-                        // Umbral simple de ruido: seguir validando con rutas reales.
-                        if (ultimaAltitudAcumulada !== null) {
+                        // Desnivel acumulado con histéresis de 2.5m (estándar Garmin/Strava):
+                        // Captura ascensos graduales reales y filtra serruchos de altitud GPS en terreno llano.
+                        if (ultimaAltitudAcumulada === null) {
+                            ultimaAltitudAcumulada = altitudActual;
+                        } else {
                             const diffAlt = altitudActual - ultimaAltitudAcumulada;
-                            if (diffAlt > 1.5) {
+                            if (diffAlt >= 2.5) {
                                 desnivelPositivoTotal += diffAlt;
+                                ultimaAltitudAcumulada = altitudActual;
                                 document.getElementById('ui-desnivel').innerText = `+${Math.round(desnivelPositivoTotal)} m`;
-                            } else if (diffAlt < -1.5) {
+                            } else if (diffAlt <= -2.5) {
                                 desnivelNegativoTotal += Math.abs(diffAlt);
+                                ultimaAltitudAcumulada = altitudActual;
                             }
                         }
-                        ultimaAltitudAcumulada = altitudActual;
 
                         // Cálculo de pendiente representativa en ventana de >= 25 metros
                         if (ultimaAltitud !== null && distanciaParaPendiente >= DISTANCIA_VENTANA_PENDIENTE) {
@@ -4391,8 +4418,14 @@
 
             if (puntoIndex === -1) return;
 
-            // Extraer los próximos 1.5 km (~120 puntos hacia adelante)
-            const ventanaFutura = puntosGPX.slice(puntoIndex, puntoIndex + 120);
+            // Extraer los próximos 1.5 km reales siguiendo las curvas del sendero (no distancia en línea recta)
+            const distInicioKm = puntosGPX[puntoIndex].distAcumKm || 0;
+            const ventanaFutura = [];
+            for (let i = puntoIndex; i < puntosGPX.length; i++) {
+                ventanaFutura.push(puntosGPX[i]);
+                const dRecorridaKm = (puntosGPX[i].distAcumKm || 0) - distInicioKm;
+                if (dRecorridaKm >= 1.5 || ventanaFutura.length >= 450) break;
+            }
             if (ventanaFutura.length < 5) return;
 
             // Dibujar en el canvas
@@ -4400,22 +4433,40 @@
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            const alturas = ventanaFutura.map(p => p.ele);
+            const alturas = ventanaFutura.map(p => (typeof p.eleSuavizada === 'number') ? p.eleSuavizada : p.ele);
             const minAlt = Math.min(...alturas);
             const maxAlt = Math.max(...alturas);
             const rangoAlt = Math.max(15, maxAlt - minAlt);
 
-            // Calcular pendiente del tramo por delante
-            const distTotalTramo = calcularDistancia(
-                ventanaFutura[0].lat, ventanaFutura[0].lon,
-                ventanaFutura[ventanaFutura.length - 1].lat, ventanaFutura[ventanaFutura.length - 1].lon
-            ) * 1000;
-            const desnivelTramo = ventanaFutura[ventanaFutura.length - 1].ele - ventanaFutura[0].ele;
-            const pendienteTramo = distTotalTramo > 0 ? (desnivelTramo / distTotalTramo) * 100 : 0;
+            // Calcular distancia real sobre el sendero y pendiente media/máxima suavizada
+            let distTotalTramo = ((ventanaFutura[ventanaFutura.length - 1].distAcumKm || 0) - distInicioKm) * 1000;
+            if (distTotalTramo <= 5) {
+                distTotalTramo = 0;
+                for (let k = 1; k < ventanaFutura.length; k++) {
+                    distTotalTramo += calcularDistancia(ventanaFutura[k-1].lat, ventanaFutura[k-1].lon, ventanaFutura[k].lat, ventanaFutura[k].lon) * 1000;
+                }
+            }
+            const eleIni = alturas[0];
+            const eleFin = alturas[alturas.length - 1];
+            const desnivelTramo = eleFin - eleIni;
+            const pendienteTramo = distTotalTramo > 10 ? (desnivelTramo / distTotalTramo) * 100 : 0;
+
+            // Detectar rampa máxima de >= 60 metros dentro de los próximos 1.5 km
+            let maxPendienteRampa = pendienteTramo;
+            for (let a = 0; a < ventanaFutura.length; a++) {
+                for (let b = a + 3; b < ventanaFutura.length; b++) {
+                    const dSubM = ((ventanaFutura[b].distAcumKm || 0) - (ventanaFutura[a].distAcumKm || 0)) * 1000;
+                    if (dSubM >= 60) {
+                        const pSub = ((alturas[b] - alturas[a]) / dSubM) * 100;
+                        if (pSub <= 32 && pSub > maxPendienteRampa) maxPendienteRampa = pSub;
+                        break;
+                    }
+                }
+            }
 
             const distTramoKm = distTotalTramo / 1000;
-            document.getElementById('climbpro-distancia').innerText = `Próximos: ${distTramoKm.toFixed(1)} km`;
-            document.getElementById('climbpro-pendiente-media').innerText = `Pendiente media: ${pendienteTramo.toFixed(1)}%`;
+            document.getElementById('climbpro-distancia').innerText = `Próximos: ${distTramoKm.toFixed(2)} km`;
+            document.getElementById('climbpro-pendiente-media').innerText = `Media: ${pendienteTramo.toFixed(1)}% · Máx: ${maxPendienteRampa.toFixed(1)}%`;
 
             // Actualizar marcas de cotas relativas
             const cota1 = document.getElementById('climbpro-cota-1');
@@ -4425,15 +4476,17 @@
             if (cota2) cota2.innerText = `+${Math.round(distTotalTramo * 0.66)}m`;
             if (cota3) cota3.innerText = `+${distTramoKm.toFixed(1)} km`;
 
-            // Alerta flotante anticipada estilo boceto
+            // Alerta flotante anticipada con pendiente suavizada en ventana real
             const alertaEl = document.getElementById('climbpro-alerta');
             if (alertaEl) {
-                if (pendienteTramo >= 9) {
+                if (maxPendienteRampa >= 9) {
                     alertaEl.style.display = 'block';
-                    alertaEl.innerText = `PARED ${pendienteTramo.toFixed(0)}% (+${Math.round(desnivelTramo)}m)`;
-                } else if (pendienteTramo >= 5) {
+                    alertaEl.style.background = 'rgba(239, 85, 59, 0.92)';
+                    alertaEl.style.color = '#ffffff';
+                    alertaEl.innerText = `PARED ${maxPendienteRampa.toFixed(0)}% (+${Math.max(0, Math.round(maxAlt - eleIni))}m)`;
+                } else if (maxPendienteRampa >= 5) {
                     alertaEl.style.display = 'block';
-                    alertaEl.innerText = `RAMPA ${pendienteTramo.toFixed(0)}%`;
+                    alertaEl.innerText = `RAMPA ${maxPendienteRampa.toFixed(0)}%`;
                     alertaEl.style.background = 'rgba(254, 203, 82, 0.9)';
                     alertaEl.style.color = '#121212';
                 } else {
@@ -4441,13 +4494,15 @@
                 }
             }
 
-            // Trazado del perfil en gradiente
+            // Trazado del perfil en gradiente proporcional a la distancia real
             ctx.beginPath();
             ctx.moveTo(0, canvas.height);
 
             for (let i = 0; i < ventanaFutura.length; i++) {
-                const x = (i / (ventanaFutura.length - 1)) * canvas.width;
-                const y = canvas.height - ((ventanaFutura[i].ele - minAlt) / rangoAlt) * (canvas.height - 18) - 8;
+                const dRelM = ((ventanaFutura[i].distAcumKm || 0) - distInicioKm) * 1000;
+                const ratioX = distTotalTramo > 10 ? Math.min(1, Math.max(0, dRelM / distTotalTramo)) : (i / (ventanaFutura.length - 1));
+                const x = ratioX * canvas.width;
+                const y = canvas.height - ((alturas[i] - minAlt) / rangoAlt) * (canvas.height - 18) - 8;
                 ctx.lineTo(x, y);
             }
             ctx.lineTo(canvas.width, canvas.height);
@@ -5549,10 +5604,123 @@
             reader.readAsText(file);
         }
 
+        // ========================================================
+        // IDENTIDAD DE CICLISTA, TOAST TÁCTICO Y COMPRESIÓN DOUGLAS-PEUCKER
+        // ========================================================
+        function obtenerCiclistaId() {
+            const KEY = 'mtb_ciclista_id';
+            let id = localStorage.getItem(KEY);
+            if (!id) {
+                const rand = Math.random().toString(36).substring(2, 10);
+                id = `mtb_${rand}_${Date.now().toString(36).slice(-4)}`;
+                localStorage.setItem(KEY, id);
+            }
+            const elId = document.getElementById('ui-ciclista-id');
+            if (elId) elId.innerText = id;
+            return id;
+        }
+
+        function mostrarToastTactico(mensaje, icono = '☁️', colorBorde = '#20c997', duracionMs = 3800) {
+            try {
+                let container = document.getElementById('toast-tactico-container');
+                if (!container) {
+                    container = document.createElement('div');
+                    container.id = 'toast-tactico-container';
+                    container.style.cssText = 'position:fixed;bottom:76px;left:50%;transform:translateX(-50%);z-index:99999;display:flex;flex-direction:column;gap:8px;width:90%;max-width:400px;pointer-events:none;';
+                    document.body.appendChild(container);
+                }
+                const toast = document.createElement('div');
+                toast.style.cssText = `background:rgba(19,24,34,0.96);border:1px solid ${colorBorde};border-left:4px solid ${colorBorde};color:#fff;padding:10px 14px;border-radius:10px;font-size:12px;font-weight:600;box-shadow:0 8px 20px rgba(0,0,0,0.65);display:flex;align-items:center;gap:10px;transition:opacity 0.3s ease,transform 0.3s ease;opacity:0;transform:translateY(10px);`;
+                toast.innerHTML = `<span style="font-size:16px;">${icono}</span><span style="flex:1;line-height:1.35;">${mensaje}</span>`;
+                container.appendChild(toast);
+                requestAnimationFrame(() => {
+                    toast.style.opacity = '1';
+                    toast.style.transform = 'translateY(0)';
+                });
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateY(10px)';
+                    setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 320);
+                }, duracionMs);
+            } catch (e) {}
+        }
+
+        function distanciaPerpendicularMetros(pt, lineaIni, lineaFin) {
+            const latRad = (lineaIni.lat * Math.PI) / 180;
+            const mPorGradoLat = 111132.92;
+            const mPorGradoLon = 111412.84 * Math.cos(latRad);
+            const x = (pt.lon - lineaIni.lon) * mPorGradoLon;
+            const y = (pt.lat - lineaIni.lat) * mPorGradoLat;
+            const dx = (lineaFin.lon - lineaIni.lon) * mPorGradoLon;
+            const dy = (lineaFin.lat - lineaIni.lat) * mPorGradoLat;
+            const mag2 = dx * dx + dy * dy;
+            if (mag2 === 0) return Math.hypot(x, y);
+            const u = Math.max(0, Math.min(1, (x * dx + y * dy) / mag2));
+            return Math.hypot(x - u * dx, y - u * dy);
+        }
+
+        function simplificarTrackDouglasPeucker(puntos, toleranciaMetros = 4.5) {
+            if (!Array.isArray(puntos) || puntos.length <= 350) return puntos;
+            const n = puntos.length;
+            const conservar = new Uint8Array(n);
+            conservar[0] = 1;
+            conservar[n - 1] = 1;
+
+            // Preservar también el punto de altitud máxima (cima de la salida)
+            let idxMaxEle = 0;
+            let maxEle = -99999;
+            for (let i = 0; i < n; i++) {
+                if ((puntos[i].ele || 0) > maxEle) {
+                    maxEle = puntos[i].ele || 0;
+                    idxMaxEle = i;
+                }
+            }
+            conservar[idxMaxEle] = 1;
+
+            const pila = [[0, n - 1]];
+            while (pila.length > 0) {
+                const [ini, fin] = pila.pop();
+                if (fin - ini <= 1) continue;
+                let maxDist = 0;
+                let indexMax = ini;
+                const pIni = puntos[ini];
+                const pFin = puntos[fin];
+                for (let i = ini + 1; i < fin; i++) {
+                    const d = distanciaPerpendicularMetros(puntos[i], pIni, pFin);
+                    if (d > maxDist) {
+                        maxDist = d;
+                        indexMax = i;
+                    }
+                }
+                if (maxDist > toleranciaMetros) {
+                    conservar[indexMax] = 1;
+                    pila.push([ini, indexMax], [indexMax, fin]);
+                }
+            }
+
+            let resultado = puntos.filter((_, idx) => conservar[idx] === 1);
+            if (resultado.length > 800 && toleranciaMetros < 15) {
+                return simplificarTrackDouglasPeucker(resultado, toleranciaMetros * 1.6);
+            }
+            return resultado;
+        }
+
+        function copiarReglasFirestore() {
+            const reglas = `rules_version = '2';\nservice cloud.firestore {\n  match /databases/{database}/documents {\n    match /actividades_mtb/{id} {\n      allow read: if true;\n      allow create, update: if request.resource.data.keys().hasAll(['id', 'fecha', 'distancia']);\n      allow delete: if request.auth != null;\n    }\n    match /escuadron_salas/{sala}/miembros/{miembro} {\n      allow read, write: if sala.size() >= 3 && sala.size() <= 32;\n    }\n  }\n}`;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(reglas).then(() => {
+                    mostrarToastTactico("Reglas de seguridad copiadas. Pegalas en Firebase Console > Firestore > Reglas.", "🔒", "#20c997", 4500);
+                }).catch(() => alert(reglas));
+            } else {
+                alert(reglas);
+            }
+        }
+
         function abrirConfigNube() {
             const cfg = obtenerConfigFirebase();
             const txt = document.getElementById('txt-firebase-config');
             if (txt) txt.value = JSON.stringify(cfg, null, 2);
+            obtenerCiclistaId();
             document.getElementById('modal-config-nube').style.display = 'block';
         }
 
@@ -5580,16 +5748,21 @@
             }
         }
 
-        async function sincronizarActividadConFirestore(sesion) {
+        async function sincronizarActividadConFirestore(sesion, silencioso = false) {
             if (!db) {
                 console.log("[Firestore] Base de datos no inicializada; sincronización pendiente.");
                 return false;
             }
             try {
-                let docData = { ...sesion, sincronizadoNube: true };
-                // Reducir puntos para optimizar ancho de banda móvil si excede 500 puntos
-                if (docData.puntos && docData.puntos.length > 500) {
-                    docData.puntos = docData.puntos.filter((_, i) => i % 3 === 0);
+                let docData = {
+                    ...sesion,
+                    ciclistaId: sesion.ciclistaId || obtenerCiclistaId(),
+                    sincronizadoNube: true,
+                    actualizadoEn: Date.now()
+                };
+                // Compresión inteligente Douglas-Peucker para mantener curvas y cimas con menos datos
+                if (docData.puntos && docData.puntos.length > 400) {
+                    docData.puntos = simplificarTrackDouglasPeucker(docData.puntos, 4.5);
                 }
 
                 await db.collection("actividades_mtb").doc(String(sesion.id)).set(docData, { merge: true });
@@ -5602,6 +5775,9 @@
                     badgeSync.innerText = "☁️ Sincronizado en Nube";
                     badgeSync.style.color = "#00CC96";
                     badgeSync.style.borderColor = "#00CC96";
+                }
+                if (!silencioso) {
+                    mostrarToastTactico(`Salida sincronizada en la nube (${docData.distancia || 0} km)`, "☁️", "#00CC96", 3500);
                 }
                 return true;
             } catch (err) {
@@ -5616,6 +5792,7 @@
             if (act) {
                 act.sincronizadoNube = true;
                 localStorage.setItem('mtb_actividades_guardadas', JSON.stringify(acts));
+                guardarActividadEnIDB(act);
                 actualizarContadorActividades();
                 if (document.getElementById('modal-historial').style.display === 'block') {
                     renderizarListaActividades();
@@ -5623,29 +5800,33 @@
             }
         }
 
-        async function sincronizarPendientesFirestore() {
+        async function sincronizarPendientesFirestore(silencioso = false) {
             if (!db) {
-                alert("El servicio en la nube aún no está listo. Verificá tu conexión a internet.");
+                if (!silencioso) alert("El servicio en la nube aún no está listo. Verificá tu conexión a internet.");
                 return;
             }
             const acts = obtenerActividadesGuardadas();
             const pendientes = acts.filter(a => !a.sincronizadoNube);
 
             if (pendientes.length === 0) {
-                alert("Todas tus actividades locales ya están sincronizadas en la nube.");
+                if (!silencioso) mostrarToastTactico("Todas tus salidas locales ya están sincronizadas en la nube.", "✅", "#20c997", 3200);
                 return;
             }
 
             let subidas = 0;
             for (const act of pendientes) {
                 try {
-                    const confirmado = await sincronizarActividadConFirestore(act);
+                    const confirmado = await sincronizarActividadConFirestore(act, true);
                     if (confirmado) subidas++;
                 } catch (e) {
                     console.warn("Fallo subida:", e);
                 }
             }
-            alert(`Sincronizadas y confirmadas: ${subidas} de ${pendientes.length} actividad(es). Las restantes siguen pendientes.`);
+            if (subidas > 0) {
+                mostrarToastTactico(`Nube actualizada: ${subidas} de ${pendientes.length} salida(s) sincronizada(s).`, "🔄", "#00CC96", 4200);
+            } else if (!silencioso) {
+                mostrarToastTactico("Sin señal estable: tus salidas siguen resguardadas en el teléfono.", "🟡", "#FECB52", 3800);
+            }
             renderizarListaActividades();
         }
 
@@ -5947,13 +6128,73 @@
                 alert("No se encontraron puntos de recorrido en el archivo GPX.");
                 return;
             }
+
+            // 1. Suavizado de altitud con media móvil de 5 puntos y distancia acumulada real por el sendero
+            let distAcumKm = 0;
+            for (let i = 0; i < puntos.length; i++) {
+                if (i > 0) {
+                    distAcumKm += calcularDistancia(puntos[i - 1].lat, puntos[i - 1].lon, puntos[i].lat, puntos[i].lon);
+                }
+                puntos[i].distAcumKm = distAcumKm;
+
+                let sumEle = 0;
+                let cntEle = 0;
+                for (let w = Math.max(0, i - 2); w <= Math.min(puntos.length - 1, i + 2); w++) {
+                    sumEle += puntos[w].ele || 0;
+                    cntEle++;
+                }
+                puntos[i].eleSuavizada = cntEle > 0 ? (sumEle / cntEle) : (puntos[i].ele || 0);
+            }
+
+            // 2. Cálculo de desnivel positivo y negativo con histéresis de 2.5m (estándar Strava/Garmin)
+            let desnivelPosGPX = 0;
+            let desnivelNegGPX = 0;
+            let ultEleHisteresis = puntos[0].eleSuavizada;
+            let minEleGPX = puntos[0].eleSuavizada;
+            let maxEleGPX = puntos[0].eleSuavizada;
+            let idxCima = 0;
+
+            for (let i = 1; i < puntos.length; i++) {
+                const e = puntos[i].eleSuavizada;
+                if (e < minEleGPX) minEleGPX = e;
+                if (e > maxEleGPX) {
+                    maxEleGPX = e;
+                    idxCima = i;
+                }
+                const diff = e - ultEleHisteresis;
+                if (diff >= 2.5) {
+                    desnivelPosGPX += diff;
+                    ultEleHisteresis = e;
+                } else if (diff <= -2.5) {
+                    desnivelNegGPX += Math.abs(diff);
+                    ultEleHisteresis = e;
+                }
+            }
+
             puntosGPX = puntos;
             indiceSimulacion = 0;
             const info = document.getElementById('sim-info');
-            info.style.display = 'block';
-            info.innerText = `✅ "${nombreArchivo}" cargado: ${puntos.length} puntos.`;
+            if (info) {
+                info.style.display = 'block';
+                info.innerText = `✅ "${nombreArchivo}" (${distAcumKm.toFixed(1)} km · +${Math.round(desnivelPosGPX)} m · Cima ${Math.round(maxEleGPX)} msnm)`;
+            }
+            const resumenClimbPro = document.getElementById('gpx-climbpro-resumen');
+            if (resumenClimbPro) {
+                const distCimaKm = puntos[idxCima] ? (puntos[idxCima].distAcumKm || 0) : 0;
+                const pendMediaPuerto = distCimaKm > 0.5 ? (((maxEleGPX - minEleGPX) / (distCimaKm * 1000)) * 100) : 0;
+                resumenClimbPro.style.display = 'block';
+                resumenClimbPro.innerHTML = `
+                    <div style="font-weight:bold;color:#20c997;margin-bottom:3px;">🏔️ ClimbPro Validado: ${nombreArchivo}</div>
+                    <div>📏 Distancia: <strong>${distAcumKm.toFixed(2)} km</strong> | 🧗 Desnivel+: <strong>+${Math.round(desnivelPosGPX)} m</strong> (-${Math.round(desnivelNegGPX)} m)</div>
+                    <div>⛰️ Cima: <strong>${Math.round(maxEleGPX)} msnm</strong> (km ${distCimaKm.toFixed(1)}) · Pendiente media ascenso: <strong>${pendMediaPuerto.toFixed(1)}%</strong></div>
+                `;
+            }
+
             document.getElementById('sim-controles').style.display = 'block';
             document.getElementById('sim-progreso-txt').innerText = `Punto 0 / ${puntosGPX.length}`;
+
+            // Inicializar vista previa de ClimbPro desde el kilómetro 0 de la ruta
+            actualizarClimbPro(puntosGPX[0].lat, puntosGPX[0].lon, puntosGPX[0].ele);
 
             // Dibujar la ruta planificada en el mapa en gris translúcido
             if (mapa) {
@@ -5961,6 +6202,117 @@
                 const coordsPlanificadas = puntosGPX.map(p => [p.lat, p.lon]);
                 trazadoRutaPlanificada = L.polyline(coordsPlanificadas, {color: '#888', weight: 4, opacity: 0.6, dashArray: '6, 8'}).addTo(mapa);
                 mapa.fitBounds(trazadoRutaPlanificada.getBounds());
+            }
+            mostrarToastTactico(`Track GPX validado: ${distAcumKm.toFixed(1)} km (+${Math.round(desnivelPosGPX)}m)`, "🗺️", "#20c997", 3600);
+        }
+
+        // ========================================================
+        // DESCARGADOR DE MAPAS OFFLINE POR BOUNDING BOX (T-007)
+        // ========================================================
+        const TILE_CACHE_OFFLINE = 'mtb-map-tiles-v1';
+
+        function lon2tileX(lon, zoom) {
+            return Math.floor(((lon + 180) / 360) * Math.pow(2, zoom));
+        }
+
+        function lat2tileY(lat, zoom) {
+            const rad = (lat * Math.PI) / 180;
+            return Math.floor(((1 - Math.log(Math.tan(rad) + 1 / Math.cos(rad)) / Math.PI) / 2) * Math.pow(2, zoom));
+        }
+
+        async function contarTilesOfflineGuardados() {
+            const badge = document.getElementById('offline-tiles-count');
+            if (!('caches' in window)) {
+                if (badge) badge.innerText = 'Caché Nativa';
+                return 0;
+            }
+            try {
+                const cache = await caches.open(TILE_CACHE_OFFLINE);
+                const keys = await cache.keys();
+                if (badge) badge.innerText = `${keys.length} cuadrículas listas`;
+                return keys.length;
+            } catch (e) {
+                if (badge) badge.innerText = 'Listo';
+                return 0;
+            }
+        }
+
+        async function descargarZonaMapaOffline() {
+            if (!('caches' in window)) {
+                alert("Tu navegador no soporta Cache Storage para mapas offline.");
+                return;
+            }
+            const btn = document.getElementById('btn-descargar-mapa-offline');
+            const prog = document.getElementById('offline-map-progreso');
+
+            // Determinar el bounding box del mapa actual o del track GPX cargado (o Cerro San Javier por defecto)
+            let south = -26.825, north = -26.765, west = -65.385, east = -65.305;
+            if (puntosGPX && puntosGPX.length > 5) {
+                const lats = puntosGPX.map(p => p.lat);
+                const lons = puntosGPX.map(p => p.lon);
+                south = Math.min(...lats) - 0.008;
+                north = Math.max(...lats) + 0.008;
+                west = Math.min(...lons) - 0.008;
+                east = Math.max(...lons) + 0.008;
+            } else if (mapa && typeof mapa.getBounds === 'function') {
+                const b = mapa.getBounds();
+                south = b.getSouth();
+                north = b.getNorth();
+                west = b.getWest();
+                east = b.getEast();
+            }
+
+            const urls = [];
+            const zooms = [13, 14, 15];
+            for (const z of zooms) {
+                const xMin = lon2tileX(west, z);
+                const xMax = lon2tileX(east, z);
+                const yMin = lat2tileY(north, z);
+                const yMax = lat2tileY(south, z);
+                for (let x = xMin; x <= xMax; x++) {
+                    for (let y = yMin; y <= yMax; y++) {
+                        if (urls.length < 140) {
+                            urls.push(`https://tile.openstreetmap.org/${z}/${x}/${y}.png`);
+                        }
+                    }
+                }
+            }
+
+            if (btn) btn.disabled = true;
+            if (prog) {
+                prog.style.display = 'block';
+                prog.innerText = `⏳ Descargando 0 / ${urls.length} cuadrículas satelitales/topográficas...`;
+            }
+
+            let descargados = 0;
+            try {
+                const cache = await caches.open(TILE_CACHE_OFFLINE);
+                for (let i = 0; i < urls.length; i++) {
+                    const u = urls[i];
+                    try {
+                        const existente = await cache.match(u);
+                        if (!existente) {
+                            const resp = await fetch(u, { mode: 'cors' });
+                            if (resp && resp.ok) {
+                                await cache.put(u, resp.clone());
+                            }
+                        }
+                        descargados++;
+                    } catch (e) {}
+                    if (prog && (i % 5 === 0 || i === urls.length - 1)) {
+                        prog.innerText = `⏳ Guardando mapa offline: ${i + 1} / ${urls.length} cuadrículas...`;
+                    }
+                }
+                const totalEnCache = await contarTilesOfflineGuardados();
+                if (prog) {
+                    prog.innerText = `✅ Zona asegurada offline (${descargados} cuadrículas verificadas · Total en memoria: ${totalEnCache}).`;
+                }
+                mostrarToastTactico(`Mapa Offline listo: ${totalEnCache} cuadrículas guardadas para el cerro.`, "🗺️", "#4DA8DA", 4200);
+            } catch (err) {
+                console.warn("[Mapa Offline] Error:", err);
+                if (prog) prog.innerText = `⚠️ Descarga parcial (${descargados} cuadrículas guardadas).`;
+            } finally {
+                if (btn) btn.disabled = false;
             }
         }
 
@@ -6831,9 +7183,20 @@
         }
 
         // ========================================================
-        // 9. TELEMETRÍA Y RADAR GRUPAL DE ESCUADRÓN EN VIVO
+        // 9. TELEMETRÍA Y RADAR GRUPAL DE ESCUADRÓN EN VIVO (T-009)
         // ========================================================
+        let escuadronUnsubscribe = null;
+        const ESCUADRON_EXPIRACION_MS = 2 * 3600 * 1000; // 2 horas de vigencia por sesión
+
         function abrirModalEscuadron() {
+            const guardadoNombre = localStorage.getItem('mtb_escuadron_nombre');
+            const guardadoSala = localStorage.getItem('mtb_escuadron_sala');
+            if (guardadoNombre && document.getElementById('escuadron-nombre-input')) {
+                document.getElementById('escuadron-nombre-input').value = guardadoNombre;
+            }
+            if (guardadoSala && document.getElementById('escuadron-sala-input')) {
+                document.getElementById('escuadron-sala-input').value = guardadoSala;
+            }
             document.getElementById('modal-escuadron').style.display = 'block';
         }
 
@@ -6841,15 +7204,50 @@
             document.getElementById('modal-escuadron').style.display = 'none';
         }
 
+        function generarCodigoSalaEscuadron() {
+            const prefijos = ['CERRO', 'YUNGA', 'SENDERO', 'CUMBRE', 'RADAR'];
+            const pref = prefijos[Math.floor(Math.random() * prefijos.length)];
+            const num = Math.floor(100 + Math.random() * 900);
+            const nuevo = `${pref}-${num}`;
+            const input = document.getElementById('escuadron-sala-input');
+            if (input) input.value = nuevo;
+            localStorage.setItem('mtb_escuadron_sala', nuevo);
+            mostrarToastTactico(`Nuevo código de sala generado: ${nuevo}`, "🎲", "#4DA8DA", 3000);
+        }
+
+        function compartirSalaEscuadronWhatsApp() {
+            const sala = (document.getElementById('escuadron-sala-input')?.value || escuadronCodigoSala || 'CERRO-YUNGA').trim().toUpperCase();
+            const nombre = (document.getElementById('escuadron-nombre-input')?.value || 'Ciclista MTB').trim();
+            const msg = `🚵‍♂️ *RADAR DE ESCUADRÓN MTB*\n¡Sumate a mi sala en vivo para vernos en el mapa!\n🔑 *Código de Sala:* ${sala}\n👤 *Host:* ${nombre}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        function limpiarMarcadoresRealesEscuadron() {
+            Object.keys(escuadronMarcadores).forEach(key => {
+                if (key !== 'facundo' && key !== 'cona') {
+                    if (escuadronMarcadores[key] && mapa) {
+                        mapa.removeLayer(escuadronMarcadores[key]);
+                    }
+                    delete escuadronMarcadores[key];
+                }
+            });
+        }
+
         function toggleConexionEscuadron() {
             const btn = document.getElementById('btn-escuadron-conectar');
             const btnCockpit = document.getElementById('btn-escuadron');
-            const salaInput = document.getElementById('escuadron-sala-input').value.trim();
-            const nombreInput = document.getElementById('escuadron-nombre-input').value.trim();
+            const salaInputRaw = document.getElementById('escuadron-sala-input').value.trim();
+            const nombreInput = document.getElementById('escuadron-nombre-input').value.trim() || "Ciclista MTB";
+            const miCiclistaId = obtenerCiclistaId();
 
             if (escuadronActivo) {
-                // Desconectar
+                // Desconectar y limpiar suscripción + marcadores
                 escuadronActivo = false;
+                if (escuadronUnsubscribe) {
+                    try { escuadronUnsubscribe(); } catch (e) {}
+                    escuadronUnsubscribe = null;
+                }
+                limpiarMarcadoresRealesEscuadron();
                 if (btn) btn.innerText = "📡 Conectar Escuadrón";
                 if (btnCockpit) {
                     btnCockpit.classList.remove('activo');
@@ -6857,8 +7255,12 @@
                 }
                 hablar("Desconectado de la sala de escuadrón.");
             } else {
-                // Conectar
-                escuadronCodigoSala = salaInput || "CERRO-YUNGA";
+                // Conectar con código validado
+                escuadronCodigoSala = (salaInputRaw || "CERRO-YUNGA").toUpperCase().replace(/[^A-Z0-9-_]/g, '').slice(0, 24) || "CERRO-YUNGA";
+                document.getElementById('escuadron-sala-input').value = escuadronCodigoSala;
+                localStorage.setItem('mtb_escuadron_nombre', nombreInput);
+                localStorage.setItem('mtb_escuadron_sala', escuadronCodigoSala);
+
                 escuadronActivo = true;
                 if (btn) btn.innerText = "🛑 Desconectar Sala";
                 if (btnCockpit) {
@@ -6866,33 +7268,90 @@
                     btnCockpit.innerText = `👥 Sala: ${escuadronCodigoSala}`;
                 }
 
-                // Si Firestore está listo, suscribirse a la sala
+                // Publicar presencia inicial si ya tenemos GPS
+                if (ultimaPosicion && ultimaPosicion.coords) {
+                    transmitirPosicionEscuadron(
+                        ultimaPosicion.coords.latitude,
+                        ultimaPosicion.coords.longitude,
+                        (ultimaPosicion.coords.speed || 0) * 3.6,
+                        ultimaPosicion.coords.altitude || 0
+                    );
+                }
+
+                // Suscribirse a la sala en Firestore filtrando sesiones expiradas (> 2h)
                 if (db) {
                     try {
-                        db.collection('escuadron_salas').doc(escuadronCodigoSala).collection('miembros')
+                        if (escuadronUnsubscribe) escuadronUnsubscribe();
+                        escuadronUnsubscribe = db.collection('escuadron_salas').doc(escuadronCodigoSala).collection('miembros')
                           .onSnapshot(snapshot => {
                               const lista = document.getElementById('lista-miembros-escuadron');
                               const conteo = document.getElementById('escuadron-conteo');
                               if (!lista) return;
 
-                              let docs = [];
-                              snapshot.forEach(doc => docs.push(doc.data()));
-                              if (conteo) conteo.innerText = docs.length;
+                              const ahora = Date.now();
+                              const activos = [];
+                              const idsActivos = new Set();
+
+                              snapshot.forEach(doc => {
+                                  const data = doc.data();
+                                  if (!data || !data.actualizado) return;
+                                  if (ahora - data.actualizado <= ESCUADRON_EXPIRACION_MS) {
+                                      const idDoc = data.ciclistaId || doc.id;
+                                      activos.push({ ...data, idDoc });
+                                      idsActivos.add(idDoc);
+                                  }
+                              });
+
+                              // Remover marcadores de ciclistas que se desconectaron o expiraron
+                              Object.keys(escuadronMarcadores).forEach(k => {
+                                  if (k !== 'facundo' && k !== 'cona' && !idsActivos.has(k)) {
+                                      if (escuadronMarcadores[k] && mapa) mapa.removeLayer(escuadronMarcadores[k]);
+                                      delete escuadronMarcadores[k];
+                                  }
+                              });
+
+                              if (conteo) conteo.innerText = activos.length;
 
                               let html = '';
-                              docs.forEach(m => {
-                                  html += `<div style="background: #1a1a24; padding: 6px 10px; border-radius: 6px; display: flex; justify-content: space-between;">
-                                      <span>🚴 ${m.nombre || 'Compañero'}</span>
-                                      <span style="color: #20c997;">${(m.velocidad || 0).toFixed(1)} km/h</span>
+                              activos.forEach(m => {
+                                  const esYo = m.idDoc === miCiclistaId;
+                                  let distTxt = '';
+                                  if (!esYo && ultimaPosicion && ultimaPosicion.coords && m.lat && m.lon) {
+                                      const dMetros = Math.round(calcularDistancia(ultimaPosicion.coords.latitude, ultimaPosicion.coords.longitude, m.lat, m.lon) * 1000);
+                                      distTxt = dMetros >= 1000 ? ` · a ${(dMetros/1000).toFixed(1)} km` : ` · a ${dMetros}m`;
+                                  }
+                                  const haceSeg = Math.max(0, Math.round((ahora - m.actualizado) / 1000));
+                                  const estadoTiempo = haceSeg < 60 ? 'en vivo' : `hace ${Math.round(haceSeg/60)}m`;
+
+                                  html += `<div style="background: #1a1a24; padding: 6px 10px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid ${esYo ? '#4DA8DA' : '#20c997'};">
+                                      <span>🚴 ${m.nombre || 'Compañero'}${esYo ? ' (Vos)' : ''}<small style="color:#8fa0b5;">${distTxt} (${estadoTiempo})</small></span>
+                                      <span style="color: #20c997; font-weight: bold;">${(m.velocidad || 0).toFixed(1)} km/h</span>
                                   </div>`;
+
+                                  // Dibujar o actualizar marcador en el mapa para compañeros reales
+                                  if (!esYo && mapa && m.lat && m.lon) {
+                                      const labelComp = `${m.nombre || 'Compañero'} (${(m.velocidad || 0).toFixed(0)} km/h)`;
+                                      if (!escuadronMarcadores[m.idDoc]) {
+                                          const iconoComp = L.divIcon({
+                                              className: 'icono-escuadron-real',
+                                              html: `<div style="width: 30px; height: 30px; background: #132e22; border: 2px solid #20c997; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px #20c997; font-size: 14px;">🚵</div>`,
+                                              iconSize: [30, 30]
+                                          });
+                                          escuadronMarcadores[m.idDoc] = L.marker([m.lat, m.lon], { icon: iconoComp }).bindTooltip(labelComp).addTo(mapa);
+                                      } else {
+                                          escuadronMarcadores[m.idDoc].setLatLng([m.lat, m.lon]);
+                                          escuadronMarcadores[m.idDoc].setTooltipContent(labelComp);
+                                      }
+                                  }
                               });
-                              lista.innerHTML = html || '<div style="color: #888;">Esperando otros ciclistas en la sala...</div>';
+                              lista.innerHTML = html || '<div style="color: #888;">Esperando otros ciclistas activos en la sala...</div>';
                           });
                     } catch(e) {
                         console.warn("[Escuadrón] Error escuchando sala Firestore:", e);
                     }
                 }
 
+                mostrarToastTactico(`Conectado a sala ${escuadronCodigoSala}`, "👥", "#20c997", 3200);
                 hablar(`Conectado a la sala ${escuadronCodigoSala}. Compartiendo posición en vivo.`);
             }
         }
@@ -6956,17 +7415,21 @@
         function transmitirPosicionEscuadron(lat, lon, velocidadKmh, altitudActual) {
             if (!escuadronActivo && !demoEscuadronActivo) return;
 
-            // Transmitir a Firestore si está configurado
+            // Transmitir a Firestore usando ciclistaId único y marca de expiración
             if (escuadronActivo && db) {
-                const nombre = document.getElementById('escuadron-nombre-input').value.trim() || "Ciclista MTB";
+                const nombre = (document.getElementById('escuadron-nombre-input')?.value || "Ciclista MTB").trim().slice(0, 35);
+                const ciclistaId = obtenerCiclistaId();
+                const ahora = Date.now();
                 try {
-                    db.collection('escuadron_salas').doc(escuadronCodigoSala).collection('miembros').doc(nombre).set({
+                    db.collection('escuadron_salas').doc(escuadronCodigoSala).collection('miembros').doc(ciclistaId).set({
+                        ciclistaId: ciclistaId,
                         nombre: nombre,
                         lat: lat,
                         lon: lon,
-                        velocidad: velocidadKmh,
+                        velocidad: velocidadKmh || 0,
                         altitud: altitudActual || 0,
-                        actualizado: Date.now()
+                        actualizado: ahora,
+                        expiraEn: ahora + ESCUADRON_EXPIRACION_MS
                     }, { merge: true });
                 } catch(e) {
                     console.warn("[Escuadrón] Error enviando telemetría:", e);
@@ -7198,16 +7661,26 @@
                 }
 
                 if (indiceCercano !== -1) {
-                    let distAcum = 0;
-                    for (let j = indiceCercano; j < Math.min(puntosGPX.length - 1, indiceCercano + 60); j++) {
-                        let segDist = calcularDistancia(puntosGPX[j].lat, puntosGPX[j].lon, puntosGPX[j+1].lat, puntosGPX[j+1].lon) * 1000;
-                        distAcum += segDist;
-                        let diffEle = puntosGPX[j+1].ele - puntosGPX[j].ele;
-                        let pendSeg = segDist > 0 ? (diffEle / segDist) * 100 : 0;
+                    // Evaluar pendiente en ventanas suavizadas de >= 50 metros hacia adelante
+                    const distBaseM = (puntosGPX[indiceCercano].distAcumKm || 0) * 1000;
+                    for (let j = indiceCercano; j < Math.min(puntosGPX.length - 4, indiceCercano + 120); j++) {
+                        const distJ = ((puntosGPX[j].distAcumKm || 0) * 1000) - distBaseM;
+                        if (distJ < 80) continue;
+                        if (distJ > 500) break;
 
-                        if (pendSeg >= 9.0 && distAcum >= 80 && distAcum <= 500) {
+                        // Buscar punto ~50m más adelante de j para medir pendiente real sin ruido puntual
+                        let k = j + 1;
+                        while (k < puntosGPX.length - 1 && (((puntosGPX[k].distAcumKm || 0) - (puntosGPX[j].distAcumKm || 0)) * 1000) < 50) {
+                            k++;
+                        }
+                        const segDist = ((puntosGPX[k].distAcumKm || 0) - (puntosGPX[j].distAcumKm || 0)) * 1000;
+                        const eleJ = (typeof puntosGPX[j].eleSuavizada === 'number') ? puntosGPX[j].eleSuavizada : puntosGPX[j].ele;
+                        const eleK = (typeof puntosGPX[k].eleSuavizada === 'number') ? puntosGPX[k].eleSuavizada : puntosGPX[k].ele;
+                        const pendSeg = segDist >= 35 ? ((eleK - eleJ) / segDist) * 100 : 0;
+
+                        if (pendSeg >= 9.0 && pendSeg <= 32.0) {
                             if (distanciaTotal - ultimoAvisoParedDistancia > 0.8) {
-                                mensajeCoach = `Atención: en ${Math.round(distAcum)} metros vas a tener una pared del ${pendSeg.toFixed(0)}%. Cuidá un poco más el aire ahora para llegar con piernas.`;
+                                mensajeCoach = `Atención: en ${Math.round(distJ)} metros vas a tener una pared del ${pendSeg.toFixed(0)}%. Cuidá un poco más el aire ahora para llegar con piernas.`;
                                 ultimoAvisoParedDistancia = distanciaTotal;
                                 prioridadVoz = true;
                                 break;
@@ -7337,13 +7810,14 @@
             console.log("[Red] Conexión recuperada: Activando modo Voz HD y sincronizando pendientes con la nube");
             actualizarEstadoRedUI();
             actualizarEstadoNubeUI(true);
-            sincronizarPendientesFirestore();
+            sincronizarPendientesFirestore(true);
         });
 
         window.addEventListener('offline', () => {
             console.log("[Red] Sin conexión: Activando degradación elegante (Audio Local)");
             actualizarEstadoRedUI();
             actualizarEstadoNubeUI(false, "Offline");
+            mostrarToastTactico("Modo Montaña Offline activo: GPS, audio táctico y guardado local asegurados.", "🏔️", "#FECB52", 3800);
         });
 
         window.addEventListener('load', async () => {
@@ -7356,6 +7830,8 @@
                 console.warn("[Storage] Error al inicializar IndexedDB:", e);
             }
 
+            obtenerCiclistaId();
+            contarTilesOfflineGuardados();
             actualizarEstadoRedUI();
             actualizarContadorActividades();
             actualizarOdometroUI();
