@@ -115,4 +115,19 @@ Lee CLAUDE.md y DISENO_MTB.md. Tu diseño anterior fue el favorito del usuario, 
 - T-010 (Colores del boceto visual de Claude - pendiente de confirmación de paleta).
 
 **Pruebas ejecutadas:** Verificación sintáctica JavaScript (llaves balanceadas: 1259 open / 1259 close), renderizado headless con Microsoft Edge.
-**Acción pedida al usuario:** Abrir GitHub Desktop y hacer click en "Push origin" para publicar los cambios en Netlify (`https://mtbproyect.netlify.app/`).
+**Acción pedida al usuario:** Abrir GitHub Desktop y hacer click en "Push origin" para publicar los cambios.
+
+### HANDOFF — Antigravity | 2026-11-11 | Compilación automática de APK Android en GitHub Actions + Contenedor Nativo WebView
+**Fecha:** 2026-11-11
+**Issue/PR:** Solicitud del usuario ("olvidate de netflify -> github no tiene una opcion para hacer apk o app un repositorio? -> si hacelo -> termina lo que estabamos haciendo").
+**Commits/rama:** main
+
+**Hecho:**
+1. **Proyecto Android Nativo (`android/`):** Creado contenedor Android completo (`ar.mtb.radar`) en Kotlin (`MainActivity.kt`) con `WebView` acelerado por hardware, soporte completo para JavaScript, `localStorage`, `IndexedDB`, `Geolocation` con auto-grant de permisos en runtime (`ACCESS_FINE_LOCATION`, `ACCESS_COARSE_LOCATION`, `CAMERA`), y carga local sin servidor desde `file:///android_asset/index.html`.
+2. **Sincronización de Assets:** `index.html`, `manifest.json` y `sw.js` integrados en `android/app/src/main/assets/`.
+3. **GitHub Actions Workflow (`.github/workflows/compilar-apk.yml`):** Pipeline automatizado que en cada push a `main` (o ejecución manual `workflow_dispatch`) sincroniza los archivos web dentro de `assets/`, instala Java 17 + Android SDK 35 + Gradle 8.10.2, ejecuta `gradle :app:assembleDebug` y publica el instalador `radar-mtb.apk` como artefacto descargable (`Radar-MTB-APK`).
+4. **Documentación:** Actualizados `DECISIONES.md` (D-015), `TAREAS_PENDIENTES.md` y `PROTOCOLO_HANDOFF.md`.
+
+**Acción pedida al usuario:**
+1. Hacer click en **"Push origin"** en **GitHub Desktop**.
+2. Entrar al repositorio en GitHub -> pestaña **"Actions"** -> abrir **"Compilar APK Android - Radar MTB"** y descargar **`Radar-MTB-APK`** cuando termine de compilar (~2 minutos).

@@ -24,29 +24,23 @@ Leer junto con: `AGENTS.md`, `ESTADO_ACTUAL.md`, `DECISIONES.md`, `PROTOCOLO_HAN
 **Qué:** Checkpoints automáticos cada 2 minutos en IndexedDB (`sesion_activa`).
 **Detalle:** Al iniciar o pausar la sesión se activa `iniciarAutoGuardado()`. Si la app se cierra inesperadamente por batería o el sistema operativo, al reabrir la app `verificarCheckpointPendiente()` detecta la sesión interrumpida y ofrece restaurarla y guardarla en el historial con todos sus puntos GPS y métricas intactas. Al finalizar normalmente se limpia el checkpoint.
 
-### T-004: Probar todo en celular real
-**Estado:** Sin hacer
-**Qué:** Nada de lo implementado fue probado en un teléfono. Hay que verificar en `https://mtbproyect.netlify.app/`:
+### T-004: Probar todo en celular real (vía APK Android desde GitHub Actions)
+**Estado:** Listo para instalar APK
+**Qué:** Se configuró la compilación automática de `radar-mtb.apk` en GitHub Actions (`.github/workflows/compilar-apk.yml`) sin depender de Netlify. Hay que verificar en el teléfono instalando el APK:
 - GPS real (iniciar, pausar, finalizar)
-- Backup JSON (exportar y restaurar)
-- Reproductor/scrubber de ruta en mapa
-- Diagnóstico de conexión Firestore
+- Sincronización en tiempo real con Firebase `mtb-radar`
+- Backup JSON (exportar y restaurar) y persistencia IndexedDB + Checkpoints
+- Reproductor/scrubber de ruta en mapa y exportación GPX
 - Comportamiento offline (modo avión)
-- Que no haya regresiones del merge de Codex
-**Quién:** El usuario prueba, reporta bugs, una IA los corrige.
+**Quién:** El usuario descarga el APK desde GitHub Actions, prueba en ruta y reporta ajustes.
 
 ---
 
 ## 🟡 P1 — Importantes para seguridad y experiencia
 
-### T-005: GPS en segundo plano (pantalla bloqueada)
-**Estado:** Sin hacer. Decisión pendiente (D-009 en DECISIONES.md).
-**Qué:** La PWA puede suspender `watchPosition` cuando se bloquea la pantalla. El audio keepalive es un workaround parcial.
-**Opciones:**
-- A) Wake Lock API (`navigator.wakeLock.request('screen')`) — evita que la pantalla se apague pero gasta batería.
-- B) Capacitor/TWA — envolver la PWA en un contenedor nativo con servicio de foreground.
-- C) Aceptar la limitación y documentarla.
-**Archivos:** `index.html` — función `iniciarRecorrido()` y `detenerKeepAliveAudio()`.
+### T-005: Contenedor Android APK y GPS (D-009 y D-015)
+**Estado:** ✅ COMPLETADA FASE 1 (Contenedor APK WebView en `android/` + GitHub Action `.github/workflows/compilar-apk.yml`)
+**Qué:** Se creó la app nativa Android (`ar.mtb.radar`) que empaqueta toda la interfaz de `index.html` con permisos nativos de ubicación fina, cámara y `keepScreenOn = true` para evitar que se apague la pantalla o se corte el GPS durante el recorrido.
 
 ### T-006: Reglas de seguridad de Firestore
 **Estado:** Sin hacer
