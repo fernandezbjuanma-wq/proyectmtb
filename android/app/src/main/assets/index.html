@@ -1811,7 +1811,365 @@
             min-height: 52px !important;
             border-radius: 13px !important;
         }
-    </style>
+    
+/* V2 COMPONENTS & SCREENS CSS */
+/* ============================================================
+   Componentes reutilizables: botones, tarjetas, chips, segmentados, hojas, avisos, nav
+   ============================================================ */
+.page { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: calc(8px * var(--sp)) 16px calc(18px * var(--sp)); position: relative; z-index: 1; }
+.page-title { font-family: var(--font-d); font-weight: var(--fw-d); letter-spacing: var(--ls-d); font-size: calc(40px * var(--num)); line-height: 1; text-transform: uppercase; }
+.page-sub { color: var(--muted); font-size: calc(14.5px * var(--tx)); margin-top: 4px; }
+.ph { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: calc(8px * var(--sp)) 0 calc(14px * var(--sp)); }
+.ph > div { min-width: 0; }
+.stack { display: flex; flex-direction: column; gap: calc(12px * var(--sp)); }
+
+/* tarjetas */
+.card { background: var(--surface); border: var(--bw) solid var(--line); border-radius: var(--rad); padding: calc(16px * var(--sp)); position: relative; box-shadow: var(--glow); }
+.card.tight { padding: calc(12px * var(--sp)); }
+.lbl { font-size: calc(11.5px * var(--tx)); letter-spacing: .13em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.lbl.sm { font-size: calc(10.5px * var(--tx)); letter-spacing: .1em; }
+.row { display: flex; align-items: center; gap: 10px; }
+.between { justify-content: space-between; }
+.grow { flex: 1; min-width: 0; }
+.muted { color: var(--muted); } .dim { color: var(--dim); }
+.est { display: inline-block; font: 700 9px/1 var(--font-b); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line2); border-radius: 5px; padding: 2px 4px 1.5px; vertical-align: 2px; margin-left: 5px; }
+
+.zt-g { color: var(--g); } .zt-y { color: var(--y); } .zt-r { color: var(--r); } .zt-d { color: var(--d); }
+
+/* botones */
+.btn { height: calc(52px * var(--sp)); min-height: 46px; border-radius: calc(var(--rad) * .72); padding: 0 18px; display: inline-flex; align-items: center; justify-content: center; gap: 9px; font-family: var(--font-d); font-weight: var(--fw-d); letter-spacing: var(--ls-d); font-size: 20px; border: var(--bw) solid transparent; transition: transform .08s, filter .15s; white-space: nowrap; }
+.btn:active { transform: scale(.975); }
+.btn.sm { height: 40px; min-height: 40px; font-size: 16px; padding: 0 13px; border-radius: calc(var(--rad) * .6); }
+.btn.xs { height: 32px; min-height: 32px; font-size: 14px; padding: 0 10px; border-radius: 10px; gap: 6px; }
+.btn.block { width: 100%; }
+.btn-p { background: var(--acc); color: var(--acc-ink); box-shadow: 0 6px 18px var(--acc-soft); }
+.btn-p:hover { filter: brightness(1.06); }
+.btn-s { background: var(--surface2); border-color: var(--line2); color: var(--text); }
+.btn-o { border-color: var(--acc-line); color: var(--acc); background: transparent; }
+.btn-d { border-color: var(--warn-line); color: var(--r); background: transparent; }
+.btn-dp { background: var(--r); color: var(--r-ink); }
+.btn-y { background: var(--y); color: var(--y-ink); }
+.btn-strava { background: var(--strava); color: var(--strava-ink); }
+.btn[disabled], .btn.dis { opacity: .4; pointer-events: none; }
+.ibtn { width: 44px; height: 44px; border-radius: calc(var(--rad) * .7); background: var(--surface); border: var(--bw) solid var(--line); display: grid; place-items: center; color: var(--text); flex: none; }
+.ibtn.sm { width: 38px; height: 38px; }
+.ibtn.on { background: var(--acc-soft); border-color: var(--acc-line); color: var(--acc); }
+
+/* chips y píldoras */
+.pill { display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 12px; border-radius: 999px; border: var(--bw) solid var(--line2); background: var(--surface); font-size: calc(13.5px * var(--tx)); font-weight: 600; color: var(--text); white-space: nowrap; }
+.pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--acc); box-shadow: 0 0 0 3px var(--acc-soft); }
+.pill[data-s="warn"] { color: var(--y); border-color: rgba(255, 197, 61, .4); } .pill[data-s="warn"] .dot { background: var(--y); box-shadow: 0 0 0 3px rgba(255, 197, 61, .16); animation: blink 1.2s infinite; }
+.pill[data-s="bad"] { color: var(--r); border-color: var(--warn-line); } .pill[data-s="bad"] .dot { background: var(--r); box-shadow: 0 0 0 3px rgba(255, 92, 77, .16); }
+.pill[data-s="off"] { color: var(--muted); } .pill[data-s="off"] .dot { background: var(--dim); box-shadow: none; }
+.chip { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 999px; font-size: calc(12.5px * var(--tx)); font-weight: 600; background: var(--surface2); border: var(--bw) solid var(--line); color: var(--muted); }
+.chip.on { background: var(--acc-soft); border-color: var(--acc-line); color: var(--acc); }
+.zchip { display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 9px 0 7px; border-radius: 8px; font: 700 12px/1 var(--font-b); letter-spacing: .09em; text-transform: uppercase; }
+.zchip[data-z="g"] { background: color-mix(in srgb, var(--g) 18%, transparent); color: var(--g); }
+.zchip[data-z="d"] { background: color-mix(in srgb, var(--d) 18%, transparent); color: var(--d); }
+.zchip[data-z="y"] { background: color-mix(in srgb, var(--y) 18%, transparent); color: var(--y); }
+.zchip[data-z="r"] { background: color-mix(in srgb, var(--r) 20%, transparent); color: var(--r); }
+body[data-pal="sol"] .zchip[data-z="y"] { color: #8A5E00; } body[data-pal="sol"] .zchip[data-z="r"] { color: #B42E1A; }
+.badge { white-space: nowrap; flex: none; display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 11px; border-radius: 999px; background: var(--acc-soft); border: var(--bw) solid var(--acc-line); color: var(--acc); font: 700 13.5px var(--font-b); }
+.badge.y { background: rgba(255, 197, 61, .12); border-color: rgba(255, 197, 61, .4); color: var(--y); }
+@keyframes blink { 50% { opacity: .35; } }
+@keyframes pulse { 0% { transform: scale(.8); opacity: .9; } 100% { transform: scale(2.4); opacity: 0; } }
+
+/* segmentado */
+.seg { display: flex; background: var(--surface); border: var(--bw) solid var(--line); border-radius: calc(var(--rad) * .8); padding: 4px; gap: 2px; }
+.seg > button { flex: 1; min-width: 0; height: 38px; border-radius: calc(var(--rad) * .62); color: var(--muted); font-weight: 600; font-size: calc(15px * var(--tx)); display: flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; }
+.seg > button.on { background: var(--acc); color: var(--acc-ink); font-weight: 700; box-shadow: 0 4px 14px var(--acc-soft); }
+.seg.scroll { overflow-x: auto; } .seg.scroll > button { flex: none; padding: 0 14px; }
+
+/* campos */
+.fld { display: flex; flex-direction: column; gap: 4px; background: var(--surface2); border: var(--bw) solid var(--line); border-radius: calc(var(--rad) * .72); padding: 8px 12px 9px; position: relative; min-width: 0; }
+.fld > span { font-size: calc(10.5px * var(--tx)); letter-spacing: .11em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.fld input, .fld select { background: transparent; border: 0; font-weight: 700; font-size: calc(17px * var(--tx)); width: 100%; padding: 0; appearance: none; -webkit-appearance: none; min-width: 0; }
+.fld select { padding-right: 20px; cursor: pointer; } .fld select option { color: #111; }
+.fld .caret { position: absolute; right: 11px; bottom: 11px; color: var(--muted); pointer-events: none; }
+.fld .u { position: absolute; right: 12px; bottom: 9px; color: var(--muted); font-weight: 600; }
+.fld:focus-within { border-color: var(--acc-line); }
+.tgl { width: 50px; height: 30px; border-radius: 99px; background: var(--surface2); border: var(--bw) solid var(--line2); position: relative; flex: none; transition: .15s; }
+.tgl::after { content: ''; position: absolute; left: 3px; top: 3px; width: 22px; height: 22px; border-radius: 50%; background: var(--muted); transition: .15s; }
+.tgl.on { background: var(--acc); border-color: var(--acc); } .tgl.on::after { left: 23px; background: var(--acc-ink); }
+.bar { height: 8px; border-radius: 99px; background: var(--surface2); overflow: hidden; border: 1px solid var(--line); }
+.bar > i { display: block; height: 100%; border-radius: 99px; background: var(--g); transition: width .3s; }
+
+/* filas de lista (Preparación) */
+.lrow { display: flex; align-items: center; gap: 14px; padding: calc(14px * var(--sp)) 14px; background: var(--surface); border: var(--bw) solid var(--line); border-radius: var(--rad); text-align: left; width: 100%; }
+.lrow .ico { width: 44px; height: 44px; border-radius: 13px; background: var(--acc-soft); border: 1px solid var(--acc-line); color: var(--acc); display: grid; place-items: center; flex: none; }
+.lrow b { display: block; font-size: calc(18px * var(--tx)); font-weight: 700; }
+.lrow small { display: block; color: var(--muted); font-size: calc(13px * var(--tx)); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lrow .chev { color: var(--muted); margin-left: auto; }
+.lrow:active { transform: scale(.99); background: var(--surface2); }
+
+/* navegación inferior */
+.nav { height: var(--nav-h); flex: none; display: flex; background: var(--bg2); border-top: var(--bw) solid var(--line); position: relative; z-index: 20; padding-bottom: env(safe-area-inset-bottom, 0); }
+.nav button { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: var(--muted); font-size: calc(12.5px * var(--tx)); font-weight: 600; position: relative; }
+.nav button.on { color: var(--acc); }
+.nav button.on::before { content: ''; position: absolute; top: -1px; left: 50%; width: 36px; height: 4px; margin-left: -18px; border-radius: 0 0 4px 4px; background: var(--acc); box-shadow: 0 2px 10px var(--acc-soft); }
+body[data-nav="icons"] .nav button span { display: none; }
+body[data-nav="icons"] .nav button.on span { display: block; }
+body[data-nav="pill"] .nav { position: absolute; left: 14px; right: 14px; bottom: 12px; height: 64px; border: var(--bw) solid var(--line2); border-radius: 22px; background: var(--glass); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: var(--shadow); }
+body[data-nav="pill"] .nav button.on::before { top: 6px; left: 8px; right: 8px; margin: 0; width: auto; height: calc(100% - 12px); border-radius: 16px; background: var(--acc-soft); box-shadow: none; z-index: -1; }
+body[data-nav="pill"] .page { padding-bottom: 96px; }
+body[data-nav="pill"] .dock { margin-bottom: 84px; }
+
+/* hojas (bottom sheets) y diálogos */
+#layer { position: absolute; inset: 0; z-index: 60; pointer-events: none; }
+.sheet-wrap { position: absolute; inset: 0; display: flex; align-items: flex-end; pointer-events: auto; }
+.sheet-wrap.center { align-items: center; justify-content: center; padding: 20px; }
+.sheet-bg { position: absolute; inset: 0; background: rgba(0, 0, 0, .58); animation: fade .2s both; }
+.sheet { position: relative; width: 100%; max-height: 92%; display: flex; flex-direction: column; background: var(--bg2); border: var(--bw) solid var(--line2); border-bottom: 0; border-radius: calc(var(--rad) * 1.35) calc(var(--rad) * 1.35) 0 0; box-shadow: 0 -20px 60px rgba(0, 0, 0, .5); animation: up .26s cubic-bezier(.2, .8, .2, 1) both; }
+.sheet.full { height: 94%; }
+.sheet::before { content: ''; width: 40px; height: 4px; border-radius: 3px; background: var(--line2); margin: 8px auto 0; flex: none; }
+.sheet-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 16px 8px; flex: none; }
+.sheet-h h2 { font-family: var(--font-d); font-weight: var(--fw-d); letter-spacing: var(--ls-d); font-size: calc(26px * var(--num)); text-transform: uppercase; line-height: 1; }
+.sheet-b { overflow-y: auto; padding: 4px 16px 16px; display: flex; flex-direction: column; gap: calc(12px * var(--sp)); min-height: 0; }
+.sheet-f { padding: 10px 16px 16px; display: flex; gap: 10px; flex: none; border-top: var(--bw) solid var(--line); }
+.dialog { position: relative; width: 100%; background: var(--bg2); border: var(--bw) solid var(--line2); border-radius: calc(var(--rad) * 1.2); padding: 20px; display: flex; flex-direction: column; gap: 14px; box-shadow: var(--shadow); animation: pop .22s both; }
+.dialog h3 { font-family: var(--font-d); font-weight: var(--fw-d); font-size: 28px; text-transform: uppercase; line-height: 1; letter-spacing: var(--ls-d); }
+@keyframes fade { from { opacity: 0; } } @keyframes up { from { transform: translateY(40px); opacity: 0; } } @keyframes pop { from { transform: scale(.94); opacity: 0; } }
+#toasts { position: absolute; left: 12px; right: 12px; top: 36px; z-index: 80; display: flex; flex-direction: column; gap: 8px; pointer-events: none; align-items: center; }
+body[data-frame="off"] #toasts { top: 10px; }
+.toast { pointer-events: none; max-width: 100%; background: var(--glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: var(--bw) solid var(--line2); border-radius: 14px; padding: 10px 14px; font-weight: 600; font-size: calc(14px * var(--tx)); display: flex; gap: 9px; align-items: center; box-shadow: var(--shadow); animation: pop .2s both; }
+.toast[data-k="ok"] { border-color: var(--acc-line); } .toast[data-k="ok"] .ic { color: var(--acc); }
+.toast[data-k="warn"] { border-color: rgba(255, 197, 61, .5); } .toast[data-k="warn"] .ic { color: var(--y); }
+.toast[data-k="bad"] { border-color: var(--warn-line); } .toast[data-k="bad"] .ic { color: var(--r); }
+
+/* avisos / tarjetas tácticas */
+.aviso { display: flex; align-items: center; gap: 14px; padding: calc(14px * var(--sp)) 14px; border-radius: var(--rad); border: var(--bw) solid var(--line); background: var(--surface); position: relative; }
+.aviso .ai { width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; flex: none; background: var(--g); color: var(--g-ink); }
+.aviso .at { flex: 1; min-width: 0; }
+.aviso .am { font-size: calc(11.5px * var(--tx)); letter-spacing: .13em; text-transform: uppercase; font-weight: 700; color: var(--g); }
+.aviso .ah { font-family: var(--font-d); font-weight: var(--fw-d); letter-spacing: var(--ls-d); font-size: calc(26px * var(--num)); line-height: 1.02; margin: 3px 0 3px; }
+.aviso .as { color: var(--muted); font-size: calc(14px * var(--tx)); line-height: 1.25; }
+.aviso .asp { width: 46px; height: 46px; border-radius: 14px; border: var(--bw) solid var(--line2); background: var(--surface2); display: grid; place-items: center; color: var(--text); flex: none; }
+.aviso[data-c="r"] { background: var(--warn-bg); border-color: var(--warn-line); } .aviso[data-c="r"] .ai { background: var(--r); color: var(--r-ink); } .aviso[data-c="r"] .am { color: var(--r); }
+.aviso[data-c="y"] { background: color-mix(in srgb, var(--y) 9%, var(--surface)); border-color: rgba(255, 197, 61, .32); } .aviso[data-c="y"] .ai { background: var(--y); color: var(--y-ink); } .aviso[data-c="y"] .am { color: var(--y); }
+.aviso[data-c="g"] { background: var(--acc-soft); border-color: var(--acc-line); }
+body[data-pal="sol"] .aviso[data-c="y"] .am { color: #8A5E00; } body[data-pal="sol"] .aviso[data-c="r"] .am { color: #B42E1A; }
+
+/* tarjetas métricas */
+.mcard { background: var(--surface); border: var(--bw) solid var(--line); border-radius: var(--rad); padding: calc(12px * var(--sp)) 13px; min-width: 0; position: relative; box-shadow: var(--glow); }
+.mcard .v { font-family: var(--font-d); font-weight: var(--fw-d); letter-spacing: var(--ls-d); font-variant-numeric: tabular-nums; line-height: .92; display: flex; align-items: baseline; gap: 4px; margin-top: 6px; }
+.mcard .v small { font-size: .46em; font-weight: 600; color: var(--muted); letter-spacing: 0; }
+.mcard .s { margin-top: 5px; font-size: calc(12px * var(--tx)); font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 5px; }
+.stat { background: var(--surface); border: var(--bw) solid var(--line); border-radius: calc(var(--rad) * .8); padding: 10px 10px 9px; min-width: 0; }
+.stat .v { font-family: var(--font-d); font-weight: var(--fw-d); letter-spacing: var(--ls-d); font-size: calc(27px * var(--num)); line-height: 1; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.stat .v small { font-size: .55em; color: var(--muted); font-weight: 600; margin-left: 2px; }
+.stat .l { margin-top: 4px; font-size: calc(10.5px * var(--tx)); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: calc(10px * var(--sp)); } .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: calc(10px * var(--sp)); } .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: calc(8px * var(--sp)); }
+.hr { height: 1px; background: var(--line); border: 0; margin: 0; }
+
+/* anotaciones de diseño → código (Tweaks › Anotaciones) */
+
+/* ============================================================
+   Pantallas: Radar Live (mapa héroe + Cabina A + Subida B), Preparación, Laboratorio, Historial
+   ============================================================ */
+
+/* ---------- cabecera del Radar ---------- */
+.rh { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: calc(8px * var(--sp)) 14px calc(8px * var(--sp)) 16px; flex: none; position: relative; z-index: 3; }
+.logo { display: flex; align-items: center; gap: 9px; min-width: 0; color: var(--acc); }
+.logo b { font-family: var(--font-d); font-weight: var(--fw-d); letter-spacing: var(--ls-d); font-size: calc(22px * var(--num)); color: var(--text); text-transform: uppercase; white-space: nowrap; line-height: 1; overflow: hidden; text-overflow: ellipsis; }
+.rh-r { display: flex; align-items: center; gap: 6px; flex: none; }
+.rh-r .pill { height: 28px; padding: 0 9px; gap: 6px; font-size: calc(12.5px * var(--tx)); }
+.rh-r .pill .dot { width: 7px; height: 7px; }
+.rh-r .ibtn { width: 40px; height: 40px; }
+.sysbar { margin: 0 14px calc(8px * var(--sp)); border-radius: 12px; padding: 8px 12px; display: flex; align-items: center; gap: 9px; font-size: calc(13px * var(--tx)); font-weight: 600; line-height: 1.2; flex: none; border: var(--bw) solid; position: relative; z-index: 3; }
+.sysbar[hidden] { display: none; }
+.sysbar[data-k="bad"] { background: var(--warn-bg); border-color: var(--warn-line); color: var(--r); }
+.sysbar[data-k="warn"] { background: rgba(255, 197, 61, .09); border-color: rgba(255, 197, 61, .38); color: var(--y); }
+.sysbar[data-k="info"] { background: var(--surface); border-color: var(--line2); color: var(--muted); }
+body[data-pal="sol"] .sysbar[data-k="warn"] { color: #7a5200; } body[data-pal="sol"] .sysbar[data-k="bad"] { color: #B42E1A; }
+.sysbar span { flex: 1; min-width: 0; }
+.vrow { display: flex; align-items: center; gap: 8px; padding: 0 14px calc(8px * var(--sp)); flex: none; position: relative; z-index: 3; }
+.vrow .seg { flex: 1; } .vrow .seg > button { height: 34px; font-size: calc(14.5px * var(--tx)); }
+.rec { display: flex; align-items: center; gap: 7px; height: 42px; padding: 0 11px; border-radius: calc(var(--rad) * .8); background: var(--surface); border: var(--bw) solid var(--line); font: 700 14px var(--font-b); letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.rec i { width: 10px; height: 10px; border-radius: 50%; background: var(--dim); position: relative; flex: none; }
+.rec[data-s="rec"] { color: var(--r); border-color: var(--warn-line); } .rec[data-s="rec"] i { background: var(--r); } .rec[data-s="rec"] i::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: var(--r); animation: pulse 1.6s infinite; }
+.rec[data-s="paused"] { color: var(--y); border-color: rgba(255, 197, 61, .4); } .rec[data-s="paused"] i { background: var(--y); }
+.rec[data-s="done"] { color: var(--acc); } .rec[data-s="done"] i { background: var(--acc); }
+body[data-pal="sol"] .rec[data-s="paused"] { color: #7a5200; }
+.rbody { flex: 1; min-height: 0; position: relative; z-index: 1; }
+.rbody > .v { position: absolute; inset: 0; display: none; flex-direction: column; min-height: 0; }
+.rbody[data-view="mapa"] > .v-mapa, .rbody[data-view="cabina"] > .v-cabina, .rbody[data-view="subida"] > .v-subida { display: flex; }
+.vscroll { flex: 1; min-height: 0; overflow-y: auto; padding: 0 14px calc(12px * var(--sp)); display: flex; flex-direction: column; gap: calc(9px * var(--sp)); }
+.vscroll > * { flex: none; }
+
+/* ---------- MAPA (héroe) ---------- */
+.mapwrap { flex: 1; min-height: 120px; position: relative; overflow: hidden; background: #0a110f; border-top: var(--bw) solid var(--line); border-bottom: var(--bw) solid var(--line); touch-action: none; }
+.mapwrap canvas, .mini canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.mo { position: absolute; z-index: 4; pointer-events: none; }
+.mo > * { pointer-events: auto; }
+.mo-top { left: 10px; right: 10px; top: 8px; display: flex; flex-direction: column; gap: 7px; }
+.strip { display: flex; align-items: center; justify-content: space-between; gap: 6px; height: 34px; padding: 0 12px; border-radius: 12px; background: var(--glass); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: var(--bw) solid var(--line2); font-variant-numeric: tabular-nums; }
+.strip div { display: flex; align-items: baseline; gap: 4px; white-space: nowrap; }
+.strip b { font-family: var(--font-d); font-weight: var(--fw-d); letter-spacing: var(--ls-d); font-size: calc(21px * var(--num)); line-height: 1; }
+.strip small { font-size: calc(11px * var(--tx)); color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+.malert { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 14px; background: var(--glass); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: var(--bw) solid var(--line2); }
+.malert .ai { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; flex: none; background: var(--g); color: var(--g-ink); }
+.malert .at { flex: 1; min-width: 0; }
+.malert .am { font-size: calc(10.5px * var(--tx)); letter-spacing: .13em; text-transform: uppercase; font-weight: 700; color: var(--g); }
+.malert .ah { font-family: var(--font-d); font-weight: var(--fw-d); letter-spacing: var(--ls-d); font-size: calc(22px * var(--num)); line-height: 1.02; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.malert .as { font-size: calc(12.5px * var(--tx)); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.malert .asp { width: 38px; height: 38px; border-radius: 12px; border: var(--bw) solid var(--line2); display: grid; place-items: center; color: var(--text); flex: none; background: var(--surface2); }
+.malert[data-c="r"] { border-color: var(--warn-line); background: color-mix(in srgb, var(--r) 14%, var(--glass)); } .malert[data-c="r"] .ai { background: var(--r); color: var(--r-ink); } .malert[data-c="r"] .am { color: var(--r); }
+.malert[data-c="y"] { border-color: rgba(255, 197, 61, .4); } .malert[data-c="y"] .ai { background: var(--y); color: var(--y-ink); } .malert[data-c="y"] .am { color: var(--y); }
+body[data-pal="sol"] .malert[data-c="y"] .am { color: #8A5E00; } body[data-pal="sol"] .malert[data-c="r"] .am { color: #B42E1A; }
+.malert .big { font-family: var(--font-d); font-weight: var(--fw-d); letter-spacing: var(--ls-d); font-size: calc(36px * var(--num)); line-height: .9; color: var(--g); text-align: right; flex: none; font-variant-numeric: tabular-nums; }
+.malert .big small { font-size: .5em; margin-left: 2px; color: var(--muted); }
+.malert[data-c="r"] .big { color: var(--r); } .malert[data-c="y"] .big { color: var(--y); }
+.malert.min { padding: 5px 10px; } .malert.min .as, .malert.min .ai { display: none; } .malert.min .ah { font-size: 18px; }
+.mo-right { right: 10px; bottom: 44px; display: flex; flex-direction: column; gap: 8px; }
+.mo-left { left: 10px; bottom: 44px; display: flex; flex-direction: column; gap: 8px; }
+.mbtn { width: 44px; height: 44px; border-radius: 14px; background: var(--glass); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: var(--bw) solid var(--line2); display: grid; place-items: center; color: var(--text); position: relative; }
+.mbtn.on { color: var(--acc); border-color: var(--acc-line); }
+.mbtn.sos { color: var(--r); border-color: var(--warn-line); font: 800 12px var(--font-b); letter-spacing: .08em; }
+.mbtn .n { position: absolute; top: 3px; right: 5px; font: 700 8px var(--font-b); color: var(--muted); }
+.mo-bot { left: 10px; right: 64px; bottom: 8px; display: flex; flex-wrap: wrap; gap: 6px; align-items: flex-end; }
+.mo-bot:empty { display: none; }
+.wpill { display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 11px; border-radius: 10px; background: var(--glass); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: var(--bw) solid var(--line2); font-size: calc(13px * var(--tx)); font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.wpill[data-k="ok"] { color: var(--acc); border-color: var(--acc-line); } .wpill[data-k="warn"] { color: var(--y); border-color: rgba(255, 197, 61, .45); } .wpill[data-k="bad"] { color: var(--r); border-color: var(--warn-line); }
+.scalebar { position: absolute; left: 12px; bottom: 54px; display: none; }
+.mnote { position: absolute; left: 50%; top: 52%; transform: translate(-50%, -50%); z-index: 3; text-align: center; max-width: 240px; pointer-events: none; font-size: 13px; color: var(--muted); font-weight: 600; background: var(--glass); border: 1px dashed var(--line2); border-radius: 12px; padding: 9px 12px; }
+.pop { position: absolute; right: 64px; bottom: 44px; z-index: 6; width: 224px; max-height: calc(100% - 56px); overflow-y: auto; background: var(--bg2); border: var(--bw) solid var(--line2); border-radius: 16px; padding: 10px; box-shadow: var(--shadow); animation: pop .18s both; display: flex; flex-direction: column; gap: 6px; }
+.pop h4 { margin: 2px 4px 2px; font: 700 10.5px var(--font-b); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.pop .opt { display: flex; align-items: center; gap: 9px; padding: 8px 9px; border-radius: 10px; font-size: 14px; font-weight: 600; text-align: left; width: 100%; color: var(--text); }
+.pop .opt.on { background: var(--acc-soft); color: var(--acc); }
+.pop .opt .sw { width: 22px; height: 16px; border-radius: 5px; border: 1px solid var(--line2); flex: none; }
+.pop .opt .tg { margin-left: auto; width: 34px; height: 20px; border-radius: 99px; background: var(--surface2); border: 1px solid var(--line2); position: relative; flex: none; }
+.pop .opt .tg::after { content: ''; position: absolute; left: 2px; top: 2px; width: 14px; height: 14px; border-radius: 50%; background: var(--muted); }
+.pop .opt.on .tg { background: var(--acc); border-color: var(--acc); } .pop .opt.on .tg::after { left: 16px; background: var(--acc-ink); }
+
+/* ---------- dock (métricas + terreno + controles) ---------- */
+.dock { flex: none; background: var(--bg2); padding: 0 14px calc(10px * var(--sp)); position: relative; display: flex; flex-direction: column; gap: calc(8px * var(--sp)); }
+.dock .handle { height: 18px; display: grid; place-items: center; margin: 0 -14px; color: var(--dim); }
+.dock .handle i { width: 38px; height: 4px; border-radius: 3px; background: var(--line2); }
+.dm { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 8px; }
+.dm .mcard { padding: calc(9px * var(--sp)) 11px calc(8px * var(--sp)); }
+.dm .v { font-size: calc(46px * var(--num)); margin-top: 4px; } .dm .mcard.sp .v { font-size: calc(58px * var(--num)); }
+.dm .s { margin-top: 3px; font-size: calc(10.5px * var(--tx)); letter-spacing: .06em; white-space: nowrap; }
+.dm .s .est { margin-left: 3px; }
+.dock[data-m="compact"] .dribbon, .dock[data-m="hide"] .dribbon, .dock[data-m="hide"] .dm { display: none; }
+.dock[data-m="compact"] .dm .v { font-size: calc(36px * var(--num)); } .dock[data-m="compact"] .dm .mcard.sp .v { font-size: calc(44px * var(--num)); }
+.dock[data-m="compact"] .dm .s { display: none; }
+.dribbon { background: var(--surface); border: var(--bw) solid var(--line); border-radius: calc(var(--rad) * .85); padding: 7px 10px 6px; }
+.dribbon .rb-h { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1px; }
+.hudmini { display: none; align-items: baseline; gap: 14px; padding: 0 2px; }
+.dock[data-m="hide"] .hudmini { display: flex; }
+.hudmini .num { font-size: 40px; } .hudmini small { font-size: 12px; color: var(--muted); font-weight: 600; margin-left: 3px; }
+.ctl { display: flex; gap: 10px; }
+.ctl .btn:first-child { flex: 1.7; } .ctl .btn:last-child { flex: 1; }
+.dock[data-m="hide"] { flex-direction: row; align-items: center; gap: 10px; padding-top: 18px; } .dock[data-m="hide"] .handle { position: absolute; left: 0; right: 0; top: 0; height: 16px; margin: 0; } .dock[data-m="hide"] .hudmini { flex: 1; } .dock[data-m="hide"] .ctl { flex: none; } .dock[data-m="hide"] .ctl .btn:last-child { width: 56px; padding: 0; font-size: 0; } .dock[data-m="hide"] .ctl .btn:last-child .ic { margin: 0; }
+
+/* ---------- terreno adelante (perfil) ---------- */
+.ribbon { width: 100%; display: block; overflow: visible; }
+.ribbon text { font-family: var(--font-b); font-weight: 600; fill: var(--muted); }
+.leg { display: flex; gap: 12px; font-size: calc(12px * var(--tx)); color: var(--muted); font-weight: 600; }
+.leg i { display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin-right: 5px; vertical-align: 0; }
+
+/* ---------- CABINA (A) y SUBIDA (B) ---------- */
+.modes { flex: none; } .modes > button { height: 36px; font-size: calc(15px * var(--tx)); }
+.mini { height: 100px; border-radius: var(--rad); overflow: hidden; position: relative; border: var(--bw) solid var(--line); background: #0a110f; flex: none; }
+.mini .mcap { position: absolute; left: 8px; bottom: 8px; z-index: 3; }
+.mini .mcap2 { position: absolute; right: 8px; top: 8px; z-index: 3; }
+.mini .chip { background: var(--glass); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); height: 26px; }
+.a-tele { display: grid; grid-template-columns: 1.15fr 1fr; gap: 9px; }
+.a-tele .col { display: flex; flex-direction: column; gap: 9px; }
+.spd { padding: calc(12px * var(--sp)) 14px; display: flex; flex-direction: column; justify-content: space-between; min-height: 150px; }
+.spd .v { font-size: calc(96px * var(--num)); line-height: .86; margin: 8px 0 0; letter-spacing: var(--ls-d); }
+.spd .u { color: var(--muted); font-weight: 600; font-size: calc(16px * var(--tx)); display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+.spd .tg { font-size: 11.5px; font-weight: 700; color: var(--acc); text-transform: uppercase; letter-spacing: .06em; }
+.a-tele .mcard .v { font-size: calc(40px * var(--num)); margin-top: 4px; } .a-tele .mcard { padding: 9px 12px; }
+.pzone { padding: 8px 12px 9px; } .pzone .zb { display: flex; height: 22px; border-radius: 7px; overflow: hidden; gap: 2px; margin-top: 7px; position: relative; }
+.pzone .zb span { flex: 1; display: grid; place-items: center; font: 700 10.5px var(--font-b); color: rgba(0, 0, 0, .65); background: var(--surface2); }
+.pzone .zb span:nth-child(1) { --zc: #6aa3ff; } .pzone .zb span:nth-child(2) { --zc: var(--g); } .pzone .zb span:nth-child(3) { --zc: #c7e24a; } .pzone .zb span:nth-child(4) { --zc: var(--y); } .pzone .zb span:nth-child(5) { --zc: #ff9a3d; } .pzone .zb span:nth-child(6) { --zc: var(--r); }
+.pzone .zb span { background: color-mix(in srgb, var(--zc) 22%, var(--surface2)); color: var(--muted); }
+.pzone .zb span.on { background: var(--zc); color: #0a1210; }
+.hero { padding: calc(14px * var(--sp)) 15px; display: flex; flex-direction: column; gap: 4px; }
+.hero[data-c="r"] { background: var(--warn-bg); border-color: var(--warn-line); }
+.hero[data-c="y"] { background: color-mix(in srgb, var(--y) 8%, var(--surface)); border-color: rgba(255, 197, 61, .3); }
+.hero .hm { display: flex; justify-content: space-between; align-items: center; font-size: calc(12px * var(--tx)); letter-spacing: .12em; text-transform: uppercase; font-weight: 700; color: var(--g); }
+.hero[data-c="r"] .hm { color: var(--r); } .hero[data-c="y"] .hm { color: var(--y); }
+.hero .hbig { font-family: var(--font-d); font-weight: var(--fw-d); letter-spacing: var(--ls-d); font-size: calc(104px * var(--num)); line-height: .88; color: var(--g); display: flex; align-items: baseline; gap: 6px; font-variant-numeric: tabular-nums; }
+.hero[data-c="r"] .hbig { color: var(--r); } .hero[data-c="y"] .hbig { color: var(--y); }
+.hero .hbig small { font-size: .36em; font-weight: 600; }
+.hero .ht { font-size: calc(17px * var(--tx)); font-weight: 600; margin-bottom: 4px; }
+.arow { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-top: 1px solid var(--line); }
+.arow:first-of-type { border-top: 0; }
+.arow i { width: 11px; height: 11px; border-radius: 3px; flex: none; }
+.arow .d { font-family: var(--font-d); font-weight: var(--fw-d); font-size: calc(23px * var(--num)); color: var(--muted); min-width: 74px; letter-spacing: var(--ls-d); }
+.arow .n { font-weight: 600; font-size: calc(17px * var(--tx)); flex: 1; } .arow .l { color: var(--muted); font-size: calc(15px * var(--tx)); font-variant-numeric: tabular-nums; }
+.stats4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; }
+.widgets { display: flex; flex-direction: column; gap: 7px; }
+.wcard { border-radius: 14px; border: var(--bw) solid var(--line2); background: var(--surface); padding: 9px 12px; display: flex; align-items: center; gap: 11px; font-size: 13.5px; font-weight: 600; text-align: left; width: 100%; }
+.wcard .t { flex: 1; min-width: 0; } .wcard .t b { display: block; font-family: var(--font-d); font-size: 20px; font-weight: var(--fw-d); line-height: 1.05; } .wcard .t small { color: var(--muted); font-size: 12px; }
+.wcard .n { font-family: var(--font-d); font-weight: var(--fw-d); font-size: 28px; line-height: 1; font-variant-numeric: tabular-nums; }
+
+/* ---------- Preparación ---------- */
+.chk { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 8px; margin-top: 12px; }
+.chk button { display: flex; align-items: center; gap: 9px; text-align: left; font-weight: 600; font-size: calc(15px * var(--tx)); line-height: 1.15; color: var(--text); }
+.chk .bx { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--line2); display: grid; place-items: center; flex: none; color: transparent; }
+.chk button.on .bx { background: var(--acc); border-color: var(--acc); color: var(--acc-ink); }
+.pr { display: grid; grid-template-columns: 1fr 1px 1fr; gap: 0 18px; margin-top: 14px; }
+.pr .vl { width: 1px; background: var(--line); }
+.pr .num { font-size: calc(46px * var(--num)); } .pr .num small { font-size: .42em; color: var(--muted); font-weight: 600; margin-left: 4px; }
+.pr .sub { color: var(--muted); font-size: 14px; margin-top: 3px; }
+.hint { background: var(--acc-soft); border: 1px solid var(--acc-line); border-radius: 12px; padding: 10px 12px; font-size: calc(13.5px * var(--tx)); color: var(--text); line-height: 1.35; }
+.hint.y { background: rgba(255, 197, 61, .09); border-color: rgba(255, 197, 61, .38); }
+.hint.r { background: var(--warn-bg); border-color: var(--warn-line); }
+.wear { margin-top: 12px; } .wear .row { margin-bottom: 6px; }
+.planopt { text-align: left; padding: 12px; border-radius: 14px; background: var(--surface); border: var(--bw) solid var(--line); display: flex; flex-direction: column; gap: 3px; }
+.planopt b { font-size: 16px; } .planopt small { color: var(--muted); font-size: 13px; line-height: 1.25; }
+.planopt.on { border-color: var(--acc-line); background: var(--acc-soft); }
+.seg-card { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--surface2); border: var(--bw) solid var(--line); border-radius: 14px; }
+.seg-card .t b { display: block; font-size: 16px; } .seg-card .t small { color: var(--muted); font-size: 13px; }
+.seg-card .pr2 { margin-left: auto; text-align: right; } .seg-card .pr2 .num { font-size: 26px; color: var(--y); }
+.bikefit { background: var(--surface2); border: var(--bw) solid var(--line); border-radius: 16px; overflow: hidden; touch-action: none; }
+.bikefit svg { display: block; width: 100%; height: auto; }
+
+/* ---------- Laboratorio / Historial ---------- */
+.zbar { display: flex; height: 16px; border-radius: 99px; overflow: hidden; gap: 3px; margin: 14px 0 10px; }
+.zbar i { display: block; height: 100%; }
+.zleg { display: flex; justify-content: space-between; font-size: 13.5px; color: var(--muted); font-weight: 600; } .zleg i { display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin-right: 6px; }
+.big3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px 8px; margin-top: 12px; }
+.big3 .num { font-size: calc(40px * var(--num)); } .big3 .num small { font-size: .42em; color: var(--muted); font-weight: 600; margin-left: 3px; }
+.big3 .l { color: var(--muted); font-size: calc(13.5px * var(--tx)); margin-top: 3px; }
+.mapcard { height: 190px; padding: 0; overflow: hidden; } .mapcard canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.mapcard .mcap { position: absolute; left: 10px; bottom: 10px; z-index: 3; } .mapcard .mcap2 { position: absolute; right: 10px; bottom: 10px; z-index: 3; }
+.act { display: flex; align-items: center; gap: 14px; padding: calc(13px * var(--sp)) 14px; background: var(--surface); border: var(--bw) solid var(--line); border-radius: var(--rad); width: 100%; text-align: left; }
+.act .dt { width: 46px; text-align: center; padding-right: 12px; border-right: 1px solid var(--line); flex: none; }
+.act .dt .num { font-size: 32px; } .act .dt small { display: block; font-size: 11px; letter-spacing: .1em; color: var(--muted); font-weight: 700; margin-top: 3px; }
+.act b { font-size: 18px; display: block; } .act .m { color: var(--muted); font-size: 14px; margin-top: 3px; }
+.act .sy { margin-left: auto; flex: none; } .act .sy.ok { color: var(--acc); } .act .sy.wait { color: var(--y); }
+.month { margin: 8px 2px -2px; font-size: 12px; letter-spacing: .13em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.syncbar { display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 14px; border-radius: 14px; background: rgba(255, 197, 61, .1); border: var(--bw) solid rgba(255, 197, 61, .42); color: var(--y); font-weight: 700; font-size: calc(14.5px * var(--tx)); }
+body[data-pal="sol"] .syncbar { color: #7a5200; }
+.syncbar .dt { width: 9px; height: 9px; border-radius: 50%; background: var(--y); flex: none; }
+.cv-prof { width: 100%; height: 150px; display: block; border-radius: 12px; background: var(--surface2); touch-action: none; }
+.rng { -webkit-appearance: none; appearance: none; width: 100%; height: 30px; background: transparent; margin: 0; }
+.rng::-webkit-slider-runnable-track { height: 6px; border-radius: 6px; background: var(--line2); } .rng::-moz-range-track { height: 6px; border-radius: 6px; background: var(--line2); }
+.rng::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: var(--acc); margin-top: -8px; border: 3px solid var(--bg2); box-shadow: 0 0 0 1px var(--acc); }
+.rng::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--acc); border: 3px solid var(--bg2); }
+
+/* overlays a pantalla completa (caída, bloqueo) */
+.fs { position: absolute; inset: 0; z-index: 70; background: rgba(5, 8, 7, .94); display: flex; align-items: center; justify-content: center; padding: 22px; pointer-events: auto; animation: fade .2s both; }
+.fs .dialog { max-width: 340px; align-items: center; text-align: center; }
+.fs .cnt { font-family: var(--font-d); font-weight: var(--fw-d); font-size: 120px; line-height: .9; color: var(--r); font-variant-numeric: tabular-nums; }
+.holdbtn { position: relative; overflow: hidden; }
+.holdbtn .pg { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--acc-soft); }
+.holdbtn > span { position: relative; z-index: 1; display: flex; align-items: center; gap: 9px; }
+.solar-hint { position: absolute; inset: 0; pointer-events: none; z-index: 40; }
+
+
+/* Leaflet UI Overrides para diseno-v2 Verde Tactico */
+.leaflet-control-layers, .leaflet-control-zoom { display: none !important; }
+.leaflet-container { background: var(--bg) !important; font-family: var(--font-b) !important; }
+.leaflet-control-attribution { background: var(--glass) !important; color: var(--muted) !important; font-size: 10px !important; }
+.leaflet-control-attribution a { color: var(--acc) !important; text-decoration: none; }
+#mapa { width: 100% !important; height: 100% !important; position: absolute !important; inset: 0 !important; }
+
+</style>
 </head>
 <body>
 
@@ -2120,585 +2478,359 @@
         </div>
     </div>
 
+    
     <!-- ======================================================== -->
-    <!-- 2. PESTAÑA: RADAR LIVE (PANTALLA DE COMBATE TÁCTICO)     -->
+    <!-- 2. PESTAÑA: RADAR LIVE (DISEÑO OFICIAL V2 VERDE TÁCTICO) -->
     <!-- ======================================================== -->
     <div id="tab-radar" class="tab-page tab active on" data-radar-view="mapa" data-view="mapa" aria-label="Radar en vivo">
-        <!-- Header Superior Radar Táctico (Boceto Página 1 & V2) -->
-        <div class="header-radar-moderno">
-            <div class="header-radar-titulo">
-                <span class="icono-radar">◎</span> RADAR TÁCTICO
+        <!-- Cabecera táctica superior oficial V2 -->
+        <header class="rh">
+            <div class="logo">
+                <svg class="ic" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.6"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>
+                <b>Radar Táctico</b>
             </div>
-            <div class="header-radar-status-bar">
-                <div class="pildora-header-status activo" id="pildora-gps-header" data-act="hdr.gps" title="Señal Satelital GPS en Vivo">
-                    <span class="dot-status" id="dot-gps-header"></span>
-                    <span id="ui-gps-header-texto">GPS</span>
-                </div>
-                <div class="pildora-header-status activo" id="pildora-voz-header" data-act="hdr.voice" title="Voz del Pacing Coach Activa" onclick="repetirUltimoAvisoCoach()" style="cursor: pointer;">
-                    <span class="dot-status"></span>
-                    <span>Voz</span>
-                </div>
-                <button class="btn-header-ajustes" id="bCab" data-act="hdr.cab" onclick="toggleRanuraCockpit()" title="Ajustes de cabina y herramientas">
-                    🎛️
+            <div class="rh-r">
+                <span class="pill ok" id="pGps" data-act="hdr.gps" title="Señal satelital GPS"><i class="dot"></i><span id="txtGps">GPS</span></span>
+                <button type="button" class="pill ok" id="pVoz" data-act="hdr.voice" onclick="repetirUltimoAvisoCoach()" title="Voz del Pacing Coach"><i class="dot"></i><span>Voz</span></button>
+                <button type="button" class="ibtn" id="bCab" data-act="hdr.cab" onclick="toggleRanuraCockpit()" aria-label="Ajustes de cabina y herramientas">
+                    <svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4h-7"/><path d="M10 4H3"/><path d="M21 12h-9"/><path d="M8 12H3"/><path d="M21 20h-5"/><path d="M12 20H3"/><path d="M14 2v4"/><path d="M8 10v4"/><path d="M16 18v4"/></svg>
                 </button>
             </div>
+        </header>
+
+        <!-- Barra de estado del sistema (offline, buscando satélites, pausa...) -->
+        <div class="sysbar" id="sysbar" hidden></div>
+
+        <!-- Selector segmentado de vistas y chip de grabación REC -->
+        <div class="vrow">
+            <div class="seg" id="vseg">
+                <button type="button" class="on" data-act="rv" data-v="mapa" onclick="cambiarVistaRadarV2('mapa')">Mapa</button>
+                <button type="button" data-act="rv" data-v="cabina" onclick="cambiarVistaRadarV2('cabina')">Cabina</button>
+                <button type="button" data-act="rv" data-v="subida" onclick="cambiarVistaRadarV2('subida')">Subida</button>
+            </div>
+            <div class="rec" id="recChip"><i></i><span id="recChipTxt">LISTO</span></div>
         </div>
 
-        <!-- Banner de Sistema Prioritario V2 (Sin GPS > Buscando > GPS débil > Sin red > Pausa > Pendiente nube) -->
-        <div id="v2-sysbar" class="v2-sysbar" style="display: none;">
-            <span id="v2-sysbar-ico">📡</span>
-            <span id="v2-sysbar-txt">Listo para salir · GPS activo</span>
-        </div>
+        <!-- Cuerpo del radar con las 3 vistas tácticas -->
+        <div class="rbody" id="rbody" data-view="mapa">
+            <!-- VISTA 1: MAPA HÉROE (Referencia 01, 02, 03, 06) -->
+            <section class="v v-mapa">
+                <div class="mapwrap" id="mapwrap">
+                    <!-- Mapa interactivo Leaflet a pantalla completa -->
+                    <div id="mapa"></div>
 
-        <!-- Selector Segmentado de las 3 Vistas del Radar V2 (Mapa | Cabina | Subida) + Chip REC -->
-        <div class="v2-vrow">
-            <div class="v2-seg" role="tablist" aria-label="Vista del Radar">
-                <button type="button" id="v2-btn-vista-mapa" class="v2-seg-btn active" onclick="cambiarVistaRadarV2('mapa')">Mapa</button>
-                <button type="button" id="v2-btn-vista-cabina" class="v2-seg-btn" onclick="cambiarVistaRadarV2('cabina')">Cabina</button>
-                <button type="button" id="v2-btn-vista-subida" class="v2-seg-btn" onclick="cambiarVistaRadarV2('subida')">Subida</button>
-            </div>
-            <div class="v2-rec" id="v2-chip-rec" title="Estado de grabación">
-                <span class="v2-rec-dot" id="v2-chip-rec-dot"></span>
-                <span id="v2-chip-rec-txt">LISTO</span>
-            </div>
-        </div>
-
-        <!-- Tarjeta Protagonista Vista SUBIDA (Boceto B «Anticipación» · Próximo Tramo 104px + Lista «Después») -->
-        <div id="v2-subida-box" class="v2-subida-hero-wrap" style="display: none;">
-            <div class="v2-hero-card" id="v2-subida-hero-card">
-                <div class="v2-hero-top">
-                    <span class="v2-hero-kicker" id="v2-subida-kicker">▲▲ PRÓXIMO TRAMO · ANTICIPACIÓN</span>
-                    <span class="v2-hero-tag" id="v2-subida-tag">PARED 11%</span>
-                </div>
-                <div class="v2-hero-dist" id="v2-subida-dist">400 <small>m</small></div>
-                <div class="v2-hero-title" id="v2-subida-titulo">Pared de 11 % durante 300 m</div>
-                <div class="v2-hero-sub" id="v2-subida-sub">Bajá a plato chico y subí la cadencia antes de entrar a la rampa.</div>
-            </div>
-            <div class="v2-despues-card">
-                <div class="v2-despues-hdr">DESPUÉS EN LA RUTA</div>
-                <div id="v2-subida-despues-lista" class="v2-despues-list">
-                    <div class="v2-despues-row">
-                        <span class="v2-despues-at">A 700 m</span>
-                        <span class="v2-despues- badge-y">↗ Trepada 6 %</span>
-                        <span class="v2-despues-len">400 m</span>
-                    </div>
-                    <div class="v2-despues-row">
-                        <span class="v2-despues-at">A 1,1 km</span>
-                        <span class="v2-despues- badge-g">= Llano y bajada</span>
-                        <span class="v2-despues-len">500 m</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Barra de Estado Satelital Detallada (Estilo Smartphone / Garmin) -->
-        <div class="sub-header" style="margin-bottom: 6px;">
-            <div class="barra-estado-satelital" style="margin-bottom: 0;">
-                <!-- 1. Red / Conexión Móvil -->
-                <div class="item-estado-barra" id="ui-red" title="Conexión de datos">
-                    <span class="indicador-dot dot-online" id="ui-red-dot"></span>
-                    <span id="ui-red-texto">4G Online</span>
-                </div>
-
-                <!-- 2. Indicador Satelital con Barritas de Cobertura GPS (Estilo Smartphone) -->
-                <div class="item-estado-barra item-gps-activo" id="contenedor-indicador-gps" title="Señal Satelital GPS en Vivo">
-                    <span id="gps-icono-satelite" style="font-size: 13px; display: inline-block;">🛰️</span>
-                    <div class="barras-gps-contenedor" id="barras-gps">
-                        <span class="barra-gps b1 activa" id="bgps-1"></span>
-                        <span class="barra-gps b2 activa" id="bgps-2"></span>
-                        <span class="barra-gps b3 activa" id="bgps-3"></span>
-                        <span class="barra-gps b4 activa" id="bgps-4"></span>
-                    </div>
-                    <span id="ui-gps-status" class="gps-texto-status">GPS Activo</span>
-                    <span id="gps-pulso-live" class="pulso-gps-live" title="Registrando posición satelital en vivo">● LIVE</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Ranura Plegable de Ajustes y Herramientas de Cabina -->
-        <div class="ranura-cockpit-contenedor">
-            <button id="btn-toggle-ranura-cockpit" class="btn-ranura-toggle" onclick="toggleRanuraCockpit()">
-                <span>⚙️ Ajustes de Cabina y Herramientas</span>
-                <span id="ranura-flecha-indicador" style="transition: transform 0.3s; font-size: 10px;">▼</span>
-            </button>
-            <div id="panel-cockpit-desplegable" class="panel-cockpit-contenido" style="display: none;">
-                <div class="toolbar-cockpit">
-                    <button id="btn-solar" class="btn-cockpit" onclick="toggleModoSolar()">☀️ Modo Solar</button>
-                    <button id="btn-bloqueo" data-act="cab.lock" class="btn-cockpit" onclick="activarBloqueoPantalla()">🔒 Bloqueo Sudor</button>
-                    <button id="btn-toggle-vehiculo" class="btn-cockpit" onclick="toggleModoVehiculoPermitido()" style="color: var(--acc); border-color: var(--acc);">🚲 Modo Bici Puro</button>
-                    <button id="btn-ghost" data-act="cab.ghost" class="btn-cockpit" onclick="abrirModalGhostPacer()">👻 Ghost Pacer</button>
-                    <button id="btn-escuadron" data-act="cab.squad" class="btn-cockpit" onclick="abrirModalEscuadron()">👥 Escuadrón</button>
-                    <button id="btn-nube-cockpit" data-act="cab.nube" class="btn-cockpit" onclick="abrirConfigNube()" style="color: #4DA8DA; border-color: #4DA8DA;">☁️ Respaldo en la Nube</button>
-                    <button id="btn-sos" data-act="cab.sos" class="btn-cockpit" onclick="compartirUbicacionWhatsApp()" style="border-color: var(--r); color: var(--r);">🚨 SOS WhatsApp</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Widget Plan de Entrenamiento IA Activo (Fases guiadas en vivo) -->
-        <div id="widget-plan-entrenamiento" class="widget-plan">
-            <div class="plan-header">
-                <span id="plan-live-nombre">🎯 PLAN IA: Escalada (+D)</span>
-                <span id="plan-live-fase-badge" class="plan-fase-badge">Fase 1/3 (10m)</span>
-            </div>
-            <div class="plan-barra-contenedor">
-                <div id="plan-live-barra" class="plan-barra-progreso" style="width: 25%;"></div>
-            </div>
-            <div class="plan-instruccion-txt" id="plan-live-instruccion">
-                ⚡ <strong>Instrucción IA:</strong> Calentamiento suave. Prepará las piernas sin sobreexigir.
-            </div>
-        </div>
-
-        <!-- Banner Consejo Táctico Pacing Coach (Terreno y Ritmo en Vivo) -->
-        <div id="ui-consejo-coach" class="consejo-coach-box">
-            💡 <strong>Pacing Coach:</strong> Terreno llano y favorable. Podés apretar un poco más los pedales y ganar tiempo acá.
-        </div>
-
-        <!-- Banner de Segmento en Vivo (Prioridad 4, Ítem 11) -->
-        <div id="banner-segmento-live" class="banner-segmento">
-            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: bold; color: var(--acc);">
-                <span id="seg-live-nombre">🚀 SEGMENTO EN CURSO</span>
-                <span id="seg-live-dist-restante" style="color: var(--y);">-- m restantes</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 6px;">
-                <div>
-                    <div style="font-size: 10px; color: var(--muted);">TIEMPO EN VIVO</div>
-                    <div id="seg-live-cronometro" style="font-size: 24px; font-weight: bold; color: #fff;">00:00</div>
-                </div>
-                <div style="text-align: right;">
-                    <div style="font-size: 10px; color: var(--muted);">OBJETIVO (PR 🥇)</div>
-                    <div id="seg-live-pr-target" style="font-size: 14px; font-weight: bold; color: var(--y);">--:--</div>
-                    <div id="seg-live-diferencia" style="font-size: 11px; font-weight: bold; color: var(--acc);">Calculando ritmo...</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Widget Ghost Pacer en Vivo (Prioridad 4, Ítem 12) -->
-        <div id="widget-ghost-pacer" class="widget-ghost">
-            <div class="ghost-header">
-                <span id="ghost-titulo-txt">👻 GHOST PACER (LIEBRE VIRTUAL)</span>
-                <span id="ghost-estado-badge" style="background: var(--surface2); color: var(--acc); padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: bold;">Liebre Activa</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <div id="ghost-diff-segundos" class="ghost-diff-val" style="color: var(--acc);">+00:00s</div>
-                    <div id="ghost-diff-distancia" style="font-size: 11px; color: var(--muted);">A la par de la liebre</div>
-                </div>
-                <div style="text-align: right;">
-                    <div style="font-size: 11px; color: var(--muted);">Ritmo Liebre: <span id="ghost-ritmo-target" style="color: #fff; font-weight: bold;">-- km/h</span></div>
-                    <div style="font-size: 11px; color: var(--muted);">Objetivo: <span id="ghost-nombre-target" style="color: var(--y); font-weight: bold;">Récord Anterior</span></div>
-                </div>
-            </div>
-            <div class="ghost-pacer-bar-container">
-                <div class="ghost-center-mark"></div>
-                <div id="ghost-barra-progreso" class="ghost-diff-bar" style="left: 50%; width: 0%; background: var(--acc);"></div>
-            </div>
-            <div style="display: flex; justify-content: space-between; font-size: 9px; color: #777;">
-                <span>🔴 Atrasado (-30s)</span>
-                <span>⚖️ Empate (0s)</span>
-                <span>🟢 Adelantado (+30s)</span>
-            </div>
-        </div>
-
-        <!-- Selector de Tipos de Entrenamiento Ciclista con Flechas de Scroll -->
-        <div class="contenedor-modos-entrenamiento">
-            <div class="contenedor-modos-scroll-wrapper">
-                <button class="btn-scroll-arrow" onclick="desplazarModosScroll(-140)" title="Anterior">‹</button>
-                <div class="selector-modo-scroll" id="selector-modo-scroll-el">
-                    <button class="btn-modo activo" onclick="cambiarModoEntrenamiento('LIBRE', this)">Libre</button>
-                    <button class="btn-modo" onclick="cambiarModoEntrenamiento('FONDO', this)">Fondo Z2</button>
-                    <button class="btn-modo" onclick="cambiarModoEntrenamiento('HIIT', this)">Series HIIT</button>
-                    <button class="btn-modo" onclick="cambiarModoEntrenamiento('ESCALADA', this)">Escalada (+D)</button>
-                    <button class="btn-modo" onclick="cambiarModoEntrenamiento('UMBRAL', this)">Ritmo Umbral</button>
-                    <button class="btn-modo" onclick="cambiarModoEntrenamiento('RECUPERACION', this)">Regenerativo</button>
-                </div>
-                <button class="btn-scroll-arrow" onclick="desplazarModosScroll(140)" title="Siguiente">›</button>
-            </div>
-
-            <!-- Ficha Táctica del Entrenamiento Seleccionado -->
-            <div id="ficha-modo-entrenamiento" class="ficha-modo-card" style="display: none;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                    <span id="modo-titulo-txt" style="font-weight: bold; color: var(--acc); font-size: 12px;">🚴 Rodaje Libre (Paseo / Exploración)</span>
-                    <span id="modo-zona-badge" class="badge-modo-zona">Métricas Abiertas</span>
-                </div>
-                <div id="modo-descripcion-txt" style="font-size: 11px; color: #a0aec0; line-height: 1.35;">
-                    Salida sin alarmas de zona ni metas rígidas. Registra todas tus métricas a tu propio ritmo en las 6 zonas fisiológicas.
-                </div>
-            </div>
-
-            <!-- Sub-widget de Series HIIT con Selector de Intensidad de Ataque -->
-            <div id="subwidget-hiit" class="subwidget-hiit-box" style="display: none;">
-                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px;">
-                    <span id="hiit-serie-txt" style="color: var(--prop); font-weight: bold;">⚡ Serie 1 de 5</span>
-                    <span id="hiit-estado-badge" style="background: #2e1a2b; color: var(--prop); padding: 2px 8px; border-radius: 10px; font-weight: bold; font-size: 10px;">En Espera</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
-                    <div>
-                        <div style="font-size: 9px; color: var(--muted);">INTERVALO EN VIVO</div>
-                        <div id="hiit-cronometro-txt" style="font-size: 24px; font-weight: 900; color: #fff;">01:00</div>
-                    </div>
-                    <button id="btn-hiit-start" onclick="toggleIntervalosHIIT()" style="background: var(--prop); color: var(--bg2); border: none; padding: 7px 15px; border-radius: 20px; font-size: 11px; font-weight: bold; cursor: pointer;">▶️ Iniciar Series</button>
-                </div>
-                <!-- Selector de Intensidad de Ataque para HIIT -->
-                <div style="margin-top: 8px; padding-top: 6px; border-top: 1px solid var(--line);">
-                    <div style="display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 4px;">
-                        <span style="color: var(--muted);">🎯 INTENSIDAD DE ATAQUE:</span>
-                        <strong id="hiit-zona-elegida-lbl" style="color: var(--r);">Zona 5 (VO2 Máx)</strong>
-                    </div>
-                    <div class="hiit-zonas-selector">
-                        <button class="btn-hiit-zona" id="btn-hiit-z3" onclick="configurarZonaAtaqueHIIT(3, this)">Z3 Tempo</button>
-                        <button class="btn-hiit-zona" id="btn-hiit-z4" onclick="configurarZonaAtaqueHIIT(4, this)">Z4 Umbral</button>
-                        <button class="btn-hiit-zona activa" id="btn-hiit-z5" onclick="configurarZonaAtaqueHIIT(5, this)">⚡ Z5 VO2</button>
-                        <button class="btn-hiit-zona" id="btn-hiit-z6" onclick="configurarZonaAtaqueHIIT(6, this)">🚀 Z6+ Sprint</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Card de Aviso Táctico / Pared / Pacing Coach (Boceto Página 1 y 2) -->
-        <div class="card-aviso-tactico" id="ui-card-aviso-tactico">
-            <div class="aviso-icono-circulo" id="aviso-icono-contenedor">
-                <span id="aviso-icono-simbolo">💡</span>
-            </div>
-            <div class="aviso-cuerpo">
-                <div class="aviso-meta-linea" id="aviso-meta-txt">PACING COACH · TERRENO FAVORABLE</div>
-                <div class="aviso-titulo-linea" id="aviso-titulo-txt">Ritmo en Zona 1 (&lt; 100W)</div>
-                <div class="aviso-subtitulo-linea" id="aviso-subtitulo-txt">Listo para iniciar pedaleo. Buen rodaje.</div>
-            </div>
-            <button class="btn-aviso-audio" onclick="repetirUltimoAvisoCoach()" title="Repetir audio por voz">
-                🔊
-            </button>
-        </div>
-
-        <!-- PANEL DE TELEMETRÍA ASIMÉTRICA (Boceto Página 1) -->
-        <div class="telemetria-boceto-container">
-            <!-- Columna Izquierda: Velocidad Gigante -->
-            <div class="card-velocidad-principal">
-                <div class="telemetria-label">VELOCIDAD</div>
-                <div class="numero-velocidad-gigante color-velocidad" id="ui-velocidad">0.0</div>
-                <div class="telemetria-unit">km/h</div>
-                <div id="ui-velocidad-target-box" class="target-speed-pill">
-                    <span style="color: var(--muted);">Target:</span>
-                    <strong id="ui-velocidad-target" style="color: var(--y);">--</strong>
-                    <span style="font-size: 9px; color: var(--muted);">km/h</span>
-                    <span id="ui-velocidad-diff" style="color: var(--acc); font-weight: bold; margin-left: 2px;">(Ritmo OK)</span>
-                </div>
-            </div>
-
-            <!-- Columna Derecha: Inclinación + Potencia -->
-            <div class="columna-telemetria-secundaria">
-                <!-- Inclinación -->
-                <div class="card-metrica-lateral">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span class="telemetria-label">INCLINACIÓN</span>
-                        <span id="badge-tipo-terreno" class="badge-terreno-tactico">LLANO</span>
-                    </div>
-                    <div class="numero-medio-telemetria color-pendiente" id="ui-pendiente">0.0%</div>
-                    <div class="telemetria-sublabel" id="lbl-pendiente-tipo">PLANO</div>
-                </div>
-
-                    <!-- Potencia -->
-                    <div class="card-metrica-lateral">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span class="telemetria-label">POTENCIA <span class="est">est.</span></span>
-                            <span class="badge-bikeiq">Bike IQ</span>
+                    <!-- Overlay Superior: Métricas de franja y aviso táctico -->
+                    <div class="mo mo-top">
+                        <div class="strip">
+                            <div><b id="strip-dist">0,00</b><small>km</small></div>
+                            <div><b id="strip-time">00:00</b></div>
+                            <div><b id="strip-asc">+0</b><small>m</small></div>
                         </div>
-                        <div class="numero-medio-telemetria color-potencia">
-                            <span id="ui-potencia">0</span> <span style="font-size: 13px; font-weight: 600; color: var(--muted);">W</span>
+                        <div class="malert g" id="malert" data-bc data-act="alert.repeat" onclick="repetirUltimoAvisoCoach()">
+                            <div class="ai" id="malert-ai"></div>
+                            <div class="at">
+                                <div class="am" id="malert-am">PACING COACH</div>
+                                <div class="ah" id="malert-ah">Listo para salir</div>
+                                <div class="as" id="malert-as">Tocá Iniciar recorrido cuando estés listo</div>
+                            </div>
+                            <div class="ar" id="malert-ar">OK</div>
                         </div>
-                        <div class="telemetria-sublabel" id="lbl-potencia-tipo">Estimación Live</div>
                     </div>
-            </div>
-        </div>
 
-        <!-- Barra Fisiológica Unificada de las 6 Zonas de Ciclismo (Siempre Presente en Vivo) -->
-        <div class="grafico-zonas-contenedor" id="grafico-zonas-box">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; font-size: 11px;">
-                <span id="txt-zona-activa" style="font-weight: bold; color: #4DA8DA;">🔵 ZONA 1: Recuperación Activa (&lt; 100W)</span>
-                <span id="txt-zona-ftp-pct" style="color: var(--muted); font-size: 10px;">Potencia: <strong id="lbl-potencia-inline" style="color: var(--d);">0 W</strong></span>
-            </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; font-size: 10px;">
-                <span id="lbl-zona-target-en-barra" style="color: var(--acc); font-weight: bold;">🎯 Target: Métricas Abiertas</span>
-                <span id="txt-zona-feedback" style="color: var(--muted); font-size: 9px; font-weight: 600;">(Rodaje Abierto)</span>
-            </div>
-            <div class="barra-zonas-segmentos">
-                <div class="seg-zona sz1 activa" id="sz-1" title="Z1: Recuperación Activa (&lt;100W)">Z1</div>
-                <div class="seg-zona sz2" id="sz-2" title="Z2: Fondo Aeróbico (100-170W)">Z2</div>
-                <div class="seg-zona sz3" id="sz-3" title="Z3: Tempo / Ritmo Fuerte (171-220W)">Z3</div>
-                <div class="seg-zona sz4" id="sz-4" title="Z4: Umbral Lactato / FTP (221-275W)">Z4</div>
-                <div class="seg-zona sz5" id="sz-5" title="Z5: Capacidad VO2 Máx (276-340W)">Z5</div>
-                <div class="seg-zona sz6" id="sz-6" title="Z6+: Anaeróbico / Sprint (>340W)">Z6+</div>
-                <div class="cursor-zona-indicador" id="cursor-zona" style="left: 4%;"></div>
-            </div>
-            <div style="display: flex; justify-content: space-between; font-size: 8px; color: #64748b; margin-top: 3px; text-transform: uppercase; font-weight: 700; letter-spacing: 0.3px;">
-                <span>Recup</span>
-                <span>Fondo</span>
-                <span>Tempo</span>
-                <span>Umbral</span>
-                <span>VO2</span>
-                <span>Sprint</span>
-            </div>
-        </div>
-
-        <!-- Widget ClimbPro (Terreno por Delante - Boceto Página 1) -->
-        <div class="card-terreno-adelante" id="widget-climbpro">
-            <div class="terreno-header">
-                <span class="terreno-titulo">TERRENO ADELANTE</span>
-                <div class="terreno-leyenda">
-                    <span><span class="dot-leyenda" style="background: var(--acc);"></span> Llano</span>
-                    <span><span class="dot-leyenda" style="background: var(--y);"></span> Trepada</span>
-                    <span><span class="dot-leyenda" style="background: var(--r);"></span> Pared</span>
-                </div>
-            </div>
-            <div style="position: relative;">
-                <canvas class="climbpro-canvas" id="climbpro-canvas" width="440" height="75"></canvas>
-                <span id="climbpro-alerta" class="climbpro-badge-flotante" style="display: none;">PARED 11%</span>
-            </div>
-            <div class="terreno-distancias-cotas">
-                <span>VOS</span>
-                <span id="climbpro-cota-1">+500 m</span>
-                <span id="climbpro-cota-2">+1 km</span>
-                <span id="climbpro-cota-3">+1,5 km</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); margin-top: 4px;">
-                <span id="climbpro-distancia">Próximos: 1.5 km</span>
-                <span id="climbpro-pendiente-media">Pendiente media: 0.0%</span>
-            </div>
-        </div>
-
-        <!-- 4 Métricas Secundarias (Boceto Página 1) -->
-        <div class="grid-metricas-secundarias-4">
-            <div class="caja-metrica-secundaria">
-                <div class="numero-metrica-secundaria color-distancia" id="ui-distancia">0.00 <span style="font-size: 10px;">km</span></div>
-                <div class="label-metrica-secundaria">DISTANCIA</div>
-            </div>
-            <div class="caja-metrica-secundaria">
-                <div class="numero-metrica-secundaria color-tiempo" id="ui-tiempo">00:00</div>
-                <div class="label-metrica-secundaria">TIEMPO</div>
-            </div>
-            <div class="caja-metrica-secundaria">
-                <div class="numero-metrica-secundaria color-desnivel" id="ui-desnivel">+0 <span style="font-size: 10px;">m</span></div>
-                <div class="label-metrica-secundaria">ASCENSO</div>
-            </div>
-            <div class="caja-metrica-secundaria">
-                <div class="numero-metrica-secundaria color-calorias" id="ui-calorias">0 <span style="font-size: 10px;">kcal</span></div>
-                <div class="label-metrica-secundaria">CALORÍAS <span class="est">est.</span></div>
-            </div>
-        </div>
-
-        <!-- Elementos de Telemetría Complementarios Ocultos para mantener compatibilidad -->
-        <div style="display: none;">
-            <span id="ui-tss">0</span>
-            <span id="ui-estado">⚪ Esperando inicio...</span>
-        </div>
-
-        <!-- PROTAGONISTA DEL RADAR V2: CONTENEDOR DE MAPA HERO + OVERLAYS + DOCK -->
-        <div id="v2-mapa-hero-wrapper" class="v2-mapview" data-dock="compact">
-            <div class="v2-mapbox" id="v2-mapbox-el">
-                <!-- Superposición Superior (Tira km · tiempo · +m y Alerta Compacta) -->
-                <div class="v2-mo-top">
-                    <div class="v2-strip">
-                        <div><b id="v2-strip-km">0,00</b><span>km</span></div>
-                        <div class="v2-sep"></div>
-                        <div><b id="v2-strip-tiempo">00:00</b><span>tiempo</span></div>
-                        <div class="v2-sep"></div>
-                        <div><b id="v2-strip-desnivel">+0</b><span>m</span></div>
+                    <!-- Overlay Izquierdo: SOS, Huella Trackback, Zoom (+ / -) -->
+                    <div class="mo mo-left">
+                        <button type="button" class="mbtn sos" data-act="map.sos" onclick="compartirUbicacionWhatsApp()" title="SOS Emergencia WhatsApp">SOS</button>
+                        <button type="button" class="mbtn" data-act="map.home" id="btn-map-home" onclick="toggleVolverAlInicioHuella()" aria-label="Volver al inicio por la huella" title="Volver al inicio">
+                            <svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                        </button>
+                        <button type="button" class="mbtn zbtn" data-act="map.zin" id="btn-map-zin" onclick="zoomInMapaV2()" aria-label="Acercar">
+                            <svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                        </button>
+                        <button type="button" class="mbtn zbtn" data-act="map.zout" id="btn-map-zout" onclick="zoomOutMapaV2()" aria-label="Alejar">
+                            <svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg>
+                        </button>
                     </div>
-                    <div class="v2-malert g" id="v2-map-alert" onclick="repetirUltimoAvisoCoach()" title="Tocar para repetir aviso por voz">
-                        <div class="v2-ma-ico" id="v2-map-alert-ico">=</div>
-                        <div class="v2-ma-body">
-                            <div class="v2-ma-k" id="v2-map-alert-k">PACING COACH · TERRENO FAVORABLE</div>
-                            <div class="v2-ma-t" id="v2-map-alert-t">Ritmo en Zona 1 · Listo para salir</div>
+
+                    <!-- Overlay Derecho: Capas tácticas, Orientación rumbo/norte, Centrar GPS -->
+                    <div class="mo mo-right">
+                        <button type="button" class="mbtn" data-act="map.layers" id="bLayers" onclick="togglePopoverCapas()" aria-label="Capas tácticas de mapa" title="Capas">
+                            <svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"/><path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"/><path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"/></svg>
+                        </button>
+                        <button type="button" class="mbtn zbtn" data-act="map.north" id="bNorth" onclick="toggleRumboMapaV2()" aria-label="Orientación del mapa" title="Norte / Rumbo">
+                            <svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+                        </button>
+                        <button type="button" class="mbtn on" data-act="map.locate" id="bLocate" onclick="centrarMapaEnCiclistaV2()" aria-label="Seguir mi posición" title="Centrar posición">
+                            <svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><circle cx="12" cy="12" r="7"/></svg>
+                        </button>
+                    </div>
+
+                    <!-- Overlay Inferior: Escala y badges de estado -->
+                    <div class="mo mo-bot">
+                        <span class="sbar" id="sbar"><i></i><span id="sbar-txt">100 m</span></span>
+                        <span id="map-pills" style="display:contents"></span>
+                    </div>
+
+                    <!-- Popover flotante de capas tácticas (Referencia 06) -->
+                    <div id="popHost">
+                        <div class="pop" id="popLayers" style="display:none;">
+                            <h4>Mapa base</h4>
+                            <button type="button" class="opt on" id="opt-layer-cyclosm" data-act="ly.style" data-k="cyclosm" onclick="seleccionarCapaBaseV2('cyclosm')">
+                                <span class="sw" style="background:var(--acc);"></span>CyclOSM (MTB)
+                            </button>
+                            <button type="button" class="opt" id="opt-layer-opentopo" data-act="ly.style" data-k="opentopo" onclick="seleccionarCapaBaseV2('opentopo')">
+                                <span class="sw" style="background:#eee8d4;"></span>OpenTopo (Curvas)
+                            </button>
+                            <button type="button" class="opt" id="opt-layer-satelite" data-act="ly.style" data-k="satelite" onclick="seleccionarCapaBaseV2('satelite')">
+                                <span class="sw" style="background:#1c2a1a;"></span>Satélite (Aéreo)
+                            </button>
+                            <h4>Capas</h4>
+                            <button type="button" class="opt on" id="opt-tg-huella" data-act="ly.tg" data-k="huella" onclick="toggleCapaTactico('huella')">
+                                <svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/></svg> Track GPX <span class="tg"></span>
+                            </button>
+                            <button type="button" class="opt on" id="opt-tg-agua" data-act="ly.tg" data-k="agua" onclick="toggleCapaTactico('agua')">
+                                <svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg> Puntos de agua <span class="tg"></span>
+                            </button>
+                            <button type="button" class="opt on" id="opt-tg-seg" data-act="ly.tg" data-k="seg" onclick="toggleCapaTactico('seg')">
+                                <svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></svg> Segmentos y PR <span class="tg"></span>
+                            </button>
                         </div>
-                        <div class="v2-ma-dist" id="v2-map-alert-dist">OK</div>
                     </div>
                 </div>
 
-                <!-- Lienzo Real de Leaflet -->
-                <div id="mapa"></div>
+                <!-- Panel de datos inferior tipo Dock (3 modos: full, compact, hide) -->
+                <div class="dock" id="dock" data-m="compact">
+                    <button type="button" class="handle" data-act="dock.cycle" onclick="ciclarModoDockV2()" aria-label="Cambiar tamaño del panel de datos"><i></i></button>
+                    <!-- 3 Tarjetas de Telemetría (Velocidad, Inclinación, Potencia) -->
+                    <div class="dm">
+                        <div class="mcard sp">
+                            <div class="lbl sm">Velocidad</div>
+                            <div class="v num"><span id="dock-speed">0,0</span><small>km/h</small></div>
+                            <div class="s" id="dock-tgt"></div>
+                        </div>
+                        <div class="mcard">
+                            <div class="lbl sm">Inclinación</div>
+                            <div class="v num zt-g" id="dock-grade-wrap"><span id="dock-grade">0,0</span><small>%</small></div>
+                            <div class="s" id="dock-zlab"><span class="zchip g">Llano</span></div>
+                        </div>
+                        <div class="mcard">
+                            <div class="lbl sm">Potencia</div>
+                            <div class="v num"><span id="dock-power">0</span><small>W</small></div>
+                            <div class="s">Bike IQ <span class="est">est.</span></div>
+                        </div>
+                    </div>
+                    <!-- Terreno adelante (ClimbPro ribbon) para modo full -->
+                    <div class="dribbon">
+                        <div class="rb-h">
+                            <span class="lbl sm">Terreno adelante</span>
+                            <span class="leg"><span><i style="background:var(--g)"></i>Llano</span><span><i style="background:var(--y)"></i>Trepada</span><span><i style="background:var(--r)"></i>Pared</span></span>
+                        </div>
+                        <div id="dock-ribbon-container">
+                            <svg class="ribbon" viewBox="0 0 340 84" role="img" aria-label="Perfil de terreno por delante">
+                                <path d="M0,67 L340,67" style="stroke:var(--line2);stroke-width:1.5;stroke-dasharray:4 4;"/>
+                                <path d="M0,67 Q80,62 140,54 T240,36 T340,28" style="fill:none;stroke:var(--acc);stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;"/>
+                                <circle cx="28" cy="65" r="5" style="fill:var(--bg);stroke:var(--text);stroke-width:2.5;"/>
+                                <text x="28" y="80" text-anchor="middle" style="font-size:11px;fill:var(--text);font-weight:800;">VOS</text>
+                                <text x="180" y="80" text-anchor="middle" style="font-size:11px;fill:var(--muted);">+500 m</text>
+                                <text x="310" y="80" text-anchor="middle" style="font-size:11px;fill:var(--muted);">+1 km</text>
+                            </svg>
+                        </div>
+                    </div>
+                    <!-- HUD Miniatura para modo oculto (hide) -->
+                    <div class="hudmini">
+                        <span class="num" id="hudmini-speed">0,0</span><small>km/h</small>
+                        <span class="num zt-g" id="hudmini-grade-wrap"><span id="hudmini-grade">0,0</span>%</span>
+                    </div>
+                    <!-- Botones de Control: Pausar e Iniciar / Finalizar -->
+                    <div class="ctl">
+                        <button type="button" class="btn btn-p" data-act="rec.toggle" id="btn-rec-toggle" onclick="toggleIniciarPausar()">
+                            <svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M7 4.6v14.8a1 1 0 0 0 1.5.86l12-7.4a1 1 0 0 0 0-1.72l-12-7.4A1 1 0 0 0 7 4.6z"/></svg>
+                            <span id="txt-rec-toggle">Iniciar Recorrido</span>
+                        </button>
+                        <button type="button" class="btn btn-d" data-act="rec.finish" id="btn-rec-finish" onclick="finalizarEntrenamiento()" style="display:none;">
+                            <svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
+                            Finalizar
+                        </button>
+                    </div>
+                </div>
+            </section>
 
-                <!-- Controles Laterales Tácticos (44×44 px, Zona del Pulgar) -->
-                <div class="v2-mcol left">
-                    <button type="button" class="v2-mbtn sos" onclick="compartirUbicacionWhatsApp()" title="SOS WhatsApp (requiere enviar manualmente)">SOS</button>
-                    <button type="button" class="v2-mbtn" id="v2-btn-huella" data-act="map.home" onclick="toggleVolverAlInicioHuella()" title="Volver al inicio por mi propia huella">↩</button>
-                    <button type="button" class="v2-mbtn" onclick="zoomMapaV2(1)" title="Acercar mapa">+</button>
-                    <button type="button" class="v2-mbtn" onclick="zoomMapaV2(-1)" title="Alejar mapa">−</button>
+            <!-- VISTA 2: CABINA TÁCTICA (Referencia 04) -->
+            <section class="v v-cabina">
+                <div class="vscroll">
+                    <!-- Segmentado de modos de entrenamiento -->
+                    <div class="seg scroll modes">
+                        <button type="button" class="on" data-act="mode.set" data-k="libre" onclick="seleccionarModoEntrenamiento('libre')">Libre</button>
+                        <button type="button" data-act="mode.set" data-k="pacing" onclick="seleccionarModoEntrenamiento('pacing')">Pacing</button>
+                        <button type="button" data-act="mode.set" data-k="subida" onclick="seleccionarModoEntrenamiento('subida')">Subida</button>
+                        <button type="button" data-act="mode.set" data-k="fondo" onclick="seleccionarModoEntrenamiento('fondo')">Fondo</button>
+                    </div>
+                    <!-- Tarjeta de aviso táctico del coach -->
+                    <div class="aviso" id="cabina-aviso" data-bc onclick="repetirUltimoAvisoCoach()">
+                        <div class="ai" id="cabina-aviso-ai"></div>
+                        <div class="at">
+                            <div class="am" id="cabina-aviso-am">PACING COACH</div>
+                            <div class="ah" id="cabina-aviso-ah">Ritmo en Zona 1</div>
+                            <div class="as" id="cabina-aviso-as">Terreno llano · Cadencia fluida</div>
+                        </div>
+                    </div>
+                    <!-- Widgets de tramo / liebre si están activos -->
+                    <div class="widgets" id="cabina-widgets"></div>
+                    <!-- Miniatura de mapa para volver rápido -->
+                    <div class="mini">
+                        <div id="cvMiniA" style="width:100%;height:100%;background:var(--surface2);border-radius:var(--rad);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12.5px;font-weight:600;">
+                            Vista previa del mapa
+                        </div>
+                        <button type="button" class="chip mcap2" data-act="rv" data-v="mapa" onclick="cambiarVistaRadarV2('mapa')">
+                            <svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg> Mapa
+                        </button>
+                    </div>
+                    <!-- Telemetría gigante de cabina (Velocidad, Inclinación, Potencia) -->
+                    <div class="a-tele">
+                        <div class="card spd">
+                            <div class="lbl">Velocidad</div>
+                            <div class="v num" id="cabina-speed">0,0</div>
+                            <div class="u"><span>km/h</span><span class="tg" id="cabina-tgt"></span></div>
+                        </div>
+                        <div class="col">
+                            <div class="mcard">
+                                <div class="lbl sm">Inclinación</div>
+                                <div class="v num zt-g" id="cabina-grade-wrap"><span id="cabina-grade">0,0</span><small>%</small></div>
+                                <div class="s" id="cabina-zlab"><span class="zchip g">Llano</span></div>
+                            </div>
+                            <div class="mcard">
+                                <div class="lbl sm">Potencia</div>
+                                <div class="v num"><span id="cabina-power">0</span><small>W</small></div>
+                                <div class="s">Bike IQ <span class="est">est.</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Gráfico de zonas de potencia táctica -->
+                    <div class="card pzone" id="cabina-pzone">
+                        <div class="lbl" style="margin-bottom:8px;">Zonas de potencia</div>
+                        <div class="grafico-zonas-contenedor" id="grafico-zonas-box" style="height:24px;border-radius:8px;display:flex;overflow:hidden;position:relative;">
+                            <div class="seg-zona sz1 activa" style="flex:1;background:var(--acc);" title="Z1"></div>
+                            <div class="seg-zona sz2" style="flex:1;background:var(--d);" title="Z2"></div>
+                            <div class="seg-zona sz3" style="flex:1;background:var(--g);" title="Z3"></div>
+                            <div class="seg-zona sz4" style="flex:1;background:var(--y);" title="Z4"></div>
+                            <div class="seg-zona sz5" style="flex:1;background:var(--r);" title="Z5"></div>
+                            <div class="seg-zona sz6" style="flex:1;background:var(--pz5, #8A2BE2);" title="Z6"></div>
+                        </div>
+                    </div>
+                    <!-- Terreno adelante (ClimbPro) -->
+                    <div class="card tight">
+                        <div class="row between"><span class="lbl">Terreno adelante</span><span class="leg"><span><i style="background:var(--g)"></i>Llano</span><span><i style="background:var(--y)"></i>Trepada</span><span><i style="background:var(--r)"></i>Pared</span></span></div>
+                        <div id="cabina-ribbon-container" style="margin-top:6px;">
+                            <svg class="ribbon" viewBox="0 0 340 84" role="img">
+                                <path d="M0,67 L340,67" style="stroke:var(--line2);stroke-width:1.5;stroke-dasharray:4 4;"/>
+                                <path d="M0,67 Q80,62 140,54 T240,36 T340,28" style="fill:none;stroke:var(--acc);stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;"/>
+                                <circle cx="28" cy="65" r="5" style="fill:var(--bg);stroke:var(--text);stroke-width:2.5;"/>
+                                <text x="28" y="80" text-anchor="middle" style="font-size:11px;fill:var(--text);font-weight:800;">VOS</text>
+                            </svg>
+                        </div>
+                    </div>
+                    <!-- 4 Métricas secundarias (Distancia, Tiempo, Ascenso, Calorías) -->
+                    <div class="stats4">
+                        <div class="stat"><div class="v"><span id="cabina-dist">0,00</span><small>km</small></div><div class="l">Distancia</div></div>
+                        <div class="stat"><div class="v"><span id="cabina-time">00:00</span></div><div class="l">Tiempo</div></div>
+                        <div class="stat"><div class="v"><span id="cabina-asc">+0</span><small>m</small></div><div class="l">Ascenso</div></div>
+                        <div class="stat"><div class="v"><span id="cabina-kcal">0</span><small>kcal</small></div><div class="l">Calorías<span class="est">est.</span></div></div>
+                    </div>
+                    <!-- Botones de Control de Grabación -->
+                    <div class="ctl">
+                        <button type="button" class="btn btn-p" data-act="rec.toggle" onclick="toggleIniciarPausar()">
+                            <svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M7 4.6v14.8a1 1 0 0 0 1.5.86l12-7.4a1 1 0 0 0 0-1.72l-12-7.4A1 1 0 0 0 7 4.6z"/></svg>
+                            <span class="txt-rec-toggle-cabina">Iniciar Recorrido</span>
+                        </button>
+                        <button type="button" class="btn btn-d btn-rec-finish-cabina" data-act="rec.finish" onclick="finalizarEntrenamiento()" style="display:none;">
+                            <svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
+                            Finalizar
+                        </button>
+                    </div>
                 </div>
-                <div class="v2-mcol right">
-                    <button type="button" class="v2-mbtn" id="bLayers" data-act="map.layers" onclick="ciclarCapaMapaV2()" title="Cambiar capa de mapa (CyclOSM / Topo / Satélite)">🗺️</button>
-                    <button type="button" class="v2-mbtn" id="bNorth" data-act="map.north" onclick="toggleRumboMapaV2()" title="Alternar Norte arriba / Rumbo arriba">🧭</button>
-                    <button type="button" class="v2-mbtn on" id="bLocate" data-act="map.locate" onclick="centrarMapaEnCiclistaV2()" title="Centrar en mi posición GPS">◎</button>
-                </div>
+            </section>
 
-                <!-- Pie del Mapa: Escala y Píldoras de Estado (Mapa Offline / Huella /Modo) -->
-                <div class="v2-mo-bot">
-                    <div class="v2-scale">
-                        <span class="v2-scale-bar"></span>
-                        <span id="v2-scale-txt">100 m</span>
+            <!-- VISTA 3: SUBIDA / CLIMBPRO (Referencia 05) -->
+            <section class="v v-subida">
+                <div class="vscroll">
+                    <!-- Tarjeta Héroe del Próximo Tramo / Subida -->
+                    <div class="card hero" id="subida-hero" data-bc>
+                        <div class="hm">
+                            <span class="row" style="gap:7px">
+                                <svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/></svg>
+                                Próximo tramo
+                            </span>
+                            <span class="zchip y" id="subida-hero-nkind">Trepada</span>
+                        </div>
+                        <div class="hbig"><span id="subida-hero-dist">400</span><small id="subida-hero-unit">m</small></div>
+                        <div class="ht" id="subida-hero-desc">Pared 11 % durante 300 m · Plato chico y cadencia ágil</div>
+                        <div id="subida-ribbon-container" style="margin-top:10px;">
+                            <svg class="ribbon" viewBox="0 0 340 84" role="img">
+                                <path d="M0,67 Q80,62 140,54 T240,36 T340,28" style="fill:none;stroke:var(--y);stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;"/>
+                                <circle cx="28" cy="65" r="5" style="fill:var(--bg);stroke:var(--text);stroke-width:2.5;"/>
+                            </svg>
+                        </div>
                     </div>
-                    <div class="v2-map-pills">
-                        <span class="v2-mpill" id="v2-mpill-capa">CyclOSM</span>
-                        <span class="v2-mpill ok" id="v2-mpill-offline" onclick="cambiarPestanaApp('prep')" style="cursor:pointer;">Mapa Offline Listo</span>
-                        <span class="v2-mpill" id="v2-mpill-huella" style="display: none; border-color: #4FD8F0; color: #4FD8F0;">↩ Huella activa</span>
+                    <!-- Miniatura de mapa -->
+                    <div class="mini">
+                        <div id="cvMiniB" style="width:100%;height:100%;background:var(--surface2);border-radius:var(--rad);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12.5px;font-weight:600;">
+                            Vista previa del mapa
+                        </div>
+                        <button type="button" class="chip mcap2" data-act="rv" data-v="mapa" onclick="cambiarVistaRadarV2('mapa')">
+                            <svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg> Mapa
+                        </button>
+                    </div>
+                    <!-- 3 Tarjetas de telemetría -->
+                    <div class="grid3 dm-b">
+                        <div class="mcard sp"><div class="lbl sm">Velocidad</div><div class="v num"><span id="subida-speed">0,0</span><small>km/h</small></div></div>
+                        <div class="mcard"><div class="lbl sm">Inclinación</div><div class="v num zt-y"><span id="subida-grade">0,0</span><small>%</small></div></div>
+                        <div class="mcard"><div class="lbl sm">Potencia</div><div class="v num"><span id="subida-power">0</span><small>W</small></div><div class="s">Bike IQ <span class="est">est.</span></div></div>
+                    </div>
+                    <!-- Widgets activos -->
+                    <div class="widgets" id="subida-widgets"></div>
+                    <!-- Información de lo que viene después -->
+                    <div class="card">
+                        <div class="lbl">Después</div>
+                        <div id="subida-after" style="margin-top:6px;font-size:14px;color:var(--muted);font-weight:500;">
+                            Cima a 1,2 km · Bajada técnica con curvas cerradas
+                        </div>
+                    </div>
+                    <!-- 4 Métricas secundarias -->
+                    <div class="stats4">
+                        <div class="stat"><div class="v"><span id="subida-dist">0,00</span><small>km</small></div><div class="l">Distancia</div></div>
+                        <div class="stat"><div class="v"><span id="subida-time">00:00</span></div><div class="l">Tiempo</div></div>
+                        <div class="stat"><div class="v"><span id="subida-asc">+0</span><small>m</small></div><div class="l">Ascenso</div></div>
+                        <div class="stat"><div class="v"><span id="subida-kcal">0</span><small>kcal</small></div><div class="l">Calorías<span class="est">est.</span></div></div>
+                    </div>
+                    <!-- Botones de Control de Grabación -->
+                    <div class="ctl">
+                        <button type="button" class="btn btn-p" data-act="rec.toggle" onclick="toggleIniciarPausar()">
+                            <svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M7 4.6v14.8a1 1 0 0 0 1.5.86l12-7.4a1 1 0 0 0 0-1.72l-12-7.4A1 1 0 0 0 7 4.6z"/></svg>
+                            <span class="txt-rec-toggle-subida">Iniciar Recorrido</span>
+                        </button>
+                        <button type="button" class="btn btn-d btn-rec-finish-subida" data-act="rec.finish" onclick="finalizarEntrenamiento()" style="display:none;">
+                            <svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>
+                            Finalizar
+                        </button>
                     </div>
                 </div>
-            </div>
-
-            <!-- DOCK INFERIOR DEL MAPA V2 (Compacto / Completo / Oculto) -->
-            <div class="v2-dock" id="v2-map-dock">
-                <button type="button" class="v2-dock-handle" data-act="dock.cycle" onclick="ciclarModoDockV2()" title="Cambiar tamaño del panel de datos (Compacto / Completo / Oculto)">
-                    <span class="v2-dock-grip"></span>
-                    <span class="v2-dock-lbl" id="v2-dock-modo-txt">PANEL COMPACTO · TOCAR PARA CAMBIAR</span>
-                </button>
-                <div class="v2-dock-metrics" id="v2-dock-metrics-grid">
-                    <div class="v2-dcard">
-                        <div class="v2-dlbl">VELOCIDAD</div>
-                        <div class="v2-dval"><span id="v2-dock-vel">0,0</span><small>km/h</small></div>
-                    </div>
-                    <div class="v2-dcard">
-                        <div class="v2-dlbl">INCLINACIÓN <span id="v2-dock-zona-chip" class="v2-zchip g">= LLANO</span></div>
-                        <div class="v2-dval" id="v2-dock-pend-wrap"><span id="v2-dock-pend">0,0</span><small>%</small></div>
-                    </div>
-                    <div class="v2-dcard">
-                        <div class="v2-dlbl">POTENCIA <span class="est">est.</span></div>
-                        <div class="v2-dval"><span id="v2-dock-watts">0</span><small>W</small></div>
-                    </div>
-                </div>
-                <div class="v2-dock-extra" id="v2-dock-extra-box" style="display: none;">
-                    <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--muted);margin-bottom:4px;">
-                        <span>TERRENO ADELANTE (+1,5 KM)</span>
-                        <span id="v2-dock-climb-resumen" style="color:var(--acc);font-weight:700;">Listo para trazar</span>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text);">
-                        <span>🔥 Calorías <span class="est">est.</span>: <strong id="v2-dock-kcal">0 kcal</strong></span>
-                        <span>⚡ Carga TSS <span class="est">est.</span>: <strong id="v2-dock-tss">0</strong></span>
-                    </div>
-                </div>
-            </div>
+            </section>
         </div>
+    </div>
 
-        <!-- Botón para reabrir el reproductor si hay un recorrido cargado -->
-        <div id="contenedor-btn-reabrir-scrubber" style="display: none; text-align: center; margin-top: -6px; margin-bottom: 8px;">
-            <button class="btn-flotante-scrubber" onclick="reabrirReproductorRuta()">
-                <span>🧭</span> <span>Rebobinar / Explorar Recorrido en Mapa</span>
-            </button>
-        </div>
-
-        <!-- Widget Reproductor y Scrubber de Recorrido en Mapa -->
-        <div id="widget-reproductor-ruta" class="widget-reproductor-ruta" style="display: none;">
-            <div class="reproductor-header">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="font-size: 16px;">🧭</span>
-                    <div>
-                        <strong style="color: var(--acc); font-size: 12px; display: block;" id="scrub-titulo-recorrido">EXPLORADOR DE RECORRIDO</strong>
-                        <span style="font-size: 10px; color: var(--muted);">Deslizá la barra o tocá el trazado para analizar cada tramo</span>
-                    </div>
-                </div>
-                <div style="display: flex; align-items: center; gap: 6px;">
-                    <span class="badge-rep-punto" id="rep-ruta-indice-txt">0 / 0</span>
-                    <button onclick="minimizarReproductorRuta()" style="background: transparent; border: none; color: var(--muted); font-size: 14px; cursor: pointer; padding: 2px 6px;" title="Minimizar explorador">✖</button>
-                </div>
+    <!-- Hoja modal táctica de Ajustes de Cabina y Herramientas (bCab) -->
+    <div class="sheet" id="sheet-cabina" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:99;align-items:flex-end;" onclick="if(event.target===this)toggleRanuraCockpit()">
+        <div style="background:var(--surface);width:100%;border-radius:24px 24px 0 0;border-top:1px solid var(--line);padding:20px 16px calc(24px + env(safe-area-inset-bottom));max-height:85vh;overflow-y:auto;box-shadow:var(--shadow);">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                <b style="font-family:var(--font-d);font-size:22px;text-transform:uppercase;color:var(--text);letter-spacing:0.04em;">Ajustes de cabina</b>
+                <button type="button" class="ibtn" onclick="toggleRanuraCockpit()" style="color:var(--muted);"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
             </div>
-
-            <!-- HUD de Telemetría en el punto exacto -->
-            <div class="grid-telemetria-scrubber">
-                <div class="caja-scrubber-stat">
-                    <span class="stat-scrubber-lbl">VELOCIDAD</span>
-                    <span class="stat-scrubber-val color-velocidad" id="scrub-vel">0.0 <small>km/h</small></span>
-                </div>
-                <div class="caja-scrubber-stat">
-                    <span class="stat-scrubber-lbl">ALTITUD</span>
-                    <span class="stat-scrubber-val color-desnivel" id="scrub-alt">0 <small>m</small></span>
-                </div>
-                <div class="caja-scrubber-stat">
-                    <span class="stat-scrubber-lbl">PENDIENTE</span>
-                    <span class="stat-scrubber-val color-pendiente" id="scrub-pend">0.0 <small>%</small></span>
-                </div>
-                <div class="caja-scrubber-stat">
-                    <span class="stat-scrubber-lbl">POTENCIA</span>
-                    <span class="stat-scrubber-val color-potencia" id="scrub-watts">0 <small>W</small></span>
-                </div>
-                <div class="caja-scrubber-stat">
-                    <span class="stat-scrubber-lbl">DISTANCIA</span>
-                    <span class="stat-scrubber-val color-distancia" id="scrub-dist">0.00 <small>km</small></span>
-                </div>
-                <div class="caja-scrubber-stat">
-                    <span class="stat-scrubber-lbl">HORA / TIEMPO</span>
-                    <span class="stat-scrubber-val color-tiempo" id="scrub-tiempo">--:--</span>
-                </div>
-            </div>
-
-            <!-- Barra Slider Scrubber interactiva -->
-            <div class="scrubber-slider-container">
-                <input type="range" id="slider-reproductor-ruta" min="0" max="100" value="0" step="1" 
-                       oninput="onMoverScrubberRuta(this.value)" 
-                       class="scrubber-range">
-            </div>
-
-            <!-- Controles de Reproducción y Avance -->
-            <div class="scrubber-controles-fila">
-                <button class="btn-scrub-ctrl" onclick="saltarPuntoRuta(-10)" title="Retroceder 10 puntos">⏪ -10</button>
-                <button class="btn-scrub-ctrl" onclick="saltarPuntoRuta(-1)" title="Punto anterior">◀</button>
-                <button class="btn-scrub-play" id="btn-scrub-play" onclick="togglePlayReproductorRuta()">▶️ Reproducir</button>
-                <button class="btn-scrub-ctrl" onclick="saltarPuntoRuta(1)" title="Punto siguiente">▶</button>
-                <button class="btn-scrub-ctrl" onclick="saltarPuntoRuta(10)" title="Avanzar 10 puntos">+10 ⏩</button>
-                <select id="sel-scrub-velocidad" class="select-scrub-speed" onchange="cambiarVelocidadReproductor(this.value)" title="Velocidad de reproducción">
-                    <option value="1">1x</option>
-                    <option value="2" selected>2x</option>
-                    <option value="5">5x</option>
-                    <option value="10">10x</option>
-                </select>
-                <button class="btn-scrub-ctrl" onclick="descargarGPXDesdeScrubber()" title="Exportar y descargar archivo GPX de este recorrido" style="border-color: var(--acc); color: var(--acc); font-weight: bold;">📥 GPX</button>
-            </div>
-        </div>
-
-        <!-- BOTONES DE CONTROL DE SESIÓN (Boceto Página 1) -->
-        <div class="botones-control-boceto">
-            <button class="btn-control-principal" id="btn-start" data-act="rec.toggle" onclick="toggleIniciarPausar()">
-                ▶️ Iniciar Recorrido
-            </button>
-            <button class="btn-control-finalizar" id="btn-finish" data-act="rec.finish" onclick="finalizarEntrenamiento()" style="display: none;">
-                Finalizar
-            </button>
-        </div>
-        <div style="text-align: center; margin-bottom: 12px;">
-            <button class="btn-simulador" id="btn-toggle-sim" onclick="abrirPanelSimulador()" style="background: transparent; border: 1px dashed var(--line2); color: var(--muted); font-size: 11px; padding: 6px 14px; border-radius: 20px; cursor: pointer;">
-                🎮 Simulador GPX (Prueba PC)
-            </button>
-        </div>
-
-        <!-- PANEL DEL SIMULADOR GPX -->
-        <div id="panel-simulador" class="panel-simulador" style="display: none;">
-            <div class="sim-header">
-                <span>🚵‍♂️ Simulador Táctico GPX</span>
-                <button class="btn-cerrar-sim" onclick="cerrarPanelSimulador()">✖</button>
-            </div>
-            <p style="font-size: 12px; color: var(--muted); margin: 6px 0;">Reproduce el pedaleo de tu archivo GPX para probar la voz, mapas y métricas en PC.</p>
-            
-            <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-bottom: 10px;">
-                <input type="file" id="input-gpx" accept=".gpx" style="display: none;" onchange="cargarArchivoGPX(event)">
-                <button class="btn-accion-sim" onclick="document.getElementById('input-gpx').click()">📂 Cargar GPX</button>
-                <button class="btn-accion-sim" id="btn-cargar-auto" onclick="cargarGPXPorDefecto()">⚡ Vuelta Mañana</button>
-            </div>
-
-            <div id="sim-info" style="font-size: 12px; color: var(--acc); margin-bottom: 8px; display: none;"></div>
-
-            <div id="sim-controles" style="display: none;">
-                <div style="display: flex; justify-content: center; align-items: center; gap: 6px; margin-bottom: 8px;">
-                    <label style="font-size: 11px; color: var(--muted);">Velocidad:</label>
-                    <button class="btn-speed active" onclick="cambiarVelocidadSim(1, this)">1x</button>
-                    <button class="btn-speed" onclick="cambiarVelocidadSim(2, this)">2x</button>
-                    <button class="btn-speed" onclick="cambiarVelocidadSim(5, this)">5x</button>
-                    <button class="btn-speed" onclick="cambiarVelocidadSim(10, this)">10x</button>
-                </div>
-                
-                <div style="display: flex; gap: 8px; justify-content: center;">
-                    <button class="btn-sim-play" id="btn-sim-play" onclick="togglePlayPausaSim()">▶️ Reproducir</button>
-                    <button class="btn-sim-stop" onclick="detenerSimulador()">⏹️ Detener</button>
-                </div>
-
-                <div style="margin-top: 8px; background: var(--surface2); border-radius: 6px; padding: 4px; font-size: 11px; color: #888;">
-                    Progreso: <span id="sim-progreso-txt" style="color: var(--y);">Punto 0 / 0</span>
-                </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <button type="button" class="btn btn-cockpit" id="btn-bloqueo" data-act="cab.lock" onclick="activarBloqueoPantalla(); toggleRanuraCockpit();" style="border:1px solid var(--line2);background:var(--surface2);color:var(--text);height:50px;font-size:13px;border-radius:12px;font-weight:700;"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Anti-sudor</button>
+                <button type="button" class="btn btn-cockpit" id="btn-ghost" data-act="cab.ghost" onclick="abrirModalGhostPacer(); toggleRanuraCockpit();" style="border:1px solid var(--line2);background:var(--surface2);color:var(--text);height:50px;font-size:13px;border-radius:12px;font-weight:700;"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 10h.01M15 10h.01M12 2a8 8 0 0 0-8 8v12l3-3 2.5 2.5L12 19l2.5 2.5L17 19l3 3V10a8 8 0 0 0-8-8z"/></svg> Ghost Pacer</button>
+                <button type="button" class="btn btn-cockpit" id="btn-escuadron" data-act="cab.squad" onclick="abrirModalEscuadron(); toggleRanuraCockpit();" style="border:1px solid var(--line2);background:var(--surface2);color:var(--text);height:50px;font-size:13px;border-radius:12px;font-weight:700;"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg> Escuadrón</button>
+                <button type="button" class="btn btn-cockpit" id="btn-nube-cockpit" data-act="cab.nube" onclick="abrirConfigNube(); toggleRanuraCockpit();" style="border:1px solid var(--line2);background:var(--surface2);color:var(--d);height:50px;font-size:13px;border-radius:12px;font-weight:700;"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg> Nube</button>
+                <button type="button" class="btn btn-cockpit" id="btn-sim" data-act="cab.sim" onclick="toggleModalSimuladorGPX(); toggleRanuraCockpit();" style="border:1px solid var(--line2);background:var(--surface2);color:var(--text);height:50px;font-size:13px;border-radius:12px;font-weight:700;"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="15" y1="13" x2="15.01" y2="13"/><line x1="18" y1="11" x2="18.01" y2="11"/><rect width="20" height="12" x="2" y="6" rx="6"/></svg> Simulador</button>
+                <button type="button" class="btn btn-cockpit" id="btn-sos" data-act="cab.sos" onclick="compartirUbicacionWhatsApp(); toggleRanuraCockpit();" style="border:1px solid var(--r);background:var(--surface2);color:var(--r);height:50px;font-size:13px;border-radius:12px;font-weight:700;"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg> SOS WhatsApp</button>
             </div>
         </div>
     </div>
@@ -3202,6 +3334,176 @@
     </div>
 
     <script>
+        
+        // ========================================================
+        // UTILIDADES Y CONTROLADORES V2 TÁCTICO OFICIAL
+        // ========================================================
+        function numEsAR(n, d = 1) {
+            if (n == null || !isFinite(n)) return '0,0';
+            const s = Math.abs(n).toFixed(d);
+            let [entero, frac] = s.split('.');
+            if (entero.length > 3) entero = entero.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            const neg = n < 0 && Number(s) !== 0;
+            return (neg ? '−' : '') + entero + (frac != null ? ',' + frac : '');
+        }
+
+        function zoomInMapaV2() {
+            if (mapa) mapa.zoomIn();
+        }
+
+        function zoomOutMapaV2() {
+            if (mapa) mapa.zoomOut();
+        }
+
+        function togglePopoverCapas() {
+            const pop = document.getElementById('popLayers');
+            if (!pop) return;
+            const isVis = pop.style.display !== 'none';
+            pop.style.display = isVis ? 'none' : 'block';
+        }
+
+        function toggleCapaTactico(capaKey) {
+            const btn = document.getElementById('opt-tg-' + capaKey);
+            if (!btn) return;
+            const activa = btn.classList.toggle('on');
+            if (capaKey === 'huella' && typeof polylineRutaGrabada !== 'undefined' && polylineRutaGrabada && mapa) {
+                if (activa) { if (!mapa.hasLayer(polylineRutaGrabada)) mapa.addLayer(polylineRutaGrabada); }
+                else { if (mapa.hasLayer(polylineRutaGrabada)) mapa.removeLayer(polylineRutaGrabada); }
+            }
+        }
+
+        function seleccionarCapaBaseV2(key) {
+            if (!mapa || typeof v2CapasMapa === 'undefined' || !v2CapasMapa) return;
+            Object.keys(v2CapasMapa).forEach(k => {
+                const item = v2CapasMapa[k];
+                if (item && item.layer) {
+                    if (k === key) {
+                        if (!mapa.hasLayer(item.layer)) mapa.addLayer(item.layer);
+                    } else {
+                        if (mapa.hasLayer(item.layer)) mapa.removeLayer(item.layer);
+                    }
+                }
+                const optBtn = document.getElementById('opt-layer-' + k);
+                if (optBtn) optBtn.classList.toggle('on', k === key);
+            });
+            const pop = document.getElementById('popLayers');
+            if (pop) pop.style.display = 'none';
+        }
+
+        function toggleRanuraCockpit() {
+            const sheet = document.getElementById('sheet-cabina');
+            if (!sheet) return;
+            const isVis = sheet.style.display === 'flex';
+            sheet.style.display = isVis ? 'none' : 'flex';
+        }
+
+        function ciclarModoDockV2() {
+            const dock = document.getElementById('dock');
+            if (!dock) return;
+            const current = dock.getAttribute('data-m') || 'compact';
+            const next = { full: 'compact', compact: 'hide', hide: 'full' }[current] || 'compact';
+            dock.setAttribute('data-m', next);
+            if (mapa) {
+                setTimeout(() => { mapa.invalidateSize(); }, 60);
+            }
+        }
+
+        function cambiarVistaRadarV2(vista) {
+            v2VistaActiva = vista;
+            const rbody = document.getElementById('rbody');
+            if (rbody) {
+                rbody.setAttribute('data-view', vista);
+            }
+            const segButtons = document.querySelectorAll('#vseg button');
+            segButtons.forEach(btn => {
+                const v = btn.getAttribute('data-v');
+                btn.classList.toggle('on', v === vista);
+            });
+            if (vista === 'mapa' && mapa) {
+                setTimeout(() => { mapa.invalidateSize(); }, 60);
+            }
+        }
+
+        function actualizarTelemetriaV2() {
+            const vStr = numEsAR(typeof velocidadKmh !== 'undefined' ? velocidadKmh : 0, 1);
+            const dStr = numEsAR(typeof distanciaTotal !== 'undefined' ? distanciaTotal : 0, 2);
+            const gStr = numEsAR(typeof pendienteFiltrada !== 'undefined' ? pendienteFiltrada : 0, 1);
+            const pStr = String(Math.round(typeof potenciaEstimada !== 'undefined' ? potenciaEstimada : 0));
+            const tStr = typeof formatearTiempo === 'function' ? formatearTiempo(typeof tiempoTranscurrido !== 'undefined' ? tiempoTranscurrido : 0) : '00:00';
+            const ascStr = '+' + Math.round(typeof desnivelPositivoTotal !== 'undefined' ? desnivelPositivoTotal : 0);
+
+            // Strip Top (Mapa)
+            const sDist = document.getElementById('strip-dist'); if (sDist) sDist.textContent = dStr;
+            const sTime = document.getElementById('strip-time'); if (sTime) sTime.textContent = tStr;
+            const sAsc = document.getElementById('strip-asc'); if (sAsc) sAsc.textContent = ascStr;
+
+            // Dock (Mapa)
+            const dSpd = document.getElementById('dock-speed'); if (dSpd) dSpd.textContent = vStr;
+            const dGrd = document.getElementById('dock-grade'); if (dGrd) dGrd.textContent = gStr;
+            const dPwr = document.getElementById('dock-power'); if (dPwr) dPwr.textContent = pStr;
+
+            // Hudmini (Dock colapsado)
+            const hSpd = document.getElementById('hudmini-speed'); if (hSpd) hSpd.textContent = vStr;
+            const hGrd = document.getElementById('hudmini-grade'); if (hGrd) hGrd.textContent = gStr;
+
+            // Cabina
+            const cSpd = document.getElementById('cabina-speed'); if (cSpd) cSpd.textContent = vStr;
+            const cGrd = document.getElementById('cabina-grade'); if (cGrd) cGrd.textContent = gStr;
+            const cPwr = document.getElementById('cabina-power'); if (cPwr) cPwr.textContent = pStr;
+            const cDst = document.getElementById('cabina-dist'); if (cDst) cDst.textContent = dStr;
+            const cTim = document.getElementById('cabina-time'); if (cTim) cTim.textContent = tStr;
+            const cAsc = document.getElementById('cabina-asc'); if (cAsc) cAsc.textContent = ascStr;
+            const cKcl = document.getElementById('cabina-kcal'); if (cKcl) cKcl.textContent = String(Math.round(typeof caloriasEstimadas !== 'undefined' ? caloriasEstimadas : 0));
+
+            // Subida
+            const subSpd = document.getElementById('subida-speed'); if (subSpd) subSpd.textContent = vStr;
+            const subGrd = document.getElementById('subida-grade'); if (subGrd) subGrd.textContent = gStr;
+            const subPwr = document.getElementById('subida-power'); if (subPwr) subPwr.textContent = pStr;
+            const subDst = document.getElementById('subida-dist'); if (subDst) subDst.textContent = dStr;
+            const subTim = document.getElementById('subida-time'); if (subTim) subTim.textContent = tStr;
+            const subAsc = document.getElementById('subida-asc'); if (subAsc) subAsc.textContent = ascStr;
+            const subKcl = document.getElementById('subida-kcal'); if (subKcl) subKcl.textContent = String(Math.round(typeof caloriasEstimadas !== 'undefined' ? caloriasEstimadas : 0));
+
+            // Actualizar chip REC y estado de botones
+            const recChip = document.getElementById('recChip');
+            const recChipTxt = document.getElementById('recChipTxt');
+            const btnToggle = document.getElementById('btn-rec-toggle');
+            const btnFinish = document.getElementById('btn-rec-finish');
+            const btnsFinishCabina = document.querySelectorAll('.btn-rec-finish-cabina, .btn-rec-finish-subida');
+            const txtToggles = document.querySelectorAll('.txt-rec-toggle-cabina, .txt-rec-toggle-subida');
+
+            if (typeof recorridoActivo !== 'undefined' && recorridoActivo) {
+                if (typeof recorridoPausado !== 'undefined' && recorridoPausado) {
+                    if (recChip) { recChip.className = 'rec paused'; }
+                    if (recChipTxt) { recChipTxt.textContent = 'PAUSADO'; }
+                    if (btnToggle) {
+                        btnToggle.innerHTML = `<svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M7 4.6v14.8a1 1 0 0 0 1.5.86l12-7.4a1 1 0 0 0 0-1.72l-12-7.4A1 1 0 0 0 7 4.6z"/></svg><span id="txt-rec-toggle">Reanudar</span>`;
+                    }
+                    txtToggles.forEach(t => t.textContent = 'Reanudar');
+                    if (btnFinish) btnFinish.style.display = 'inline-flex';
+                    btnsFinishCabina.forEach(b => b.style.display = 'inline-flex');
+                } else {
+                    if (recChip) { recChip.className = 'rec'; }
+                    if (recChipTxt) { recChipTxt.textContent = 'REC ' + tStr; }
+                    if (btnToggle) {
+                        btnToggle.innerHTML = `<svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg><span id="txt-rec-toggle">Pausar</span>`;
+                    }
+                    txtToggles.forEach(t => t.textContent = 'Pausar');
+                    if (btnFinish) btnFinish.style.display = 'inline-flex';
+                    btnsFinishCabina.forEach(b => b.style.display = 'inline-flex');
+                }
+            } else {
+                if (recChip) { recChip.className = 'rec'; }
+                if (recChipTxt) { recChipTxt.textContent = 'LISTO'; }
+                if (btnToggle) {
+                    btnToggle.innerHTML = `<svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M7 4.6v14.8a1 1 0 0 0 1.5.86l12-7.4a1 1 0 0 0 0-1.72l-12-7.4A1 1 0 0 0 7 4.6z"/></svg><span id="txt-rec-toggle">Iniciar Recorrido</span>`;
+                }
+                txtToggles.forEach(t => t.textContent = 'Iniciar Recorrido');
+                if (btnFinish) btnFinish.style.display = 'none';
+                btnsFinishCabina.forEach(b => b.style.display = 'none');
+            }
+        }
+
         // ========================================================
         // VARIABLES GLOBALES Y TELEMETRÍA
         // ========================================================
@@ -4390,7 +4692,27 @@
             if (contIco) {
                 contIco.style.background = bgColor;
                 contIco.style.color = iconColor;
+            
+            // Sincronizar con la alerta oficial V2 sobre Mapa y Cabina
+            const malert = document.getElementById('malert');
+            const malertAi = document.getElementById('malert-ai');
+            const malertAm = document.getElementById('malert-am');
+            const malertAh = document.getElementById('malert-ah');
+            const malertAs = document.getElementById('malert-as');
+            if (malert) {
+                if (iconColor === 'var(--r)') malert.className = 'malert r';
+                else if (iconColor === 'var(--y)') malert.className = 'malert y';
+                else malert.className = 'malert g';
             }
+            if (malertAi && icono) malertAi.textContent = icono;
+            if (malertAm && meta) malertAm.textContent = meta;
+            if (malertAh && titulo) malertAh.textContent = titulo;
+            if (malertAs && subtitulo) malertAs.textContent = subtitulo;
+
+            const cAh = document.getElementById('cabina-aviso-ah'); if (cAh && titulo) cAh.textContent = titulo;
+            const cAs = document.getElementById('cabina-aviso-as'); if (cAs && subtitulo) cAs.textContent = subtitulo;
+            const cAm = document.getElementById('cabina-aviso-am'); if (cAm && meta) cAm.textContent = meta;
+}
             if (metaEl && meta) metaEl.innerText = meta;
             if (titEl && titulo) titEl.innerText = titulo;
             if (subEl && subtitulo) subEl.innerText = subtitulo;
@@ -4753,6 +5075,7 @@
         }
 
         function actualizarTiempo() {
+            actualizarTelemetriaV2();
             if (!recorridoActivo) return;
             segundosTranscurridos++;
 
@@ -4829,6 +5152,23 @@
             });
 
             const precRedondeada = Math.round(precision);
+
+            // Actualizar píldora oficial V2
+            const pGps = document.getElementById('pGps');
+            const txtGps = document.getElementById('txtGps');
+            if (pGps) {
+                if (precision <= 12) {
+                    pGps.className = 'pill ok';
+                    if (txtGps) txtGps.textContent = `GPS ±${precRedondeada}m`;
+                } else if (precision <= 25) {
+                    pGps.className = 'pill warn';
+                    if (txtGps) txtGps.textContent = `GPS ±${precRedondeada}m`;
+                } else {
+                    pGps.className = 'pill bad';
+                    if (txtGps) txtGps.textContent = 'Sin GPS';
+                }
+            }
+
 
             if (precision <= 6) {
                 [b1, b2, b3, b4].forEach(b => { if (b) b.classList.add('activa'); });
@@ -5210,6 +5550,7 @@
             actualizarUIObjetivoVelocidad(velocidadKmh, velTarget);
 
             ultimaPosicion = posicion;
+            actualizarTelemetriaV2();
 
             // Guardar punto para exportación a GPX (TrainingPeaks/Strava)
             trackPuntosGrabados.push({
@@ -5387,7 +5728,22 @@
                     badgeTerreno.innerText = "BAJADA";
                     badgeTerreno.style.background = "rgba(77, 168, 218, 0.15)";
                     badgeTerreno.style.color = "#4DA8DA";
-                }
+                
+            // Sincronizar zona e inclinación en Dock y Cabina V2
+            const dGw = document.getElementById('dock-grade-wrap');
+            const dZl = document.getElementById('dock-zlab');
+            const cGw = document.getElementById('cabina-grade-wrap');
+            const cZl = document.getElementById('cabina-zlab');
+            let v2zClass = 'zt-g', v2zChip = '<span class="zchip g">Llano</span>';
+            if (pendiente < -2.0) { v2zClass = 'zt-d'; v2zChip = '<span class="zchip d">Bajada</span>'; }
+            else if (pendiente <= 2.0) { v2zClass = 'zt-g'; v2zChip = '<span class="zchip g">Llano</span>'; }
+            else if (pendiente <= 8.0) { v2zClass = 'zt-y'; v2zChip = '<span class="zchip y">Trepada</span>'; }
+            else { v2zClass = 'zt-r'; v2zChip = '<span class="zchip r">Pared</span>'; }
+            if (dGw) dGw.className = 'v num ' + v2zClass;
+            if (dZl) dZl.innerHTML = v2zChip;
+            if (cGw) cGw.className = 'v num ' + v2zClass;
+            if (cZl) cZl.innerHTML = v2zChip;
+}
                 if (lblPendEstado) lblPendEstado.innerText = "Descenso suave";
             } else if (pendiente <= 2.0) {
                 if (badgeTerreno) {
@@ -8938,141 +9294,158 @@
         }
 
         function aplicarEscenarioDemoV2(scen, F) {
-            const dVel = document.getElementById('v2-dock-vel');
-            const dPend = document.getElementById('v2-dock-pend');
-            const dWatts = document.getElementById('v2-dock-watts');
-            const dKcal = document.getElementById('v2-dock-kcal');
-            const sKm = document.getElementById('v2-strip-km');
-            const sTiempo = document.getElementById('v2-strip-tiempo');
-            const sDesnivel = document.getElementById('v2-strip-desnivel');
-            const sysbar = document.getElementById('v2-sysbar');
-            const sysbarTxt = document.getElementById('v2-sysbar-txt');
-            const chipRec = document.getElementById('v2-chip-rec');
-            const chipRecTxt = document.getElementById('v2-chip-rec-txt');
-            const pGps = document.getElementById('pildora-gps-header');
-            const txtGps = document.getElementById('ui-gps-header-texto');
-            const mapAlert = document.getElementById('v2-map-alert');
-            const mapAlertIco = document.getElementById('v2-map-alert-ico');
-            const mapAlertK = document.getElementById('v2-map-alert-k');
-            const mapAlertT = document.getElementById('v2-map-alert-t');
-            const mapAlertDist = document.getElementById('v2-map-alert-dist');
+            // Elementos del diseño oficial V2
+            const sDist = document.getElementById('strip-dist');
+            const sTime = document.getElementById('strip-time');
+            const sAsc = document.getElementById('strip-asc');
+            const dSpd = document.getElementById('dock-speed');
+            const dGrd = document.getElementById('dock-grade');
+            const dPwr = document.getElementById('dock-power');
+            const hSpd = document.getElementById('hudmini-speed');
+            const hGrd = document.getElementById('hudmini-grade');
+            const cSpd = document.getElementById('cabina-speed');
+            const cGrd = document.getElementById('cabina-grade');
+            const cPwr = document.getElementById('cabina-power');
+            const subSpd = document.getElementById('subida-speed');
+            const subGrd = document.getElementById('subida-grade');
+            const subPwr = document.getElementById('subida-power');
+            const sysbar = document.getElementById('sysbar');
+            const recChip = document.getElementById('recChip');
+            const recChipTxt = document.getElementById('recChipTxt');
+            const pGps = document.getElementById('pGps');
+            const txtGps = document.getElementById('txtGps');
+            const malert = document.getElementById('malert');
+            const malertAi = document.getElementById('malert-ai');
+            const malertAm = document.getElementById('malert-am');
+            const malertAh = document.getElementById('malert-ah');
+            const malertAs = document.getElementById('malert-as');
+            const malertAr = document.getElementById('malert-ar');
+            const btnToggle = document.getElementById('btn-rec-toggle');
+            const btnFinish = document.getElementById('btn-rec-finish');
+            const popLayers = document.getElementById('popLayers');
 
-            // Valores base Boceto
-            if (dVel) dVel.textContent = "14,2";
-            if (dPend) dPend.textContent = "6,2";
-            if (dWatts) dWatts.textContent = "212";
-            if (dKcal) dKcal.textContent = "486 kcal";
-            if (sKm) sKm.textContent = "6,82";
-            if (sTiempo) sTiempo.textContent = "42:18";
-            if (sDesnivel) sDesnivel.textContent = "+312";
-            if (chipRec) chipRec.className = "v2-rec";
-            if (chipRecTxt) chipRecTxt.textContent = "REC 42:18";
-            if (pGps) pGps.className = "pildora-header-status activo";
-            if (txtGps) txtGps.textContent = "GPS ±5m";
+            // Valores de Referencia Boceto (01-radar-mapa, 02, 03, 06)
+            if (sDist) sDist.textContent = "6,82";
+            if (sTime) sTime.textContent = "42:18";
+            if (sAsc) sAsc.textContent = "+312";
+            if (dSpd) dSpd.textContent = "14,2";
+            if (dGrd) dGrd.textContent = "6,2";
+            if (dPwr) dPwr.textContent = "212";
+            if (hSpd) hSpd.textContent = "14,2";
+            if (hGrd) hGrd.textContent = "6,2";
+            if (cSpd) cSpd.textContent = "14,2";
+            if (cGrd) cGrd.textContent = "6,2";
+            if (cPwr) cPwr.textContent = "212";
+            if (subSpd) subSpd.textContent = "14,2";
+            if (subGrd) subGrd.textContent = "6,2";
+            if (subPwr) subPwr.textContent = "212";
+            if (recChip) recChip.className = "rec";
+            if (recChipTxt) recChipTxt.textContent = "REC 42:18";
+            if (pGps) { pGps.className = "pill ok"; }
+            if (txtGps) { txtGps.textContent = "GPS"; }
+            if (btnToggle) {
+                btnToggle.innerHTML = `<svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg><span>Pausar</span>`;
+            }
+            if (btnFinish) btnFinish.style.display = "inline-flex";
 
-            if (mapAlert) {
-                mapAlert.className = "v2-malert r";
-                if (mapAlertIco) mapAlertIco.textContent = "▲▲";
-                if (mapAlertK) mapAlertK.textContent = "AVISO · EN 400 M";
-                if (mapAlertT) mapAlertT.textContent = "Pared 11 % durante 300 m · Bajá a plato chico y subí la cadencia";
-                if (mapAlertDist) mapAlertDist.textContent = "400 m";
+            if (malert) {
+                malert.className = "malert r";
+                if (malertAi) malertAi.textContent = "▲▲";
+                if (malertAm) malertAm.textContent = "AVISO · EN 400 M";
+                if (malertAh) malertAh.textContent = "Pared 11 % durante 300 m";
+                if (malertAs) malertAs.textContent = "Bajá a plato chico y subí la cadencia";
+                if (malertAr) malertAr.textContent = "400 m";
             }
 
             if (scen === 'antes') {
-                if (dVel) dVel.textContent = "0,0";
-                if (dPend) dPend.textContent = "0,0";
-                if (dWatts) dWatts.textContent = "0";
-                if (sKm) sKm.textContent = "0,00";
-                if (sTiempo) sTiempo.textContent = "00:00";
-                if (sDesnivel) sDesnivel.textContent = "+0";
-                if (chipRecTxt) chipRecTxt.textContent = "LISTO";
-                if (sysbar) {
-                    sysbar.style.display = "flex";
-                    sysbar.className = "v2-sysbar info";
-                    if (sysbarTxt) sysbarTxt.textContent = "Buscando GPS… Esperá la señal antes de iniciar";
+                if (sDist) sDist.textContent = "0,00";
+                if (sTime) sTime.textContent = "00:00";
+                if (sAsc) sAsc.textContent = "+0";
+                if (dSpd) dSpd.textContent = "0,0";
+                if (dGrd) dGrd.textContent = "0,0";
+                if (dPwr) dPwr.textContent = "0";
+                if (recChipTxt) recChipTxt.textContent = "LISTO";
+                if (btnToggle) {
+                    btnToggle.innerHTML = `<svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M7 4.6v14.8a1 1 0 0 0 1.5.86l12-7.4a1 1 0 0 0 0-1.72l-12-7.4A1 1 0 0 0 7 4.6z"/></svg><span>Iniciar Recorrido</span>`;
                 }
-                if (mapAlert) {
-                    mapAlert.className = "v2-malert g";
-                    if (mapAlertK) mapAlertK.textContent = "LISTO PARA SALIR";
-                    if (mapAlertT) mapAlertT.textContent = "Tocá Iniciar recorrido cuando estés listo";
-                    if (mapAlertDist) mapAlertDist.textContent = "OK";
+                if (btnFinish) btnFinish.style.display = "none";
+                if (sysbar) {
+                    sysbar.hidden = false;
+                    sysbar.setAttribute('data-k', 'info');
+                    sysbar.textContent = "Buscando GPS… Esperá la señal antes de iniciar";
+                }
+                if (malert) {
+                    malert.className = "malert g";
+                    if (malertAi) malertAi.textContent = "✓";
+                    if (malertAm) malertAm.textContent = "LISTO PARA SALIR";
+                    if (malertAh) malertAh.textContent = "Tocá Iniciar recorrido cuando estés listo";
+                    if (malertAs) malertAs.textContent = "Presión de cubiertas y ruta verificadas";
+                    if (malertAr) malertAr.textContent = "OK";
                 }
             } else if (scen === 'pared') {
-                if (dVel) dVel.textContent = "14,0";
-                if (dPend) dPend.textContent = "11,4";
-                if (dWatts) dWatts.textContent = "340";
-                if (mapAlert) {
-                    mapAlert.className = "v2-malert r";
-                    if (mapAlertK) mapAlertK.textContent = "EN LA PARED";
-                    if (mapAlertT) mapAlertT.textContent = "Pared 11 % · quedan 260 m · Plato chico y cadencia firme";
-                    if (mapAlertDist) mapAlertDist.textContent = "260 m";
+                if (dSpd) dSpd.textContent = "14,0";
+                if (dGrd) dGrd.textContent = "11,4";
+                if (dPwr) dPwr.textContent = "340";
+                if (malert) {
+                    malert.className = "malert r";
+                    if (malertAi) malertAi.textContent = "▲▲";
+                    if (malertAm) malertAm.textContent = "EN LA PARED";
+                    if (malertAh) malertAh.textContent = "Pared 11 % · quedan 260 m";
+                    if (malertAs) malertAs.textContent = "Plato chico y cadencia firme";
+                    if (malertAr) malertAr.textContent = "260 m";
                 }
             } else if (scen === 'pausa') {
-                if (chipRec) chipRec.className = "v2-rec paused";
-                if (chipRecTxt) chipRecTxt.textContent = "PAUSADO";
+                if (recChip) recChip.className = "rec paused";
+                if (recChipTxt) recChipTxt.textContent = "PAUSADO";
+                if (btnToggle) {
+                    btnToggle.innerHTML = `<svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M7 4.6v14.8a1 1 0 0 0 1.5.86l12-7.4a1 1 0 0 0 0-1.72l-12-7.4A1 1 0 0 0 7 4.6z"/></svg><span>Reanudar</span>`;
+                }
                 if (sysbar) {
-                    sysbar.style.display = "flex";
-                    sysbar.className = "v2-sysbar warn";
-                    if (sysbarTxt) sysbarTxt.textContent = "Grabación en pausa · El tiempo detenido no suma kilómetros";
+                    sysbar.hidden = false;
+                    sysbar.setAttribute('data-k', 'warn');
+                    sysbar.textContent = "Grabación en pausa · El tiempo detenido no suma kilómetros";
                 }
             } else if (scen === 'gps_debil') {
-                if (pGps) pGps.className = "pildora-header-status warn";
-                if (txtGps) txtGps.textContent = "GPS ±19m";
+                if (pGps) { pGps.className = "pill warn"; }
+                if (txtGps) { txtGps.textContent = "GPS ±19m"; }
                 if (sysbar) {
-                    sysbar.style.display = "flex";
-                    sysbar.className = "v2-sysbar warn";
-                    if (sysbarTxt) sysbarTxt.textContent = "GPS débil (±19 m): buscando satélites…";
+                    sysbar.hidden = false;
+                    sysbar.setAttribute('data-k', 'warn');
+                    sysbar.textContent = "GPS débil (±19 m): buscando satélites…";
                 }
             } else if (scen === 'sin_gps') {
-                if (pGps) pGps.className = "pildora-header-status bad";
-                if (txtGps) txtGps.textContent = "Sin GPS";
+                if (pGps) { pGps.className = "pill bad"; }
+                if (txtGps) { txtGps.textContent = "Sin GPS"; }
                 if (sysbar) {
-                    sysbar.style.display = "flex";
-                    sysbar.className = "v2-sysbar bad";
-                    if (sysbarTxt) sysbarTxt.textContent = "Sin señal GPS hace 12 s: se detuvo el registro de distancia";
+                    sysbar.hidden = false;
+                    sysbar.setAttribute('data-k', 'bad');
+                    sysbar.textContent = "Sin señal GPS hace 12 s: se detuvo el registro de distancia";
                 }
             } else if (scen === 'offline') {
                 if (sysbar) {
-                    sysbar.style.display = "flex";
-                    sysbar.className = "v2-sysbar info";
-                    if (sysbarTxt) sysbarTxt.textContent = "Sin conexión: se sube sola cuando vuelva la red";
+                    sysbar.hidden = false;
+                    sysbar.setAttribute('data-k', 'info');
+                    sysbar.textContent = "Sin conexión: se sube sola cuando vuelva la red";
                 }
-                const pOff = document.getElementById('v2-mpill-offline');
-                if (pOff) { pOff.textContent = "Mapa offline"; pOff.className = "v2-mpill ok"; }
+                const pills = document.getElementById('map-pills');
+                if (pills) {
+                    pills.innerHTML = '<button class="wpill" data-k="ok"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h.01"/><path d="M2 8.82a15 15 0 0 1 20 0"/><path d="M5 12.859a10 10 0 0 1 14 0"/><path d="M8.5 16.429a5 5 0 0 1 7 0"/></svg> Mapa offline</button>';
+                }
             } else if (scen === 'offline_sin') {
                 if (sysbar) {
-                    sysbar.style.display = "flex";
-                    sysbar.className = "v2-sysbar warn";
-                    if (sysbarTxt) sysbarTxt.textContent = "Sin conexión y sin mapa: solo se dibuja tu traza";
+                    sysbar.hidden = false;
+                    sysbar.setAttribute('data-k', 'warn');
+                    sysbar.textContent = "Sin conexión y sin mapa: solo se dibuja tu traza";
                 }
-                const pOff = document.getElementById('v2-mpill-offline');
-                if (pOff) { pOff.textContent = "Sin mapa descargado"; pOff.className = "v2-mpill warn"; }
+                const pills = document.getElementById('map-pills');
+                if (pills) {
+                    pills.innerHTML = '<button class="wpill" data-k="warn"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m2 2 20 20"/><path d="M12 20h.01"/></svg> Sin mapa descargado</button>';
+                }
             } else if (scen === 'segmento') {
-                const segPill = document.getElementById('v2-mpill-huella');
-                if (segPill) {
-                    segPill.style.display = "inline-flex";
-                    segPill.textContent = "Segmento: Cuesta de las Cañas · −12 s";
-                    segPill.style.borderColor = "var(--acc)";
-                    segPill.style.color = "var(--acc)";
+                const pills = document.getElementById('map-pills');
+                if (pills) {
+                    pills.innerHTML = '<button class="wpill" data-k="ok" style="border-color:var(--acc);color:var(--acc);"><svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></svg> Segmento: Cuesta de las Cañas · −12 s</button>';
                 }
-            } else if (scen === 'todo') {
-                const segPill = document.getElementById('v2-mpill-huella');
-                if (segPill) {
-                    segPill.style.display = "inline-flex";
-                    segPill.textContent = "Ghost Pacer: +14 s adelantado · Escuadrón: 2 cerca";
-                    segPill.style.borderColor = "var(--acc)";
-                    segPill.style.color = "var(--acc)";
-                }
-            } else if (scen === 'caida') {
-                setTimeout(() => {
-                    const mCaida = document.getElementById('modal-alerta-caida');
-                    if (mCaida) mCaida.style.display = 'flex';
-                }, 150);
-            } else if (scen === 'final') {
-                setTimeout(() => {
-                    const mFin = document.getElementById('modal-confirmar-finalizar') || document.getElementById('modal-reporte');
-                    if (mFin) mFin.style.display = 'block';
-                }, 150);
             }
         }
 
@@ -9107,6 +9480,25 @@
             } else if (act === 'nav') {
                 const t = target.getAttribute('data-t');
                 if (t) cambiarPestanaApp(t);
+            } else if (act === 'rv') {
+                const v = target.getAttribute('data-v');
+                if (v) cambiarVistaRadarV2(v);
+            } else if (act === 'map.layers') {
+                togglePopoverCapas();
+            } else if (act === 'map.home') {
+                toggleVolverAlInicioHuella();
+            } else if (act === 'map.north') {
+                toggleRumboMapaV2();
+            } else if (act === 'map.locate') {
+                centrarMapaEnCiclistaV2();
+            } else if (act === 'map.zin') {
+                zoomInMapaV2();
+            } else if (act === 'map.zout') {
+                zoomOutMapaV2();
+            } else if (act === 'map.sos') {
+                compartirUbicacionWhatsApp();
+            } else if (act === 'hdr.voice') {
+                repetirUltimoAvisoCoach();
             }
         });
 
