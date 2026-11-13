@@ -1,0 +1,102 @@
+/* ============================================================
+   Radar Táctico MTB · V2 — tokens (Verde táctico) + base + marco
+   Todo lo "tweakeable" sale de variables CSS o atributos data-* del <body>
+   ============================================================ */
+:root {
+  /* paleta · Verde táctico (por defecto) */
+  --bg: #0A110F; --bg2: #0D1613; --surface: #121C19; --surface2: #17231F; --line: #243430; --line2: #314842;
+  --text: #EDF4F1; --muted: #93A8A0; --dim: #7A8F88;
+  --acc: #3DDC97; --acc-ink: #04140D; --acc-soft: rgba(61, 220, 151, .14); --acc-line: rgba(61, 220, 151, .38);
+  /* zonas del semáforo (verde = llano/bajada · amarillo = trepada · rojo = pared) */
+  --g: #3DDC97; --y: #FFC53D; --r: #FF5C4D; --d: #4DA8DA;
+  --g-ink: #04140D; --y-ink: #1b1300; --r-ink: #1d0502;
+  --warn-bg: rgba(255, 92, 77, .10); --warn-line: rgba(255, 92, 77, .34);
+  --strava: #FC4C02; --strava-ink: #fff;
+  --glass: rgba(10, 17, 15, .82);
+  --shadow: 0 10px 30px rgba(0, 0, 0, .35);
+  --glow: 0 0 0 rgba(0, 0, 0, 0);
+
+  /* tipografía */
+  --font-d: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --font-b: 'Barlow', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --fw-d: 700; --ls-d: 0em;
+
+  /* escalas tweakeables */
+  --rad: 18px; --num: 1; --tx: 1; --sp: 1; --bw: 1px;
+  --nav-h: 72px;
+  --dw: 390px; --dh: 844px; --fit: 1;
+}
+
+/* ---------- paletas alternativas ---------- */
+body[data-pal="semaforo"] { --bg: #121210; --bg2: #171715; --surface: #1E1E1B; --surface2: #262622; --line: #34342E; --line2: #46463E; --text: #F5F1E8; --muted: #A7A394; --dim: #8F8C82; --acc: #2BD97C; --acc-soft: rgba(43, 217, 124, .14); --acc-line: rgba(43, 217, 124, .4); --g: #2BD97C; --y: #FFC21A; --r: #FF5A47; --glass: rgba(18, 18, 16, .84); }
+body[data-pal="hud"] { --bg: #000; --bg2: #04090B; --surface: #070D10; --surface2: #0C161B; --line: #22323A; --line2: #31464F; --text: #E8F1F4; --muted: #86A0AA; --dim: #6B838D; --acc: #4FD8F0; --acc-ink: #021419; --acc-soft: rgba(79, 216, 240, .13); --acc-line: rgba(79, 216, 240, .42); --g: #3EE68A; --y: #FFC53D; --r: #FF5C4D; --glass: rgba(0, 0, 0, .85); }
+body[data-pal="cerro"] { --bg: #0E1424; --bg2: #121A2E; --surface: #161E33; --surface2: #1D2742; --line: #26304A; --line2: #35426A; --text: #F4EFE8; --muted: #9AA3BC; --dim: #818AA7; --acc: #FF8A3D; --acc-ink: #1c0d02; --acc-soft: rgba(255, 138, 61, .14); --acc-line: rgba(255, 138, 61, .42); --g: #46D39A; --y: #FFC83D; --r: #FF5E57; --glass: rgba(14, 20, 36, .85); }
+body[data-pal="sol"] { --bg: #F3F0E8; --bg2: #ECE8DC; --surface: #FFFFFF; --surface2: #F7F4EC; --line: #CFC9BA; --line2: #B7B09C; --text: #15191A; --muted: #566059; --dim: #5F6A63; --acc: #0A7A47; --acc-ink: #FFFFFF; --acc-soft: rgba(10, 122, 71, .11); --acc-line: rgba(10, 122, 71, .45); --g: #0A7A47; --y: #B87D00; --r: #C42F1B; --d: #1C6FA6; --g-ink: #fff; --y-ink: #1b1300; --r-ink: #fff; --warn-bg: rgba(196, 47, 27, .09); --warn-line: rgba(196, 47, 27, .42); --glass: rgba(255, 255, 255, .88); --shadow: 0 8px 22px rgba(60, 50, 20, .18); --page-bg: #d9d4c6; }
+body[data-pal="sol"] .zt-y { color: #8A5E00; } body[data-pal="sol"] .zt-r { color: #B42E1A; }
+/* zonas aptas para daltonismo (azul · ámbar · magenta) */
+body[data-zones="cb"] { --g: #3B9BFF; --y: #FFB000; --r: #E6007E; --g-ink: #02101f; --y-ink: #1b1300; --r-ink: #fff; }
+body[data-pal="sol"][data-zones="cb"] { --g: #0B5FC4; --y: #C98A00; --r: #B3005F; --g-ink: #fff; }
+/* contraste alto */
+body[data-contrast="high"] { --muted: #C5D4CE; --line: #4B6A61; --line2: #6A8F84; --dim: #9DB3AB; --bw: 1.5px; }
+body[data-contrast="high"][data-pal="sol"] { --muted: #2C3631; --line: #7d7766; --line2: #5f5a4b; --dim: #4a534d; }
+/* brillo / glow */
+body[data-glow="on"] { --glow: 0 0 18px var(--acc-soft); }
+
+/* ---------- tipografías (se embeben en base64 al compilar) ---------- */
+body[data-font="archivo"] { --font-d: 'Archivo', 'Arial Black', sans-serif; --font-b: 'Archivo', system-ui, sans-serif; --fw-d: 700; --ls-d: -.025em; }
+body[data-font="b612"] { --font-d: 'B612 Mono', ui-monospace, monospace; --font-b: 'B612', system-ui, sans-serif; --fw-d: 700; --ls-d: -.04em; }
+body[data-font="shoulders"] { --font-d: 'Big Shoulders Display', 'Arial Narrow', sans-serif; --font-b: 'Public Sans', system-ui, sans-serif; --fw-d: 800; --ls-d: .005em; }
+
+/* ---------- base ---------- */
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; margin: 0; }
+body {
+  background: var(--page-bg, #040706); color: var(--text); font-family: var(--font-b); font-size: calc(15px * var(--tx));
+  -webkit-font-smoothing: antialiased; overflow: hidden; line-height: 1.3;
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; border: 0; background: none; padding: 0; touch-action: manipulation; }
+input, select, textarea { outline: none; }
+:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
+.ic { display: block; flex: none; }
+h1, h2, h3, p { margin: 0; }
+.num { font-family: var(--font-d); font-weight: var(--fw-d); letter-spacing: var(--ls-d); font-variant-numeric: tabular-nums; line-height: .95; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+::-webkit-scrollbar { width: 0; height: 0; }
+
+/* ---------- escenario (escritorio: marco + panel Tweaks) ---------- */
+#stage { display: flex; height: 100vh; height: 100dvh; width: 100vw; }
+#devwrap { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;
+  background: radial-gradient(1200px 700px at 50% 40%, #0d1715 0%, #040706 70%); }
+body[data-pal="sol"] #devwrap { background: radial-gradient(1200px 700px at 50% 40%, #e9e4d6 0%, #cfc9b8 75%); }
+#devbox { width: calc(var(--dw) * var(--fit)); height: calc(var(--dh) * var(--fit)); flex: none; position: relative; }
+#device {
+  position: absolute; left: 0; top: 0; width: var(--dw); height: var(--dh); transform: scale(var(--fit)); transform-origin: 0 0;
+  background: var(--bg); border-radius: 46px; overflow: hidden; display: flex; flex-direction: column;
+  box-shadow: 0 0 0 9px #0b1311, 0 0 0 10.5px #2a3d38, 0 40px 90px rgba(0, 0, 0, .55);
+  isolation: isolate;
+}
+body[data-frame="off"] #device { border-radius: 0; box-shadow: none; }
+.osbar { height: 30px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 6px 26px 0; font: 600 12.5px var(--font-b); color: var(--text); opacity: .9; position: relative; z-index: 5; }
+.osbar .r { display: flex; gap: 6px; align-items: center; }
+body[data-frame="off"] .osbar { display: none; }
+#app { flex: 1; min-height: 0; display: flex; flex-direction: column; position: relative; }
+#screens { flex: 1; min-height: 0; position: relative; }
+.tab { position: absolute; inset: 0; display: none; flex-direction: column; min-height: 0; }
+.tab.on { display: flex; }
+
+/* textura de fondo (Tweaks) */
+.tex { position: absolute; inset: 0; pointer-events: none; z-index: 0; opacity: 0; }
+body[data-tex="grid"] .tex { opacity: .55; background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px); background-size: 28px 28px; mask-image: linear-gradient(#000 0, transparent 70%); -webkit-mask-image: linear-gradient(#000 0, transparent 70%); }
+body[data-tex="topo"] .tex { opacity: .5; background-image: repeating-radial-gradient(ellipse at 85% 8%, transparent 0 15px, var(--line) 15.5px 16.5px), repeating-radial-gradient(ellipse at 5% 70%, transparent 0 22px, var(--line) 22.5px 23.5px); mask-image: linear-gradient(#000 0, transparent 85%); -webkit-mask-image: linear-gradient(#000 0, transparent 85%); }
+body[data-tex="grain"] .tex { opacity: .22; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"); mix-blend-mode: overlay; }
+body[data-tex="scan"] .tex { opacity: .35; background-image: repeating-linear-gradient(0deg, transparent 0 2px, rgba(0, 0, 0, .35) 2px 3px); }
+
+/* modo teléfono real (pantalla chica): sin marco, ocupa todo */
+@media (max-width: 560px) {
+  #devbox { width: 100vw; height: 100vh; height: 100dvh; }
+  #device { width: 100vw; height: 100vh; height: 100dvh; transform: none !important; border-radius: 0 !important; box-shadow: none !important; }
+  .osbar { display: none; }
+  #devwrap { background: var(--bg) !important; }
+}
+@media (prefers-reduced-motion: reduce) { * { animation-duration: .001ms !important; transition-duration: .001ms !important; } }

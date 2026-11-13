@@ -1,0 +1,401 @@
+{
+ "version": 1,
+ "descripcion": "Estados de referencia del diseño V2 «Verde táctico». Cada estado se abre con el hash indicado sobre el prototipo y se aplican las acciones en orden. Las capturas son la verdad visual.",
+ "prototipo": "../prototipo/radar-tactico-v2-prototipo.html",
+ "viewport": {
+  "ancho": 390,
+  "alto": 844,
+  "escala": 2
+ },
+ "mascaras_por_defecto": [
+  "canvas"
+ ],
+ "nota_mascaras": "Los <canvas> del prototipo dibujan mapas y perfiles con datos sintéticos. En la app real esas zonas muestran mapa/datos reales, así que el comparador por píxeles las ignora; se revisan con el checklist del contrato.",
+ "tolerancia_pct_por_defecto": 2.0,
+ "estados": [
+  {
+   "id": "01-radar-mapa",
+   "titulo": "Radar · vista Mapa (escenario Boceto)",
+   "grupo": "radar",
+   "hash": "#tw=0&tab=radar&view=mapa&scen=boceto",
+   "acciones": [],
+   "descripcion": "Pantalla por defecto del Radar. Panel de datos compacto."
+  },
+  {
+   "id": "02-radar-mapa-panel-completo",
+   "titulo": "Radar · Mapa con panel de datos completo",
+   "grupo": "radar",
+   "hash": "#tw=0&tab=radar&view=mapa&scen=boceto",
+   "acciones": [
+    {
+     "click": "[data-act=\"dock.cycle\"]"
+    },
+    {
+     "click": "[data-act=\"dock.cycle\"]"
+    }
+   ]
+  },
+  {
+   "id": "03-radar-mapa-panel-oculto",
+   "titulo": "Radar · Mapa con panel de datos oculto",
+   "grupo": "radar",
+   "hash": "#tw=0&tab=radar&view=mapa&scen=boceto",
+   "acciones": [
+    {
+     "click": "[data-act=\"dock.cycle\"]"
+    }
+   ]
+  },
+  {
+   "id": "04-radar-cabina",
+   "titulo": "Radar · vista Cabina (boceto A)",
+   "grupo": "radar",
+   "hash": "#tw=0&tab=radar&view=cabina&scen=boceto",
+   "acciones": []
+  },
+  {
+   "id": "05-radar-subida",
+   "titulo": "Radar · vista Subida (boceto B)",
+   "grupo": "radar",
+   "hash": "#tw=0&tab=radar&view=subida&scen=boceto",
+   "acciones": []
+  },
+  {
+   "id": "06-radar-mapa-capas",
+   "titulo": "Radar · Mapa con el menú de capas abierto",
+   "grupo": "radar",
+   "hash": "#tw=0&tab=radar&view=mapa&scen=boceto",
+   "acciones": [
+    {
+     "click": "#bLayers"
+    }
+   ]
+  },
+  {
+   "id": "07-radar-mapa-pared",
+   "titulo": "Radar · Mapa entrando a la pared",
+   "grupo": "radar",
+   "hash": "#tw=0&tab=radar&view=mapa&scen=pared",
+   "acciones": []
+  },
+  {
+   "id": "08-radar-mapa-segmento",
+   "titulo": "Radar · Mapa con segmento en curso",
+   "grupo": "radar",
+   "hash": "#tw=0&tab=radar&view=mapa&scen=segmento",
+   "acciones": []
+  },
+  {
+   "id": "09-radar-mapa-pausa",
+   "titulo": "Radar · Mapa pausado",
+   "grupo": "radar",
+   "hash": "#tw=0&tab=radar&view=mapa&scen=pausa",
+   "acciones": []
+  },
+  {
+   "id": "10-radar-mapa-gps-debil",
+   "titulo": "Radar · GPS débil",
+   "grupo": "radar",
+   "hash": "#tw=0&tab=radar&view=mapa&scen=gps_debil",
+   "acciones": []
+  },
+  {
+   "id": "11-radar-mapa-sin-gps",
+   "titulo": "Radar · Sin señal GPS",
+   "grupo": "radar",
+   "hash": "#tw=0&tab=radar&view=mapa&scen=sin_gps",
+   "acciones": []
+  },
+  {
+   "id": "12-radar-mapa-sin-red-con-mapa",
+   "titulo": "Radar · Sin conexión con mapa descargado",
+   "grupo": "radar",
+   "hash": "#tw=0&tab=radar&view=mapa&scen=offline",
+   "acciones": []
+  },
+  {
+   "id": "13-radar-mapa-sin-red-sin-mapa",
+   "titulo": "Radar · Sin conexión y sin mapa",
+   "grupo": "radar",
+   "hash": "#tw=0&tab=radar&view=mapa&scen=offline_sin",
+   "acciones": []
+  },
+  {
+   "id": "14-radar-mapa-antes-de-salir",
+   "titulo": "Radar · Antes de salir (buscando GPS)",
+   "grupo": "radar",
+   "hash": "#tw=0&tab=radar&view=mapa&scen=antes",
+   "acciones": []
+  },
+  {
+   "id": "15-radar-mapa-todo-activo",
+   "titulo": "Radar · Mapa con todos los widgets activos",
+   "grupo": "radar",
+   "hash": "#tw=0&tab=radar&view=mapa&scen=todo",
+   "acciones": []
+  },
+  {
+   "id": "16-radar-mapa-solar",
+   "titulo": "Radar · Mapa en modo Solar",
+   "grupo": "radar",
+   "hash": "#tw=0&tab=radar&view=mapa&scen=boceto&pal=sol",
+   "acciones": [],
+   "descripcion": "Paleta Solar (modo solar de la app)"
+  },
+  {
+   "id": "17-radar-cabina-solar",
+   "titulo": "Radar · Cabina en modo Solar",
+   "grupo": "radar",
+   "hash": "#tw=0&tab=radar&view=cabina&scen=boceto&pal=sol",
+   "acciones": []
+  },
+  {
+   "id": "18-radar-subida-solar",
+   "titulo": "Radar · Subida en modo Solar",
+   "grupo": "radar",
+   "hash": "#tw=0&tab=radar&view=subida&scen=boceto&pal=sol",
+   "acciones": []
+  },
+  {
+   "id": "20-caida",
+   "titulo": "Posible caída (cuenta de 30 s)",
+   "grupo": "pantalla-completa",
+   "hash": "#tw=0&tab=radar&view=mapa&scen=caida",
+   "acciones": []
+  },
+  {
+   "id": "21-informe-final",
+   "titulo": "Informe de sesión al finalizar",
+   "grupo": "hoja",
+   "hash": "#tw=0&tab=radar&view=mapa&scen=final",
+   "acciones": []
+  },
+  {
+   "id": "22-hoja-cabina-herramientas",
+   "titulo": "Hoja · Cabina y herramientas",
+   "grupo": "hoja",
+   "hash": "#tw=0&tab=radar&view=mapa&scen=boceto",
+   "acciones": [
+    {
+     "click": "[data-act=\"hdr.cab\"]"
+    }
+   ]
+  },
+  {
+   "id": "23-hoja-sos",
+   "titulo": "Hoja · SOS por WhatsApp",
+   "grupo": "hoja",
+   "hash": "#tw=0&tab=radar&view=mapa&scen=boceto",
+   "acciones": [
+    {
+     "click": "[data-act=\"hdr.cab\"]"
+    },
+    {
+     "click": "[data-act=\"cab.sos\"]"
+    }
+   ]
+  },
+  {
+   "id": "24-dialogo-finalizar",
+   "titulo": "Diálogo · Finalizar entrenamiento",
+   "grupo": "hoja",
+   "hash": "#tw=0&tab=radar&view=mapa&scen=boceto",
+   "acciones": [
+    {
+     "click": "[data-act=\"rec.finish\"]"
+    }
+   ]
+  },
+  {
+   "id": "25-bloqueo-antisudor",
+   "titulo": "Bloqueo antisudor",
+   "grupo": "pantalla-completa",
+   "hash": "#tw=0&tab=radar&view=mapa&scen=boceto",
+   "acciones": [
+    {
+     "click": "[data-act=\"hdr.cab\"]"
+    },
+    {
+     "click": "[data-act=\"cab.lock\"]"
+    }
+   ]
+  },
+  {
+   "id": "26-hoja-ghost-pacer",
+   "titulo": "Hoja · Ghost Pacer",
+   "grupo": "hoja",
+   "hash": "#tw=0&tab=radar&view=mapa&scen=boceto",
+   "acciones": [
+    {
+     "click": "[data-act=\"hdr.cab\"]"
+    },
+    {
+     "click": "[data-act=\"cab.ghost\"]"
+    }
+   ]
+  },
+  {
+   "id": "27-hoja-escuadron",
+   "titulo": "Hoja · Escuadrón",
+   "grupo": "hoja",
+   "hash": "#tw=0&tab=radar&view=mapa&scen=boceto",
+   "acciones": [
+    {
+     "click": "[data-act=\"hdr.cab\"]"
+    },
+    {
+     "click": "[data-act=\"cab.squad\"]"
+    }
+   ]
+  },
+  {
+   "id": "28-hoja-nube",
+   "titulo": "Hoja · Nube y respaldos",
+   "grupo": "hoja",
+   "hash": "#tw=0&tab=radar&view=mapa&scen=boceto",
+   "acciones": [
+    {
+     "click": "[data-act=\"hdr.cab\"]"
+    },
+    {
+     "click": "[data-act=\"cab.nube\"]"
+    }
+   ]
+  },
+  {
+   "id": "29-hoja-simulador",
+   "titulo": "Hoja · Simulador GPX",
+   "grupo": "hoja",
+   "hash": "#tw=0&tab=radar&view=mapa&scen=boceto",
+   "acciones": [
+    {
+     "click": "[data-act=\"hdr.cab\"]"
+    },
+    {
+     "click": "[data-act=\"cab.sim\"]"
+    }
+   ]
+  },
+  {
+   "id": "30-preparacion",
+   "titulo": "Preparación (arriba)",
+   "grupo": "preparacion",
+   "hash": "#tw=0&tab=prep&scen=boceto",
+   "acciones": []
+  },
+  {
+   "id": "31-preparacion-abajo",
+   "titulo": "Preparación (final de la pantalla)",
+   "grupo": "preparacion",
+   "hash": "#tw=0&tab=prep&scen=boceto",
+   "acciones": [
+    {
+     "scroll": 99999
+    }
+   ]
+  },
+  {
+   "id": "32-prep-odo",
+   "titulo": "Preparación · hoja Mantenimiento",
+   "grupo": "hoja",
+   "hash": "#tw=0&tab=prep&scen=boceto",
+   "acciones": [
+    {
+     "click": "[data-act=\"prep.open\"][data-k=\"odo\"]"
+    }
+   ]
+  },
+  {
+   "id": "33-prep-gpx",
+   "titulo": "Preparación · hoja Ruta GPX",
+   "grupo": "hoja",
+   "hash": "#tw=0&tab=prep&scen=boceto",
+   "acciones": [
+    {
+     "click": "[data-act=\"prep.open\"][data-k=\"gpx\"]"
+    }
+   ]
+  },
+  {
+   "id": "34-prep-bike",
+   "titulo": "Preparación · hoja BikeFit",
+   "grupo": "hoja",
+   "hash": "#tw=0&tab=prep&scen=boceto",
+   "acciones": [
+    {
+     "click": "[data-act=\"prep.open\"][data-k=\"bike\"]"
+    }
+   ]
+  },
+  {
+   "id": "35-prep-seg",
+   "titulo": "Preparación · hoja Segmentos y PR",
+   "grupo": "hoja",
+   "hash": "#tw=0&tab=prep&scen=boceto",
+   "acciones": [
+    {
+     "click": "[data-act=\"prep.open\"][data-k=\"seg\"]"
+    }
+   ]
+  },
+  {
+   "id": "36-prep-plan",
+   "titulo": "Preparación · hoja Coach de entrenamiento",
+   "grupo": "hoja",
+   "hash": "#tw=0&tab=prep&scen=boceto",
+   "acciones": [
+    {
+     "click": "[data-act=\"prep.open\"][data-k=\"plan\"]"
+    }
+   ]
+  },
+  {
+   "id": "40-laboratorio",
+   "titulo": "Laboratorio (arriba)",
+   "grupo": "laboratorio",
+   "hash": "#tw=0&tab=lab&scen=boceto",
+   "acciones": []
+  },
+  {
+   "id": "41-laboratorio-medio",
+   "titulo": "Laboratorio (parte media)",
+   "grupo": "laboratorio",
+   "hash": "#tw=0&tab=lab&scen=boceto",
+   "acciones": [
+    {
+     "scroll": 700
+    }
+   ]
+  },
+  {
+   "id": "42-laboratorio-abajo",
+   "titulo": "Laboratorio (final)",
+   "grupo": "laboratorio",
+   "hash": "#tw=0&tab=lab&scen=boceto",
+   "acciones": [
+    {
+     "scroll": 99999
+    }
+   ]
+  },
+  {
+   "id": "50-historial",
+   "titulo": "Historial",
+   "grupo": "historial",
+   "hash": "#tw=0&tab=hist&scen=boceto",
+   "acciones": []
+  },
+  {
+   "id": "51-historial-abajo",
+   "titulo": "Historial (final)",
+   "grupo": "historial",
+   "hash": "#tw=0&tab=hist&scen=boceto",
+   "acciones": [
+    {
+     "scroll": 99999
+    }
+   ]
+  }
+ ],
+ "umbral_color_por_defecto": 0.01
+}

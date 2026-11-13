@@ -1,0 +1,273 @@
+{
+ "_leeme": "Copiá este archivo como implementacion.json y adaptá las URL y los selectores a tu app. Las acciones vienen del prototipo; si tu app usa los mismos atributos data-act en los botones, funcionan sin cambios.",
+ "url_base": "http://localhost:8080/",
+ "esperar_ms": 900,
+ "selector_scroll": ".tab.on .page, .tab.on .vscroll",
+ "mascaras_css": [
+  ".leaflet-container",
+  "canvas"
+ ],
+ "estados": {
+  "01-radar-mapa": {
+   "url": "?demo=1#tab=radar&view=mapa&scen=boceto",
+   "acciones": []
+  },
+  "02-radar-mapa-panel-completo": {
+   "url": "?demo=1#tab=radar&view=mapa&scen=boceto",
+   "acciones": [
+    {
+     "click": "[data-act=\"dock.cycle\"]"
+    },
+    {
+     "click": "[data-act=\"dock.cycle\"]"
+    }
+   ]
+  },
+  "03-radar-mapa-panel-oculto": {
+   "url": "?demo=1#tab=radar&view=mapa&scen=boceto",
+   "acciones": [
+    {
+     "click": "[data-act=\"dock.cycle\"]"
+    }
+   ]
+  },
+  "04-radar-cabina": {
+   "url": "?demo=1#tab=radar&view=cabina&scen=boceto",
+   "acciones": []
+  },
+  "05-radar-subida": {
+   "url": "?demo=1#tab=radar&view=subida&scen=boceto",
+   "acciones": []
+  },
+  "06-radar-mapa-capas": {
+   "url": "?demo=1#tab=radar&view=mapa&scen=boceto",
+   "acciones": [
+    {
+     "click": "#bLayers"
+    }
+   ]
+  },
+  "07-radar-mapa-pared": {
+   "url": "?demo=1#tab=radar&view=mapa&scen=pared",
+   "acciones": []
+  },
+  "08-radar-mapa-segmento": {
+   "url": "?demo=1#tab=radar&view=mapa&scen=segmento",
+   "acciones": []
+  },
+  "09-radar-mapa-pausa": {
+   "url": "?demo=1#tab=radar&view=mapa&scen=pausa",
+   "acciones": []
+  },
+  "10-radar-mapa-gps-debil": {
+   "url": "?demo=1#tab=radar&view=mapa&scen=gps_debil",
+   "acciones": []
+  },
+  "11-radar-mapa-sin-gps": {
+   "url": "?demo=1#tab=radar&view=mapa&scen=sin_gps",
+   "acciones": []
+  },
+  "12-radar-mapa-sin-red-con-mapa": {
+   "url": "?demo=1#tab=radar&view=mapa&scen=offline",
+   "acciones": []
+  },
+  "13-radar-mapa-sin-red-sin-mapa": {
+   "url": "?demo=1#tab=radar&view=mapa&scen=offline_sin",
+   "acciones": []
+  },
+  "14-radar-mapa-antes-de-salir": {
+   "url": "?demo=1#tab=radar&view=mapa&scen=antes",
+   "acciones": []
+  },
+  "15-radar-mapa-todo-activo": {
+   "url": "?demo=1#tab=radar&view=mapa&scen=todo",
+   "acciones": []
+  },
+  "16-radar-mapa-solar": {
+   "url": "?demo=1#tab=radar&view=mapa&scen=boceto&pal=sol",
+   "acciones": []
+  },
+  "17-radar-cabina-solar": {
+   "url": "?demo=1#tab=radar&view=cabina&scen=boceto&pal=sol",
+   "acciones": []
+  },
+  "18-radar-subida-solar": {
+   "url": "?demo=1#tab=radar&view=subida&scen=boceto&pal=sol",
+   "acciones": []
+  },
+  "20-caida": {
+   "url": "?demo=1#tab=radar&view=mapa&scen=caida",
+   "acciones": []
+  },
+  "21-informe-final": {
+   "url": "?demo=1#tab=radar&view=mapa&scen=final",
+   "acciones": []
+  },
+  "22-hoja-cabina-herramientas": {
+   "url": "?demo=1#tab=radar&view=mapa&scen=boceto",
+   "acciones": [
+    {
+     "click": "[data-act=\"hdr.cab\"]"
+    }
+   ]
+  },
+  "23-hoja-sos": {
+   "url": "?demo=1#tab=radar&view=mapa&scen=boceto",
+   "acciones": [
+    {
+     "click": "[data-act=\"hdr.cab\"]"
+    },
+    {
+     "click": "[data-act=\"cab.sos\"]"
+    }
+   ]
+  },
+  "24-dialogo-finalizar": {
+   "url": "?demo=1#tab=radar&view=mapa&scen=boceto",
+   "acciones": [
+    {
+     "click": "[data-act=\"rec.finish\"]"
+    }
+   ]
+  },
+  "25-bloqueo-antisudor": {
+   "url": "?demo=1#tab=radar&view=mapa&scen=boceto",
+   "acciones": [
+    {
+     "click": "[data-act=\"hdr.cab\"]"
+    },
+    {
+     "click": "[data-act=\"cab.lock\"]"
+    }
+   ]
+  },
+  "26-hoja-ghost-pacer": {
+   "url": "?demo=1#tab=radar&view=mapa&scen=boceto",
+   "acciones": [
+    {
+     "click": "[data-act=\"hdr.cab\"]"
+    },
+    {
+     "click": "[data-act=\"cab.ghost\"]"
+    }
+   ]
+  },
+  "27-hoja-escuadron": {
+   "url": "?demo=1#tab=radar&view=mapa&scen=boceto",
+   "acciones": [
+    {
+     "click": "[data-act=\"hdr.cab\"]"
+    },
+    {
+     "click": "[data-act=\"cab.squad\"]"
+    }
+   ]
+  },
+  "28-hoja-nube": {
+   "url": "?demo=1#tab=radar&view=mapa&scen=boceto",
+   "acciones": [
+    {
+     "click": "[data-act=\"hdr.cab\"]"
+    },
+    {
+     "click": "[data-act=\"cab.nube\"]"
+    }
+   ]
+  },
+  "29-hoja-simulador": {
+   "url": "?demo=1#tab=radar&view=mapa&scen=boceto",
+   "acciones": [
+    {
+     "click": "[data-act=\"hdr.cab\"]"
+    },
+    {
+     "click": "[data-act=\"cab.sim\"]"
+    }
+   ]
+  },
+  "30-preparacion": {
+   "url": "?demo=1#tab=prep&scen=boceto",
+   "acciones": []
+  },
+  "31-preparacion-abajo": {
+   "url": "?demo=1#tab=prep&scen=boceto",
+   "acciones": [
+    {
+     "scroll": 99999
+    }
+   ]
+  },
+  "32-prep-odo": {
+   "url": "?demo=1#tab=prep&scen=boceto",
+   "acciones": [
+    {
+     "click": "[data-act=\"prep.open\"][data-k=\"odo\"]"
+    }
+   ]
+  },
+  "33-prep-gpx": {
+   "url": "?demo=1#tab=prep&scen=boceto",
+   "acciones": [
+    {
+     "click": "[data-act=\"prep.open\"][data-k=\"gpx\"]"
+    }
+   ]
+  },
+  "34-prep-bike": {
+   "url": "?demo=1#tab=prep&scen=boceto",
+   "acciones": [
+    {
+     "click": "[data-act=\"prep.open\"][data-k=\"bike\"]"
+    }
+   ]
+  },
+  "35-prep-seg": {
+   "url": "?demo=1#tab=prep&scen=boceto",
+   "acciones": [
+    {
+     "click": "[data-act=\"prep.open\"][data-k=\"seg\"]"
+    }
+   ]
+  },
+  "36-prep-plan": {
+   "url": "?demo=1#tab=prep&scen=boceto",
+   "acciones": [
+    {
+     "click": "[data-act=\"prep.open\"][data-k=\"plan\"]"
+    }
+   ]
+  },
+  "40-laboratorio": {
+   "url": "?demo=1#tab=lab&scen=boceto",
+   "acciones": []
+  },
+  "41-laboratorio-medio": {
+   "url": "?demo=1#tab=lab&scen=boceto",
+   "acciones": [
+    {
+     "scroll": 700
+    }
+   ]
+  },
+  "42-laboratorio-abajo": {
+   "url": "?demo=1#tab=lab&scen=boceto",
+   "acciones": [
+    {
+     "scroll": 99999
+    }
+   ]
+  },
+  "50-historial": {
+   "url": "?demo=1#tab=hist&scen=boceto",
+   "acciones": []
+  },
+  "51-historial-abajo": {
+   "url": "?demo=1#tab=hist&scen=boceto",
+   "acciones": [
+    {
+     "scroll": 99999
+    }
+   ]
+  }
+ }
+}

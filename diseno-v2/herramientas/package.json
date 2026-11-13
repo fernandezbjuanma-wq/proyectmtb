@@ -1,0 +1,16 @@
+{
+  "name": "radar-tactico-diseno-v2-herramientas",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Herramientas para verificar que la app respeta el diseño V2 «Verde táctico»",
+  "scripts": {
+    "auditar": "node auditar-colores.js",
+    "comparar": "node comparar-capturas.js",
+    "generar": "node generar-referencia.js"
+  },
+  "dependencies": {
+    "pixelmatch": "5.3.0",
+    "playwright": "^1.40.0",
+    "pngjs": "^7.0.0"
+  }
+}

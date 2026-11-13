@@ -1,0 +1,17 @@
+Tipografías del diseño V2 «Verde táctico»
+=========================================
+Barlow Condensed (500, 600, 700)  -> números grandes y títulos
+Barlow (400, 500, 600, 700)       -> texto general
+
+Archivos .woff2 (subconjunto latino, incluye ñ y tildes) listos para @font-face.
+Autor: Jeremy Tribby. Licencia: SIL Open Font License 1.1 (uso libre, también comercial;
+no se pueden vender las fuentes por separado). Fuente original: https://github.com/jpt/barlow
+
+Ejemplo:
+@font-face { font-family: 'Barlow Condensed'; font-weight: 700; font-style: normal; font-display: swap;
+  src: url('barlow-condensed-latin-700-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Barlow'; font-weight: 400; font-style: normal; font-display: swap;
+  src: url('barlow-latin-400-normal.woff2') format('woff2'); }
+(repetir para cada peso)
+
+IMPORTANTE: no reemplazar por otra fuente ni cargar otras desde internet. La app debe funcionar sin conexión.

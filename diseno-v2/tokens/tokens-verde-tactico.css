@@ -1,0 +1,155 @@
+/* ==========================================================================
+   Radar Táctico MTB · V2 «Verde táctico» — TOKENS OFICIALES
+   --------------------------------------------------------------------------
+   ESTE ARCHIVO ES LA FUENTE DE VERDAD DE COLOR, TIPOGRAFÍA Y MEDIDAS BASE.
+
+   ⛔ NO MODIFICAR, NO «MEJORAR», NO REEMPLAZAR VALORES sin aprobación escrita
+      de Juanma (el dueño del proyecto). Ver ../CONTRATO_DE_FIDELIDAD.md.
+
+   • La app real debe importar este archivo tal cual (o copiar los valores
+     idénticos) y usar SIEMPRE var(--…) — nunca un color suelto en hex/rgb.
+   • Los valores salen del prototipo aprobado (../prototipo/…html) y del código
+     en ../fuente-prototipo/css/10-tokens.css. Si hay diferencia, manda el
+     prototipo.
+   • Verificación automática: node herramientas/auditar-colores.js <tu.css>
+   ========================================================================== */
+
+:root {
+  /* ---- Paleta · Verde táctico (por defecto, uso nocturno / general) ---- */
+  --bg: #0A110F;          /* fondo de pantalla */
+  --bg2: #0D1613;         /* fondo secundario */
+  --surface: #121C19;     /* tarjetas */
+  --surface2: #17231F;    /* tarjetas elevadas / filas */
+  --line: #243430;        /* bordes */
+  --line2: #314842;       /* bordes fuertes */
+  --text: #EDF4F1;        /* texto principal */
+  --muted: #93A8A0;       /* texto secundario */
+  --dim: #7A8F88;         /* texto terciario / etiquetas */
+
+  --acc: #3DDC97;         /* acento = verde táctico (acción principal) */
+  --acc-ink: #04140D;     /* texto sobre acento */
+  --acc-soft: rgba(61, 220, 151, .14);
+  --acc-line: rgba(61, 220, 151, .38);
+
+  /* ---- Semáforo del terreno (verde = llano/bajada · amarillo = trepada · rojo = pared) ---- */
+  --g: #3DDC97;
+  --y: #FFC53D;
+  --r: #FF5C4D;
+  --d: #4DA8DA;           /* azul: información / datos «demo» */
+  --g-ink: #04140D;
+  --y-ink: #1b1300;
+  --r-ink: #1d0502;
+
+  --warn-bg: rgba(255, 92, 77, .10);
+  --warn-line: rgba(255, 92, 77, .34);
+
+  --strava: #FC4C02;      /* solo botón «Subir a Strava» */
+  --strava-ink: #fff;
+
+  /* ---- Zonas de potencia Z1–Z6 (Laboratorio · barra «Zona 3 · Tempo»):
+          Z1 --pz1 · Z2 --g · Z3 --pz3 · Z4 --y · Z5 --pz5 · Z6 --r ---- */
+  --pz1: #6AA3FF; --pz3: #C7E24A; --pz5: #FF9A3D; --pz-ink: #0A1210;
+
+  /* ---- Etiqueta «PROPUESTA» (marca lo que todavía no existe en la app) ---- */
+  --prop: #CDB8FF; --prop-bg: rgba(150, 110, 255, .16); --prop-line: rgba(180, 150, 255, .4);
+
+  --scrim: rgba(5, 8, 7, .94);       /* velo de pantalla completa (SOS, bloqueo) */
+  --native-ink: #111111;             /* texto de las opciones de <select> nativos */
+
+  --glass: rgba(10, 17, 15, .82);   /* paneles sobre el mapa */
+  --shadow: 0 10px 30px rgba(0, 0, 0, .35);
+  --glow: 0 0 0 rgba(0, 0, 0, 0);   /* brillo apagado por defecto */
+
+  /* ---- Tipografía (archivos en ../fuentes/) ---- */
+  --font-d: 'Barlow Condensed', 'Arial Narrow', sans-serif;   /* números grandes y títulos */
+  --font-b: 'Barlow', system-ui, -apple-system, 'Segoe UI', sans-serif; /* texto */
+  --fw-d: 700;
+  --ls-d: 0em;
+
+  /* ---- Escalas base (valores por defecto aprobados) ---- */
+  --rad: 18px;            /* radio de tarjetas */
+  --num: 1;               /* escala de números grandes */
+  --tx: 1;                /* escala de texto (body = 15px × --tx) */
+  --sp: 1;                /* espaciado */
+  --bw: 1px;              /* grosor de borde */
+  --nav-h: 72px;          /* alto de la barra inferior */
+}
+
+/* Números: SIEMPRE tabulares, con la fuente de display */
+.num {
+  font-family: var(--font-d);
+  font-weight: var(--fw-d);
+  letter-spacing: var(--ls-d);
+  font-variant-numeric: tabular-nums;
+  line-height: .95;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-b);
+  font-size: calc(15px * var(--tx));
+  line-height: 1.3;
+  -webkit-font-smoothing: antialiased;
+}
+:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
+
+
+/* ==========================================================================
+   VARIANTES APROBADAS (son opciones de accesibilidad / luz, NO rediseños)
+   Se activan con atributos en <body>. No agregar otras sin aprobación.
+   ========================================================================== */
+
+/* 1) Luz solar — alto brillo exterior: body[data-pal="sol"] */
+body[data-pal="sol"] {
+  --bg: #F3F0E8; --bg2: #ECE8DC; --surface: #FFFFFF; --surface2: #F7F4EC;
+  --line: #CFC9BA; --line2: #B7B09C;
+  --text: #15191A; --muted: #566059; --dim: #5F6A63;
+  --acc: #0A7A47; --acc-ink: #FFFFFF;
+  --acc-soft: rgba(10, 122, 71, .11); --acc-line: rgba(10, 122, 71, .45);
+  --g: #0A7A47; --y: #B87D00; --r: #C42F1B; --d: #1C6FA6;
+  --g-ink: #fff; --y-ink: #1b1300; --r-ink: #fff;
+  --warn-bg: rgba(196, 47, 27, .09); --warn-line: rgba(196, 47, 27, .42);
+  --glass: rgba(255, 255, 255, .88);
+  --shadow: 0 8px 22px rgba(60, 50, 20, .18);
+}
+body[data-pal="sol"] { --y-txt: #7A5200; }  /* texto ámbar oscuro sobre avisos claros (barra GPS/sync, REC en pausa) */
+body[data-pal="sol"] .zt-y { color: #8A5E00; }
+body[data-pal="sol"] .zt-r { color: #B42E1A; }
+
+/* 2) Zonas aptas para daltonismo (azul · ámbar · magenta): body[data-zones="cb"] */
+body[data-zones="cb"] {
+  --g: #3B9BFF; --y: #FFB000; --r: #E6007E;
+  --g-ink: #02101f; --y-ink: #1b1300; --r-ink: #fff;
+}
+body[data-pal="sol"][data-zones="cb"] {
+  --g: #0B5FC4; --y: #C98A00; --r: #B3005F; --g-ink: #fff;
+}
+
+/* 3) Contraste alto: body[data-contrast="high"] */
+body[data-contrast="high"] {
+  --muted: #C5D4CE; --line: #4B6A61; --line2: #6A8F84; --dim: #9DB3AB; --bw: 1.5px;
+}
+body[data-contrast="high"][data-pal="sol"] {
+  --muted: #2C3631; --line: #7d7766; --line2: #5f5a4b; --dim: #4a534d;
+}
+
+/* Reglas de seguridad de color (obligatorias):
+   - Nunca comunicar un estado SOLO con color: siempre texto + ícono (daltonismo / sol).
+   - Verde = llano/bajada · Amarillo = trepada · Rojo = pared (en todas las pantallas).
+   - Rojo también significa «alerta / acción destructiva / SOS»; nunca usarlo como decoración. */
+
+
+/* ==========================================================================
+   EXCLUIDO EXPRESAMENTE (NO están aprobados, NO implementarlos)
+   --------------------------------------------------------------------------
+   Existieron en el prototipo solo como comparación visual y fueron descartados:
+     • paleta «semáforo» (data-pal="semaforo")
+     • paleta «hud»      (data-pal="hud")
+     • paleta «cerro»    (data-pal="cerro")
+     • tipografías alternativas Archivo / B612 / Big Shoulders (data-font=…)
+     • texturas de fondo (grid / topo / grain / scan) y glow encendido
+   Tampoco son parte de la app: el panel «Tweaks», el modo «anotaciones», el marco
+   de teléfono con bordes redondeados y el fondo de escritorio. Son herramientas
+   del prototipo.
+   ========================================================================== */
