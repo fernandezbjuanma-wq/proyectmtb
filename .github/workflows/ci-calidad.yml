@@ -1,0 +1,38 @@
+name: CI Calidad y Fidelidad V2 - Radar MTB
+
+on:
+  pull_request:
+    branches: [ "main" ]
+  push:
+    branches: [ "main" ]
+    paths:
+      - "index.html"
+      - "sw.js"
+      - "manifest.json"
+      - "diseno-v2/tokens/**"
+      - "diseno-v2/herramientas/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  auditoria-rapida:
+    name: Auditoría de colores y verificación básica
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Auditar paleta V2 en index.html (estricto)
+        run: |
+          python3 diseno-v2/herramientas/auditar-colores.py index.html --tokens diseno-v2/tokens/tokens-verde-tactico.css --estricto
+
+      - name: Verificar JSON válidos (manifest.json y manifiesto V2)
+        run: |
+          python3 -c "import json; [json.loads(open(p, encoding='utf-8-sig').read()) for p in ('manifest.json', 'diseno-v2/referencia/manifiesto.json')]; print('JSON_OK')"
