@@ -1,0 +1,35 @@
+# Dependencias y artefactos generados
+node_modules/
+diseno-v2/herramientas/node_modules/
+diseno-v2/informe-fidelidad/
+diseno-v2/herramientas/implementacion.json
+
+# Compilación Android / Gradle
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+*.apk
+*.aab
+*.keystore
+*.jks
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Secretos y entorno local
+.env
+.env.*
+!.env.example
+*serviceAccount*.json
+*.pem
+*.key
+
+# Archivos del sistema operativo y editores
+.DS_Store
+Thumbs.db
+*.bak
+*.tmp
