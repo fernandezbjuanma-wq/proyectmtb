@@ -1,0 +1,45 @@
+From 6e5010ed4de6d07dbb64f999f03333c277571d9f Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 18 Nov 2026 14:43:28 -0300
+Subject: [PATCH] fix: agregar campos ocultos del informe que el motor completa
+ al finalizar
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+finalizarEntrenamiento() y la ficha de actividad escriben en 22 elementos
+(rep-vel-media, rep-tss, barra-z1, ...) que no existen en el DOM, por lo que
+al finalizar un recorrido el motor lanza "Cannot set properties of null" y la
+sesión no llega a guardarse ni a mostrar el informe.
+
+Se agregan como elementos ocultos (hidden): no cambia el diseño actual.
+
+Prueba: GPS simulado, iniciar -> finalizar. Antes: error en la consola y 0
+sesiones guardadas. Después: sin errores, 1 sesión guardada y se muestra el
+modal "Sesión finalizada".
+
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01Je2zHhzoKAuxBcP4JUTRzG
+---
+ index.html | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/index.html b/index.html
+index ababa25..9694b85 100644
+--- a/index.html
++++ b/index.html
+@@ -2252,6 +2252,11 @@
+         </div>
+     </div>
+ 
++    <!-- Campos del informe que finalizarEntrenamiento() y la ficha de actividad completan por id.
++         Faltaban en el DOM y el motor fallaba con "Cannot set properties of null" al finalizar un recorrido.
++         Ocultos a propósito: no cambian el diseño actual. -->
++    <div id="rep-campos-compat" hidden><span id="rep-vel-media"></span><span id="rep-vel-max"></span><span id="rep-alt-max"></span><span id="rep-watts-med"></span><span id="rep-watts-max"></span><span id="rep-tss"></span><span id="rep-if"></span><span id="rep-z1-txt"></span><span id="rep-z2-txt"></span><span id="rep-z3-txt"></span><span id="rep-recuperacion"></span><span id="rep-pared-max"></span><span id="rep-pared-km"></span><span id="rep-kcal"></span><span id="rep-carbos"></span><span id="rep-agua"></span><span id="rep-nutricion-inmediata"></span><span id="rep-nutricion-hidratacion"></span><span id="rep-nutricion-cena"></span><span id="barra-z1"></span><span id="barra-z2"></span><span id="barra-z3"></span></div>
++
+     <script>
+         // ========================================================
+         // VARIABLES GLOBALES Y TELEMETRÍA
+-- 
+2.43.0
+
