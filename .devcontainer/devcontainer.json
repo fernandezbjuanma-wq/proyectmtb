@@ -1,0 +1,24 @@
+{
+  "name": "proyectmtb-remote-dev",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-20-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.12"
+    }
+  },
+  "postCreateCommand": "if [ -f diseno-v2/herramientas/package.json ]; then cd diseno-v2/herramientas && npm install; fi",
+  "forwardPorts": [8080],
+  "portsAttributes": {
+    "8080": {
+      "label": "Radar Tactico MTB (Preview)",
+      "onAutoForward": "notify"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "files.eol": "\n"
+      }
+    }
+  }
+}
