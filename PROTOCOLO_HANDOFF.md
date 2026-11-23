@@ -169,3 +169,33 @@ Lee CLAUDE.md y DISENO_MTB.md. Tu diseño anterior fue el favorito del usuario, 
    - SILCA con recálculo automático en tiempo real (`20,8 / 23,3 PSI` para valores por defecto).
    - BikeFit rotulado honestamente como guía de goniómetro manual y casilla de batería `> 70%` con lectura automática vía `navigator.getBattery()`.
 5. **Sincronización con APK Android y Service Worker (`v9`):** Actualizados `android/app/src/main/assets/index.html` y `sw.js`.
+
+### HANDOFF — Antigravity | 2026-11-23 | Fidelidad Completa 40/40 Estados — Contrato de Fidelidad Diseño V2 «Verde táctico»
+**Fecha:** 2026-11-23
+**Issue/PR:** Continuación de implementación fiel del Diseño V2 «Verde táctico» (`diseno-v2/CONTRATO_DE_FIDELIDAD.md`) sobre rama `feat/diseno-v2-fidelidad-completa`.
+**Commits/rama:** `feat/diseno-v2-fidelidad-completa`
+
+**Hecho:**
+1. **Unificación del Sistema Visual V2 Oficial (`diseno-v2/`):**
+   - Integrados los tokens oficiales de `diseno-v2/tokens/tokens-verde-tactico.css` y las hojas de componentes y pantallas de `diseno-v2/fuente-prototipo/css/` (`20-components.css` y `30-screens.css`), eliminando las paletas descartadas (`semaforo`, `hud`, `cerro`), tipografías descartadas, panel `#tweaks`, botón `#twfab` y marco de escritorio (Contrato §4).
+   - Embebidas en base64 las 7 fuentes WOFF2 offline desde `diseno-v2/fuentes/*.woff2` (`Barlow Condensed` 500/600/700 y `Barlow` 400/500/600/700).
+2. **Implementación de las 40 Pantallas y Estados (`01` a `51`):**
+   - Radar Live (`01` a `18`): Vistas `Mapa` (panel compacto, completo y oculto, popover de capas, pared, segmento, pausa, GPS débil, sin GPS, offline con/sin mapa, antes de salir, todo activo) y variantes `Modo Solar` para `Mapa`, `Cabina` y `Subida`.
+   - Superposiciones, Hojas y Diálogos (`20` a `29`): `Posible caída (30 s)`, `Informe de sesión finalizada`, `Cabina y herramientas`, `SOS · WhatsApp`, `Diálogo ¿Finalizar la salida?`, `Bloqueo antisudor`, `Ghost Pacer`, `Radar de escuadrón`, `Nube y respaldos`, `Simulador GPX`.
+   - Preparación (`30` a `36`): Pantalla principal (arriba y abajo) y hojas completas `Mantenimiento`, `Ruta GPX`, `BikeFit`, `Segmentos y PR` y `Coach de entrenamiento`.
+   - Laboratorio (`40` a `42`): Arriba, parte media y final con perfil interactivo y métricas etiquetadas con `est.`.
+   - Historial (`50` a `51`): Arriba y final con acumulado, selector `En este teléfono` / `En la nube`, barra de sincronización pendiente y actividades por mes.
+3. **Puente Bidireccional con el Motor Real y Preservación de Funciones:**
+   - Conservados todos los motores reales de producción en `index.html` (GPS `navigator.geolocation.watchPosition`, mapa Leaflet real `#mapa`, IndexedDB `radar_mtb_db` con autoguardado cada 2 min, Firebase Firestore `mtb-radar`, sintetizador Web Audio API + TTS con degradación elegante, descargador de mapas offline, SILCA, Odómetro, BikeFit, Segmentos, Ghost Pacer, Escuadrón y Backup JSON) junto con `#legacy-dom-bridge`.
+   - Sincronizado `android/app/src/main/assets/index.html` con `index.html`.
+
+**Archivos afectados:** `index.html`, `android/app/src/main/assets/index.html`, `ESTADO_ACTUAL.md`, `PROTOCOLO_HANDOFF.md`. (Sin tocar `diseno-v2/referencia`, `diseno-v2/tokens` ni `diseno-v2/prototipo`).
+
+**Pruebas ejecutadas / resultados:**
+- `node diseno-v2/herramientas/auditar-colores.js index.html android/app/src/main/assets/index.html --estricto`:
+  `Archivos revisados: 2 · colores encontrados: 466 · aprobados: 466 · FUERA del diseño: 0 (0 distintos) · usos de var(--…): 1360 — RESULTADO: ✔ todos los colores y fuentes pertenecen al diseño aprobado.`
+- `python3 diseno-v2/herramientas/auditar-colores.py index.html --estricto`:
+  `RESULTADO: ✔ todos los colores y fuentes pertenecen al diseño aprobado.`
+- `node diseno-v2/herramientas/comparar-capturas.js --impl diseno-v2/herramientas/implementacion.json --estricto`:
+  `40/40 estados fieles al diseño` (todos los 40 estados entre `0.08 %` y `1.97 %`, dentro de la tolerancia `≤ 2 %`, con `0` errores JS).
+
